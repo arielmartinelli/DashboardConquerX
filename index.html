@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard ConquerX - CRM de Gestión de Closers</title>
+    <!-- Google Fonts: Inter & Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js for High-fidelity Graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <i class="fa-solid fa-chart-line-up brand-icon"></i>
+                <div class="brand-text">
+                    <h1>ConquerX</h1>
+                    <span>Dashboard CRM</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-menu">
+                <button class="menu-item active" data-tab="overview" id="btn-tab-overview">
+                    <i class="fa-solid fa-grip"></i>
+                    <span>Vista General</span>
+                </button>
+                <button class="menu-item" data-tab="languages" id="btn-tab-languages">
+                    <i class="fa-solid fa-language"></i>
+                    <span>Equipo Languages</span>
+                </button>
+                <button class="menu-item" data-tab="block" id="btn-tab-block">
+                    <i class="fa-solid fa-code"></i>
+                    <span>Equipo Block</span>
+                </button>
+                <button class="menu-item" data-tab="closer-profile" id="btn-tab-closer">
+                    <i class="fa-solid fa-user-tie"></i>
+                    <span>Ficha de Closer</span>
+                </button>
+            </nav>
+
+            <!-- Pending Tasks Sidebar Area -->
+            <div class="sidebar-pending-tasks-panel" style="border-top: 1px solid var(--panel-border); display: flex; flex-direction: column; flex-shrink: 0;">
+                <div class="sidebar-pending-tasks-header" id="sidebar-tasks-toggle-btn" style="padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; transition: background var(--transition-fast);">
+                    <span style="font-family: var(--font-heading); font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-list-check text-primary"></i> Tareas Pendientes (<span id="sidebar-tasks-count">0</span>)
+                    </span>
+                    <i class="fa-solid fa-chevron-down text-muted" id="sidebar-tasks-arrow" style="font-size: 10px; transition: transform var(--transition-fast);"></i>
+                </div>
+                <div id="sidebar-tasks-list" style="display: none; flex-direction: column; gap: 8px; padding: 0 20px 16px 20px; font-size: 11.5px; max-height: 240px; overflow-y: auto;">
+                    <!-- Pending tasks dynamically injected -->
+                </div>
+            </div>
+
+            <!-- Subleader General Tasks Sidebar Area -->
+            <div class="sidebar-general-tasks-panel" style="border-top: 1px solid var(--panel-border); display: flex; flex-direction: column; flex-shrink: 0;">
+                <div class="sidebar-pending-tasks-header" id="sidebar-general-toggle-btn" style="padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; transition: background var(--transition-fast);">
+                    <span style="font-family: var(--font-heading); font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-bell" id="sidebar-general-bell"></i> Tareas de Sublíder (<span id="sidebar-general-count">0</span>)
+                    </span>
+                    <i class="fa-solid fa-chevron-down text-muted" id="sidebar-general-arrow" style="font-size: 10px; transition: transform var(--transition-fast);"></i>
+                </div>
+                <div id="sidebar-general-list-panel" style="display: none; flex-direction: column; gap: 8px; padding: 0 20px 16px 20px; font-size: 11.5px;">
+                    <div id="sidebar-general-list" style="display: flex; flex-direction: column; gap: 6px; max-height: 180px; overflow-y: auto;">
+                        <!-- General tasks dynamically injected -->
+                    </div>
+                    <!-- Add general task inline form -->
+                    <form id="sidebar-general-add-form" style="display: flex; gap: 6px; margin-top: 6px;">
+                        <input type="text" id="sidebar-general-input" placeholder="Nueva tarea..." required style="flex-grow: 1; font-size: 11.5px; padding: 6px 8px; background: rgba(0,0,0,0.2); border: 1px solid var(--panel-border); border-radius: 4px; color: var(--text-main); outline: none;">
+                        <button type="submit" style="background: var(--color-primary); color: white; border: none; border-radius: 4px; padding: 0 8px; cursor: pointer; font-size: 12px;"><i class="fa-solid fa-plus"></i></button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="active-subleader-card" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px;">
+                    <div class="subleader-avatar" id="sidebar-avatar" style="width: 36px; height: 36px; flex-shrink: 0;">J</div>
+                    <div class="custom-select-wrapper" style="flex-grow: 1;">
+                        <select id="subleader-select" class="styled-select" style="width: 100%; padding: 4px 24px 4px 0px; font-size: 14px; font-weight: 700; border: none; background: transparent; color: var(--text-main); cursor: pointer; box-shadow: none;">
+                            <option value="jazmin">Jazmín</option>
+                            <option value="tomas">Tomás</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header bar -->
+            <header class="content-header">
+                <div class="header-title-area">
+                    <h2 id="current-view-title">Vista General</h2>
+                    <p class="text-muted" id="current-view-subtitle">Resumen consolidado de ventas y porcentajes de cierre</p>
+                </div>
+                
+                <div class="header-actions">
+                    <button id="theme-toggle" title="Cambiar Tema">
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Global Target Banner / KPIs -->
+            <section class="kpis-section">
+                <!-- KPI Cash Collected -->
+                <div class="kpi-card" id="kpi-cash-card">
+                    <div class="kpi-header">
+                        <span class="kpi-title">CASH COLLECTED MENSUAL</span>
+                        <i class="fa-solid fa-euro-sign kpi-icon text-success"></i>
+                    </div>
+                    <div class="kpi-value-container">
+                        <span class="kpi-value" id="total-cash-value">€0</span>
+                        <span class="kpi-target">Objetivo Global: €200,000</span>
+                    </div>
+                    <div class="kpi-progress-bar-container">
+                        <div class="progress-bar-track">
+                            <div class="progress-bar-fill fill-cash" id="cash-progress-fill" style="width: 0%"></div>
+                        </div>
+                        <div class="progress-labels">
+                            <span id="cash-progress-percent">0% completado</span>
+                            <span id="cash-remaining">Faltan €200,000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI Closing Rate -->
+                <div class="kpi-card" id="kpi-rate-card">
+                    <div class="kpi-header">
+                        <span class="kpi-title">PORCENTAJE DE CIERRE</span>
+                        <i class="fa-solid fa-percentage kpi-icon text-accent"></i>
+                    </div>
+                    <div class="kpi-value-container">
+                        <span class="kpi-value" id="global-rate-value">0%</span>
+                        <span class="kpi-target">Objetivo: 15%</span>
+                    </div>
+                    <div class="kpi-progress-bar-container">
+                        <div class="progress-bar-track">
+                            <div class="progress-bar-fill fill-rate" id="rate-progress-fill" style="width: 0%"></div>
+                        </div>
+                        <div class="progress-labels">
+                            <span id="rate-status-label">Bajo el objetivo</span>
+                            <span id="rate-diff-label">-15%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI Quick Summary (Languages vs Block) -->
+                <div class="kpi-card glassmorphic-kpi" id="kpi-teams-summary">
+                    <div class="kpi-header">
+                        <span class="kpi-title">REPARTO POR EQUIPOS</span>
+                        <i class="fa-solid fa-chart-pie kpi-icon"></i>
+                    </div>
+                    <div class="teams-mini-table">
+                        <div class="team-row">
+                            <span class="team-dot dot-languages"></span>
+                            <span class="team-name">Languages:</span>
+                            <span class="team-summary-val" id="sum-languages-cash">€0 (0%)</span>
+                        </div>
+                        <div class="team-row">
+                            <span class="team-dot dot-block"></span>
+                            <span class="team-name">Block:</span>
+                            <span class="team-summary-val" id="sum-block-cash">€0 (0%)</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB CONTENT 1: OVERVIEW -->
+            <section class="tab-content active" id="view-overview">
+                <div class="grid-layout grid-2-columns">
+                    <!-- Column 1: Performance Charts -->
+                    <div class="glass-panel">
+                        <div class="panel-header">
+                            <h3><i class="fa-solid fa-chart-simple"></i> Rendimiento de Cash Collected</h3>
+                        </div>
+                        <div class="panel-body chart-wrapper">
+                            <canvas id="cashChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel">
+                        <div class="panel-header">
+                            <h3><i class="fa-solid fa-chart-line"></i> Comparativa Porcentaje de Cierre</h3>
+                        </div>
+                        <div class="panel-body chart-wrapper">
+                            <canvas id="rateChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-layout grid-1-column margin-top-lg">
+                    <div class="glass-panel">
+                        <div class="panel-header header-with-actions">
+                            <h3><i class="fa-solid fa-ranking-star"></i> Ranking General de Closers</h3>
+                            <div class="segmented-control" id="ranking-filter-container">
+                                <button class="active" data-filter="all">Todos</button>
+                                <button data-filter="languages">Languages</button>
+                                <button data-filter="block">Block</button>
+                            </div>
+                        </div>
+                        <div class="panel-body table-responsive">
+                            <table class="dashboard-table" id="ranking-table">
+                                <thead>
+                                    <tr>
+                                        <th>Puesto</th>
+                                        <th>Closer</th>
+                                        <th>Equipo</th>
+                                        <th class="text-right">Ventas / Leads</th>
+                                        <th class="text-right">% Cierre</th>
+                                        <th class="text-right">Cash Collected</th>
+                                        <th>Estado vs Objetivo</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ranking-tbody">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB CONTENT 2: LANGUAGES TEAM -->
+            <section class="tab-content" id="view-languages">
+                <div class="team-overview-header bg-gradient-languages">
+                    <div class="team-meta">
+                        <h2>Equipo Languages (Inglés)</h2>
+                        <p>Sublíder a cargo: <strong id="lang-leader-name">Jazmín</strong></p>
+                    </div>
+                    <div class="team-stats-ribbon">
+                        <div class="stat-ribbon-item">
+                            <span class="ribbon-val" id="lang-stat-cash">€0</span>
+                            <span class="ribbon-lbl">Cash Recolectado</span>
+                        </div>
+                        <div class="stat-ribbon-item">
+                            <span class="ribbon-val" id="lang-stat-rate">0%</span>
+                            <span class="ribbon-lbl">Tasa de Cierre</span>
+                        </div>
+                        <div class="stat-ribbon-item">
+                            <span class="ribbon-val" id="lang-stat-closers">7</span>
+                            <span class="ribbon-lbl">Closers Activos</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-layout grid-closers-grid margin-top-lg" id="languages-closers-grid">
+                    <!-- Closer cards injected dynamically -->
+                </div>
+
+                <!-- Group Follow-ups (Seguimientos) -->
+                <div class="glass-panel margin-top-lg">
+                    <div class="panel-header header-with-actions">
+                        <h3><i class="fa-solid fa-comments"></i> Seguimiento Grupal - Equipo Languages</h3>
+                        <span class="badge badge-accent">Solo Sublíderes</span>
+                    </div>
+                    <div class="panel-body">
+                        <div class="followup-container">
+                            <div class="followup-list" id="languages-followups-list">
+                                <!-- Comments dynamic -->
+                            </div>
+                            <div class="followup-form">
+                                <textarea id="languages-followup-input" placeholder="Escribe un nuevo comentario de seguimiento o feedback grupal para el equipo Languages..." rows="3"></textarea>
+                                <button class="btn btn-primary" id="btn-add-languages-followup">
+                                    <i class="fa-solid fa-paper-plane"></i> Guardar Comentario
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB CONTENT 3: BLOCK TEAM -->
+            <section class="tab-content" id="view-block">
+                <div class="team-overview-header bg-gradient-block">
+                    <div class="team-meta">
+                        <h2>Equipo Block (Programación)</h2>
+                        <p>Sublíder a cargo: <strong id="block-leader-name">Tomás</strong></p>
+                    </div>
+                    <div class="team-stats-ribbon">
+                        <div class="stat-ribbon-item">
+                            <span class="ribbon-val" id="block-stat-cash">€0</span>
+                            <span class="ribbon-lbl">Cash Recolectado</span>
+                        </div>
+                        <div class="stat-ribbon-item">
+                            <span class="ribbon-val" id="block-stat-rate">0%</span>
+                            <span class="ribbon-lbl">Tasa de Cierre</span>
+                        </div>
+                        <div class="stat-ribbon-item">
+                            <span class="ribbon-val" id="block-stat-closers">5</span>
+                            <span class="ribbon-lbl">Closers Activos</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-layout grid-closers-grid margin-top-lg" id="block-closers-grid">
+                    <!-- Closer cards injected dynamically -->
+                </div>
+
+                <!-- Group Follow-ups (Seguimientos) -->
+                <div class="glass-panel margin-top-lg">
+                    <div class="panel-header header-with-actions">
+                        <h3><i class="fa-solid fa-comments"></i> Seguimiento Grupal - Equipo Block</h3>
+                        <span class="badge badge-primary">Solo Sublíderes</span>
+                    </div>
+                    <div class="panel-body">
+                        <div class="followup-container">
+                            <div class="followup-list" id="block-followups-list">
+                                <!-- Comments dynamic -->
+                            </div>
+                            <div class="followup-form">
+                                <textarea id="block-followup-input" placeholder="Escribe un nuevo comentario de seguimiento o feedback grupal para el equipo Block..." rows="3"></textarea>
+                                <button class="btn btn-secondary" id="btn-add-block-followup">
+                                    <i class="fa-solid fa-paper-plane"></i> Guardar Comentario
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB CONTENT 4: CLOSER INDIVIDUAL FILE -->
+            <section class="tab-content" id="view-closer-profile">
+                <!-- Dropdown Selector closer -->
+                <div class="closer-selector-panel glass-panel">
+                    <div class="panel-body selection-flex">
+                        <div class="form-group-flex">
+                            <label for="closer-profile-select"><i class="fa-solid fa-id-card"></i> Seleccionar Closer:</label>
+                            <div class="custom-select-wrapper">
+                                <select id="closer-profile-select" class="styled-select">
+                                    <optgroup label="Equipo Languages" id="optgroup-languages"></optgroup>
+                                    <optgroup label="Equipo Block" id="optgroup-block"></optgroup>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="closer-actions-quick">
+                            <span class="badge" id="profile-team-badge">Equipo</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Closer main grid (Info metrics sidebar + Tasks & Tips main panels) -->
+                <div class="grid-layout grid-closer-details margin-top-md">
+                    
+                    <!-- Column 1 (Left Sidebar): Summary Card, Targets, Collapsible Edit, Calendar -->
+                    <div class="flex-column-container" style="gap: 20px;">
+                        
+                        <!-- Main Card -->
+                        <div class="glass-panel card-glow" id="closer-main-card">
+                            <div class="panel-body closer-profile-summary">
+                                <div class="closer-avatar-large" id="profile-avatar-char">C</div>
+                                <h2 style="display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0 auto;">
+                                    <span id="profile-name">Nombre Closer</span>
+                                    <i class="fa-solid fa-circle-info text-muted" id="profile-info-icon" style="font-size: 15px; cursor: pointer; transition: color var(--transition-fast);" title="Ver Nota de Closer"></i>
+                                </h2>
+                                <p class="text-muted" id="profile-team-lbl" style="margin-top: 4px;">Equipo: Languages</p>
+                                
+                                <!-- Closer Info Note Box -->
+                                <div id="profile-info-note-box" style="display: none; align-items: flex-start; gap: 8px; background: var(--hover-bg-strong); border: 1px solid var(--panel-border); padding: 10px 12px; border-radius: var(--radius-sm); margin-top: 10px; text-align: left; font-size: 11.5px; animation: fadeIn 0.3s ease-out; width: 100%;">
+                                    <i class="fa-solid fa-lightbulb text-warning" style="font-size: 14px; margin-top: 2px; flex-shrink: 0;"></i>
+                                    <span id="profile-info-note-text" style="color: var(--text-main); line-height: 1.3;"></span>
+                                </div>
+                                
+                                <hr class="divider" style="margin: 12px 0;">
+
+                                <div class="metrics-grid-mini">
+                                    <div class="metric-mini-card" style="padding: 10px;">
+                                        <span class="num" id="profile-rate-val" style="font-size: 16px;">0%</span>
+                                        <span class="lbl" style="font-size: 9px;">% Cierre</span>
+                                    </div>
+                                    <div class="metric-mini-card" style="padding: 10px;">
+                                        <span class="num" id="profile-cash-val" style="font-size: 16px;">€0</span>
+                                        <span class="lbl" style="font-size: 9px;">Cash</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Google Drive Call Folder Link -->
+                                <div class="drive-link-box margin-top-md" style="width: 100%;">
+                                    <a id="profile-drive-btn" href="#" target="_blank" class="btn btn-secondary" style="width: 100%; display: none; font-size: 12px; padding: 8px 12px;">
+                                        <i class="fa-brands fa-google-drive"></i> Grabaciones de Llamadas
+                                    </a>
+                                    <p id="profile-drive-empty" class="text-muted text-center" style="font-size: 10px; margin: 4px 0;">
+                                        <i class="fa-solid fa-folder-open"></i> Sin carpeta de Drive vinculada
+                                    </p>
+                                </div>
+
+                                <hr class="divider" style="margin: 12px 0;">
+
+                                <!-- Individual Target Progress Bar with Bonus Markers -->
+                                <div class="target-progress-area" style="width: 100%; text-align: left; display: flex; flex-direction: column; gap: 6px;">
+                                    <span class="form-section-title" style="font-size: 10px; margin: 0; letter-spacing: 0.2px;"><i class="fa-solid fa-bullseye text-warning"></i> Progreso Objetivo Personal</span>
+                                    <div class="progress-bar-track" style="height: 10px; position: relative; background: var(--progress-track); border-radius: 5px; overflow: visible;">
+                                        <!-- Marker for 1st Bonus at 40% (€10,000) -->
+                                        <div class="bonus-marker" style="position: absolute; left: 40%; top: -3px; bottom: -3px; width: 3px; background: var(--color-warning); z-index: 10; border-radius: 2px;" title="1er Bonus: €10,000"></div>
+                                        <!-- Marker for 2nd Bonus at 100% (€25,000) -->
+                                        <div class="bonus-marker" style="position: absolute; left: 100%; top: -3px; bottom: -3px; width: 3px; background: var(--color-success); z-index: 10; border-radius: 2px;" title="2do Bonus: €25,000"></div>
+                                        <div class="progress-bar-fill fill-cash" id="profile-target-fill" style="width: 0%; height: 100%; border-radius: 5px; background: linear-gradient(90deg, var(--color-warning), var(--color-success));"></div>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 9px; color: var(--text-muted); position: relative; padding-top: 4px;">
+                                        <span id="profile-target-collected">€0 / €25.000</span>
+                                        <span style="position: absolute; left: 40%; transform: translateX(-50%); font-weight: 700; color: var(--color-warning);" id="bonus1-label">1er Bonus (€10k)</span>
+                                        <span style="font-weight: 700; color: var(--color-success);">2do Bonus (€25k)</span>
+                                    </div>
+                                    <div id="bonus-status-message" style="font-size: 10.5px; font-weight: 700; margin-top: 4px; text-align: center; color: var(--text-muted);">
+                                        Cargando estado del bonus...
+                                    </div>
+                                </div>
+
+
+                                
+                                <!-- Collapsible Accordion form to edit Closer details and metrics -->
+                                <details class="edit-closer-details-accordion">
+                                    <summary class="btn btn-secondary" style="width: 100%; font-size: 12px; padding: 8px 12px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+                                        <i class="fa-solid fa-user-pen"></i> Editar Datos y Métricas
+                                    </summary>
+                                    <div class="edit-closer-details-content">
+                                        <form id="closer-settings-form" class="metrics-edit-form" style="gap: 10px;">
+                                            <div class="form-group">
+                                                <label for="edit-name" style="font-size: 11px;">Nombre Completo</label>
+                                                <input type="text" id="edit-name" required class="styled-input" style="padding: 8px 10px; font-size: 12.5px;">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="edit-team" style="font-size: 11px;">Equipo</label>
+                                                <div class="custom-select-wrapper">
+                                                    <select id="edit-team" class="styled-select" style="width: 100%; padding: 6px 30px 6px 10px; font-size: 12.5px;">
+                                                        <option value="languages">Languages</option>
+                                                        <option value="block">Block</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="edit-avatar" style="font-size: 11px;">URL Foto de Perfil</label>
+                                                <input type="url" id="edit-avatar" placeholder="https://..." class="styled-input" style="padding: 8px 10px; font-size: 12.5px;">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="edit-drive" style="font-size: 11px;">Carpeta de Drive (URL)</label>
+                                                <input type="url" id="edit-drive" placeholder="https://drive.google.com/..." class="styled-input" style="padding: 8px 10px; font-size: 12.5px;">
+                                            </div>
+                                            
+                                            <div class="form-row-2">
+                                                <div class="form-group">
+                                                    <label for="edit-leads" style="font-size: 11px;">Leads</label>
+                                                    <input type="number" id="edit-leads" min="0" required class="styled-input" style="padding: 8px 10px; font-size: 12.5px;">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="edit-sales" style="font-size: 11px;">Ventas</label>
+                                                    <input type="number" id="edit-sales" min="0" required class="styled-input" style="padding: 8px 10px; font-size: 12.5px;">
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="form-group">
+                                                <label for="edit-cash" style="font-size: 11px;">Cash Collected (€)</label>
+                                                <input type="number" id="edit-cash" min="0" required class="styled-input" style="padding: 8px 10px; font-size: 12.5px;">
+                                            </div>
+                                            
+                                            <div class="form-group">
+                                                <label for="edit-note" style="font-size: 11px;">Nota de Observación / Info</label>
+                                                <textarea id="edit-note" class="styled-input" rows="2" style="padding: 8px 10px; font-size: 12.5px; resize: none; font-family: var(--font-body);" placeholder="Ej. No le gustan los roleplays, prefiere analizar llamadas."></textarea>
+                                            </div>
+                                            
+
+                                            
+                                            <button type="submit" class="btn btn-submit" id="btn-save-settings" style="margin-top: 4px; padding: 8px;">
+                                                <i class="fa-solid fa-floppy-disk"></i> Guardar Cambios
+                                            </button>
+                                        </form>
+                                    </div>
+                                </details>
+                            </div>
+                        </div>
+
+
+
+                    </div>
+
+                    <!-- Column 2 (Main Panels): Tasks & Tips side-by-side -->
+                    <div class="grid-layout grid-2-columns" style="align-items: start;">
+                        
+                        <!-- Panel: Tasks Checklist -->
+                        <div class="glass-panel">
+                            <div class="panel-header header-with-actions">
+                                <h3><i class="fa-solid fa-list-check text-primary"></i> Tareas y Objetivos</h3>
+                                <span class="badge badge-primary" id="tasks-count-badge">0 pendientes</span>
+                            </div>
+                            <div class="panel-body flex-column-container" style="min-height: 480px; max-height: 700px;">
+                                <!-- Task input -->
+                                <form id="add-task-form" class="inline-add-form">
+                                    <input type="text" id="task-input" placeholder="Nueva tarea..." required class="styled-input">
+                                    <button type="submit" class="btn btn-icon-only btn-primary" title="Agregar Tarea">
+                                        <i class="fa-solid fa-plus"></i>
+                                    </button>
+                                </form>
+                                <!-- Task list -->
+                                <ul class="task-list" id="closer-tasks-list" style="max-height: 550px;">
+                                    <!-- Dynamic -->
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Panel: Tips to Improve -->
+                        <div class="glass-panel">
+                            <div class="panel-header header-with-actions">
+                                <h3><i class="fa-solid fa-lightbulb text-warning"></i> Tips y Áreas de Mejora</h3>
+                                <span class="badge badge-warning" id="tips-count-badge">0 tips</span>
+                            </div>
+                            <div class="panel-body flex-column-container" style="min-height: 480px; max-height: 700px;">
+                                <!-- Tip input -->
+                                <form id="add-tip-form" class="inline-add-form">
+                                    <input type="text" id="tip-input" placeholder="Tip de mejora..." required class="styled-input">
+                                    <button type="submit" class="btn btn-icon-only btn-warning" title="Agregar Tip">
+                                        <i class="fa-solid fa-plus"></i>
+                                    </button>
+                                </form>
+                                <!-- Tip list -->
+                                <ul class="tip-list" id="closer-tips-list" style="max-height: 550px;">
+                                    <!-- Dynamic -->
+                                </ul>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Panel 4: Follow-up Log for Closer -->
+                <div class="glass-panel margin-top-lg">
+                    <div class="panel-header header-with-actions">
+                        <h3><i class="fa-solid fa-paste"></i> Historial de Seguimiento Individual</h3>
+                        <span class="badge badge-info" id="logs-count-badge">0 notas</span>
+                    </div>
+                    <div class="panel-body">
+                        <div class="followup-container">
+                            <div class="followup-list" id="closer-logs-list">
+                                <!-- Dynamic individual follow ups -->
+                            </div>
+                            <div class="followup-form">
+                                <textarea id="closer-log-input" placeholder="Añadir comentario de seguimiento o feedback del desempeño de este closer (solo visible para los sublíderes)..." rows="3"></textarea>
+                                <input type="url" id="closer-log-link" class="styled-input" placeholder="Enlace de la grabación o transcripción del análisis (opcional)..." style="font-size: 12.5px;">
+                                <button class="btn btn-primary" id="btn-add-closer-log">
+                                    <i class="fa-solid fa-plus"></i> Añadir Nota de Seguimiento
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast hidden">
+        <i class="fa-solid fa-circle-check"></i>
+        <span id="toast-message">Métricas actualizadas con éxito</span>
+    </div>
+
+    <!-- App JS -->
+    <script src="app.js"></script>
+</body>
+</html>
