@@ -77,12 +77,12 @@ CREATE TABLE general_tasks (
 
 -- Insert Closers (Languages)
 INSERT INTO closers (id, name, team, leads_contacted, leads_closed, cash_collected, target_cash, commission_rate, avatar_url, drive_url, note) VALUES
-('jazmin', 'Jazmín', 'languages', 85, 13, 19500, 25000, 7, 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150', 'https://drive.google.com/drive/folders/1A_B_C_Languages_Jasmine_Dummy', 'Le entusiasma liderar reuniones de equipo y hacer roleplays de objeciones.'),
+('jazmin', 'Jazmín Merlo', 'languages', 60, 5, 5000, 25000, 7, 'https://media-eze1-2.cdn.whatsapp.net/v/t61.24694-24/688439856_1688070622524540_6748855887472131216_n.jpg?ccb=11-4&oh=01_Q5Aa4wELq3r63qy5H3saKJtxeK37_S9xCKAR-kK_9huii7_Urw&oe=6A4A977E&_nc_sid=5e03e0&_nc_cat=106', 'https://drive.google.com/drive/folders/1A_B_C_Languages_Jasmine_Dummy', 'Le entusiasma liderar reuniones de equipo y hacer roleplays de objeciones.'),
 ('merlo', 'Merlo', 'languages', 70, 10, 15000, 20000, 5, 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=150', 'https://drive.google.com/drive/folders/1B_Merlo_Recorded_Calls', 'Prefiere llamadas individuales de feedback y análisis métrico.'),
-('ariel-martinelli', 'Ariel Martinelli', 'languages', 90, 14, 21000, 20000, 5, '', 'https://drive.google.com/drive/folders/1C_ArielM_Calls', 'Gran autoanálisis. Le gusta repasar llamadas grabadas.'),
-('agustina-soria', 'Agustina Soria', 'languages', 60, 8, 12000, 15000, 5, '', '', 'Prefiere explicaciones visuales de los pitches y guías breves.'),
-('ariana', 'Ariana', 'languages', 50, 6, 9000, 15000, 5, '', '', 'Mejora con dinámicas tranquilas de roleplay de baja presión.'),
-('fabrizio-fiamonti', 'Fabrizio Fiamonti', 'languages', 75, 11, 16500, 20000, 5, '', '', 'Muy receptivo al feedback de audio directo.'),
+('ariel-martinelli', 'Ariel Martinelli', 'languages', 90, 14, 21000, 20000, 5, 'https://media-eze1-2.cdn.whatsapp.net/v/t61.24694-24/678165232_2281853229010844_6127097492774794344_n.jpg?ccb=11-4&oh=01_Q5Aa4wH5W4JIuLTTfls5Pf-7M04vRfA7PQQIXZuuwHx5DKVkMA&oe=6A4A9538&_nc_sid=5e03e0&_nc_cat=107', 'https://drive.google.com/drive/folders/1C_ArielM_Calls', 'Gran autoanálisis. Le gusta repasar llamadas grabadas.'),
+('agustina-soria', 'Agostina Soria', 'languages', 60, 8, 12000, 15000, 5, 'https://media-eze1-2.cdn.whatsapp.net/v/t61.24694-24/588727318_4025474887585902_323612380752492272_n.jpg?ccb=11-4&oh=01_Q5Aa4wFRxGdkS2Bxo2emMm4VSHmt8a6ukfkYleWaGL4-uzFtDA&oe=6A4A8628&_nc_sid=5e03e0&_nc_cat=101', '', 'Prefiere explicaciones visuales de los pitches y guías breves.'),
+('ariana', 'Ariana', 'languages', 50, 6, 9000, 15000, 5, 'https://media-eze1-2.cdn.whatsapp.net/v/t61.24694-24/596521480_1289854622946035_6304448030381604272_n.jpg?ccb=11-4&oh=01_Q5Aa4wEJ6PWcWkpR87DOAU47wjlJyA55EX5Q7dnNcTjVwXtGFA&oe=6A4AB16A&_nc_sid=5e03e0&_nc_cat=105', '', 'Mejora con dinámicas tranquilas de roleplay de baja presión.'),
+('fabrizio-fiamonti', 'Fabrizio Fioramonti', 'languages', 75, 11, 16500, 20000, 5, '', '', 'Muy receptivo al feedback de audio directo.'),
 ('candela', 'Candela', 'languages', 65, 9, 13500, 18000, 5, '', '', 'Prefiere scripts estructurados y claros.');
 
 -- Insert Closers (Block)
@@ -101,7 +101,8 @@ INSERT INTO tasks (id, closer_id, text, completed) VALUES
 ('t4', 'merlo', 'Revisar llamadas grabadas del lunes con Jazmín', TRUE),
 ('t5', 'merlo', 'Llamar a cliente indeciso de inglés de ayer', FALSE),
 ('t6', 'ariel-martinelli', 'Seguimiento de ticket alto pendiente de pago', FALSE),
-('t7', 'ariel-martinelli', 'Optimizar el script de rebatido para fin de mes', TRUE),
+('t_1782416463575', 'ariel-martinelli', 'Pregunta como se sintio esta semana', FALSE),
+('t_1782416641134', 'ariel-martinelli', 'Pregunta como se sintio esta semana', FALSE),
 ('t8', 'agustina-soria', 'Ver tips sobre manejo de precio en la carpeta compartida', TRUE),
 ('t9', 'agustina-soria', 'Enviar email con propuesta a grupo VIP', FALSE),
 ('t10', 'ariana', 'Llamar a base de re-contacto de meses anteriores', FALSE),
@@ -118,8 +119,10 @@ INSERT INTO tasks (id, closer_id, text, completed) VALUES
 INSERT INTO tips (id, closer_id, text, category) VALUES
 ('tip1', 'jazmin', 'Mantén el control del marco conversacional. No dejes que el cliente guíe la llamada.', 'negociacion'),
 ('tip2', 'jazmin', 'Establecer urgencia real basada en los cupos del curso de inglés.', 'cierre'),
+('tip_1782420269333', 'jazmin', 'no sea tan sucia', 'general'),
 ('tip3', 'merlo', 'Presiona un poco más en la llamada de cierre cuando el dolor esté bien detectado.', 'objeciones'),
 ('tip4', 'ariel-martinelli', 'Excelente tono y ritmo en las llamadas. Sigue reforzando la urgencia al final.', 'cierre'),
+('tip_1782416665638', 'ariel-martinelli', 'hola', 'general'),
 ('tip5', 'agustina-soria', 'Intenta conectar el dolor directamente con la transformación del programa.', 'dolor'),
 ('tip6', 'ariana', 'No temas hacer preguntas incómodas sobre la situación financiera del prospecto.', 'cualificacion'),
 ('tip7', 'fabrizio-fiamonti', 'Usa la técnica del silencio tras presentar el precio.', 'cierre'),
@@ -136,6 +139,8 @@ INSERT INTO closer_logs (id, closer_id, author, text, date) VALUES
 ('l2', 'jazmin', 'Jazmín', 'He estado reforzando el pitch inicial y logré rescatar 2 ventas difíciles.', '2026-06-22 18:15:00'),
 ('l3', 'merlo', 'Jazmín', 'Buen volumen de llamadas. Falta pulir el manejo de la objeción ''no tengo tiempo''.', '2026-06-21 14:20:00'),
 ('l4', 'ariel-martinelli', 'Jazmín', 'Muestra métricas estables. Consistencia muy alta este mes.', '2026-06-23 11:05:00'),
+('log_1782419238724', 'ariel-martinelli', 'Jazmín', 'Hoy vimos tal cosa y veo tal otra', '2026-06-25 20:27:18.724'),
+('log_1782419259100', 'ariel-martinelli', 'Tomás', 'Hola coimo estas', '2026-06-25 20:27:39.100'),
 ('l5', 'agustina-soria', 'Jazmín', 'Agustina está mejorando su índice de cierre, pero necesita subir el volumen de llamadas diarias.', '2026-06-19 09:40:00'),
 ('l6', 'ariana', 'Jazmín', 'Se nota un poco de timidez en la etapa de indagación. Trabajando en su confianza.', '2026-06-24 16:00:00'),
 ('l7', 'fabrizio-fiamonti', 'Jazmín', 'Fabrizio cerró 3 ventas ayer con gran manejo de objeciones. Muy buen desempeño.', '2026-06-25 12:00:00'),

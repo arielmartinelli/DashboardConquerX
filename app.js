@@ -5,14 +5,14 @@ const DEFAULT_CLOSERS = {
     languages: [
         {
             id: "jazmin",
-            name: "Jazmín",
+            name: "Jazmín Merlo",
             team: "languages",
-            leadsContacted: 85,
-            leadsClosed: 13,
-            cashCollected: 19500,
+            leadsContacted: 60,
+            leadsClosed: 5,
+            cashCollected: 5000,
             targetCash: 25000,
             commissionRate: 7,
-            avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150",
+            avatarUrl: "https://media-eze1-2.cdn.whatsapp.net/v/t61.24694-24/688439856_1688070622524540_6748855887472131216_n.jpg?ccb=11-4&oh=01_Q5Aa4wELq3r63qy5H3saKJtxeK37_S9xCKAR-kK_9huii7_Urw&oe=6A4A977E&_nc_sid=5e03e0&_nc_cat=106",
             driveUrl: "https://drive.google.com/drive/folders/1A_B_C_Languages_Jasmine_Dummy",
             nextMeeting: null,
             note: "Le entusiasma liderar reuniones de equipo y hacer roleplays de objeciones.",
@@ -23,7 +23,8 @@ const DEFAULT_CLOSERS = {
             ],
             tips: [
                 { id: "tip1", text: "Mantén el control del marco conversacional. No dejes que el cliente guíe la llamada.", category: "negociacion" },
-                { id: "tip2", text: "Establecer urgencia real basada en los cupos del curso de inglés.", category: "cierre" }
+                { id: "tip2", text: "Establecer urgencia real basada en los cupos del curso de inglés.", category: "cierre" },
+                { id: "tip_1782420269333", text: "no sea tan sucia", category: "general" }
             ],
             logs: [
                 { id: "l1", author: "Tomás", text: "Excelente liderazgo en la sesión grupal de esta semana. Las llamadas de Jazmín muestran gran empatía.", date: "2026-06-20T10:30:00" },
@@ -62,32 +63,38 @@ const DEFAULT_CLOSERS = {
             cashCollected: 21000,
             targetCash: 20000,
             commissionRate: 5,
-            avatarUrl: "",
+            avatarUrl: "https://media-eze1-2.cdn.whatsapp.net/v/t61.24694-24/678165232_2281853229010844_6127097492774794344_n.jpg?ccb=11-4&oh=01_Q5Aa4wH5W4JIuLTTfls5Pf-7M04vRfA7PQQIXZuuwHx5DKVkMA&oe=6A4A9538&_nc_sid=5e03e0&_nc_cat=107",
             driveUrl: "https://drive.google.com/drive/folders/1C_ArielM_Calls",
             nextMeeting: null,
+            note: "Gran autoanálisis. Le gusta repasar llamadas grabadas.",
             tasks: [
                 { id: "t6", text: "Seguimiento de ticket alto pendiente de pago", completed: false },
-                { id: "t7", text: "Optimizar el script de rebatido para fin de mes", completed: true }
+                { id: "t_1782416463575", text: "Pregunta como se sintio esta semana", completed: false },
+                { id: "t_1782416641134", text: "Pregunta como se sintio esta semana", completed: false }
             ],
             tips: [
-                { id: "tip4", text: "Excelente tono y ritmo en las llamadas. Sigue reforzando la urgencia al final.", category: "cierre" }
+                { id: "tip4", text: "Excelente tono y ritmo en las llamadas. Sigue reforzando la urgencia al final.", category: "cierre" },
+                { id: "tip_1782416665638", text: "hola", category: "general" }
             ],
             logs: [
-                { id: "l4", author: "Jazmín", text: "Muestra métricas estables. Consistencia muy alta este mes.", date: "2026-06-23T11:05:00" }
+                { id: "l4", author: "Jazmín", text: "Muestra métricas estables. Consistencia muy alta este mes.", date: "2026-06-23T11:05:00" },
+                { id: "log_1782419238724", author: "Jazmín", text: "Hoy vimos tal cosa y veo tal otra", date: "2026-06-25T20:27:18.724Z" },
+                { id: "log_1782419259100", author: "Tomás", text: "Hola coimo estas", date: "2026-06-25T20:27:39.100Z" }
             ]
         },
         {
             id: "agustina-soria",
-            name: "Agustina Soria",
+            name: "Agostina Soria",
             team: "languages",
             leadsContacted: 60,
             leadsClosed: 8,
             cashCollected: 12000,
             targetCash: 15000,
             commissionRate: 5,
-            avatarUrl: "",
+            avatarUrl: "https://media-eze1-2.cdn.whatsapp.net/v/t61.24694-24/588727318_4025474887585902_323612380752492272_n.jpg?ccb=11-4&oh=01_Q5Aa4wFRxGdkS2Bxo2emMm4VSHmt8a6ukfkYleWaGL4-uzFtDA&oe=6A4A8628&_nc_sid=5e03e0&_nc_cat=101",
             driveUrl: "",
             nextMeeting: null,
+            note: "Prefiere explicaciones visuales de los pitches y guías breves.",
             tasks: [
                 { id: "t8", text: "Ver tips sobre manejo de precio en la carpeta compartida", completed: true },
                 { id: "t9", text: "Enviar email con propuesta a grupo VIP", completed: false }
@@ -108,7 +115,7 @@ const DEFAULT_CLOSERS = {
             cashCollected: 9000,
             targetCash: 15000,
             commissionRate: 5,
-            avatarUrl: "",
+            avatarUrl: "https://media-eze1-2.cdn.whatsapp.net/v/t61.24694-24/596521480_1289854622946035_6304448030381604272_n.jpg?ccb=11-4&oh=01_Q5Aa4wEJ6PWcWkpR87DOAU47wjlJyA55EX5Q7dnNcTjVwXtGFA&oe=6A4AB16A&_nc_sid=5e03e0&_nc_cat=105",
             driveUrl: "",
             nextMeeting: null,
             tasks: [
@@ -123,7 +130,7 @@ const DEFAULT_CLOSERS = {
         },
         {
             id: "fabrizio-fiamonti",
-            name: "Fabrizio Fiamonti",
+            name: "Fabrizio Fioramonti",
             team: "languages",
             leadsContacted: 75,
             leadsClosed: 11,
