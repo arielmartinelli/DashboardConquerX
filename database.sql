@@ -68,6 +68,8 @@ CREATE TABLE general_tasks (
     id VARCHAR(100) PRIMARY KEY,
     text TEXT NOT NULL,
     completed BOOLEAN DEFAULT FALSE,
+    assigned_by VARCHAR(100) DEFAULT 'jazmin',
+    assigned_to VARCHAR(100) DEFAULT 'jazmin',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -159,7 +161,11 @@ INSERT INTO team_logs (id, team, author, text, date) VALUES
 ('g4', 'block', 'Jazmín', 'Felicidades a Julieta por sus últimos cierres. Demostró excelente manejo de leads escépticos.', '2026-06-24 18:00:00');
 
 -- Insert General Tasks
-INSERT INTO general_tasks (id, text, completed) VALUES
-('gt1', 'Revisar KPI de ventas semanal', FALSE),
-('gt2', 'Alinear con closers sobre nuevos leads', FALSE),
-('gt3', 'Roleplay grupal de objeciones', FALSE);
+INSERT INTO general_tasks (id, text, completed, assigned_by, assigned_to) VALUES
+('gt_m1', 'Revisar KPI de ventas global', FALSE, 'manuel', 'manuel'),
+('gt_m2', 'Alinear metas de facturación mensual', FALSE, 'manuel', 'manuel'),
+('gt_j1', 'Revisar KPI de ventas de Languages', FALSE, 'jazmin', 'jazmin'),
+('gt_j2', 'Alinear con closers sobre nuevos leads', FALSE, 'jazmin', 'jazmin'),
+('gt_j3', 'Roleplay grupal de objeciones', FALSE, 'jazmin', 'jazmin'),
+('gt_t1', 'Analizar llamadas grabadas de Block', FALSE, 'tomas', 'tomas'),
+('gt_t2', 'Revisión semanal de leads con Cristian', FALSE, 'tomas', 'tomas');
