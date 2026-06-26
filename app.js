@@ -466,7 +466,7 @@ let rateChartInstance = null;
 
 // --- USER DATABASE & AUTHENTICATION ---
 const USERS = {
-    manuel: { username: "manuel", name: "Manuel", role: "admin", password: "manuel123" },
+    manuel: { username: "manuel", name: "Manuel", role: "admin", password: "manuel123", subleaderId: "manuel" },
     jazmin: { username: "jazmin", name: "Jazmín Merlo", role: "subleader", password: "jazmin123", subleaderId: "jazmin" },
     tomas: { username: "tomas", name: "Tomás", role: "subleader", password: "tomas123", subleaderId: "tomas" }
 };
@@ -541,18 +541,14 @@ function applyUserPermissions() {
     const accordion = document.querySelector(".edit-closer-details-accordion");
     if (accordion) accordion.style.display = "block";
 
-    if (user.role === "admin") {
-        // Manuel - Jefe Supremo
-        // Can do anything, can switch subleader
-    } else if (user.role === "subleader") {
-        // Jazmín or Tomás
-        // Set subleader and lock it
-        state.currentSubleader = user.subleaderId;
+    if (user.role === "admin" || user.role === "subleader") {
+        // Both Admin and Subleader have access to all teams/tabs but are locked to their own account session
+        state.currentSubleader = user.subleaderId || "manuel";
         saveState();
         updateSubleaderUI();
         if (subleaderSelect) {
-            subleaderSelect.value = user.subleaderId;
-            subleaderSelect.disabled = true;
+            subleaderSelect.value = state.currentSubleader;
+            subleaderSelect.disabled = true; // locked
         }
     } else if (user.role === "closer") {
         // Regular Closer
@@ -895,32 +891,49 @@ function getAllClosersSorted() {
 
 function updateSubleaderUI() {
     const current = state.currentSubleader;
-    if (current === "jazmin") {
-        elements.sidebarAvatar.innerText = "J";
-        // Check if Jazmín has a profile photo in the closers list
-        const jasCloser = getCloserById("jazmin");
-        if (jasCloser && jasCloser.avatarUrl) {
-            elements.sidebarAvatar.style.backgroundImage = `url('${jasCloser.avatarUrl}')`;
-            elements.sidebarAvatar.style.backgroundSize = "cover";
-            elements.sidebarAvatar.style.backgroundPosition = "center";
-            elements.sidebarAvatar.innerText = "";
-        } else {
+    const nameEl = document.getElementById("sidebar-subleader-name");
+    const roleEl = document.getElementById("sidebar-subleader-role");
+    
+    if (current === "manuel") {
+        if (elements.sidebarAvatar) {
+            elements.sidebarAvatar.innerText = "M";
             elements.sidebarAvatar.style.backgroundImage = "none";
-            elements.sidebarAvatar.style.background = "linear-gradient(135deg, var(--color-accent), var(--color-primary))";
+            elements.sidebarAvatar.style.background = "linear-gradient(135deg, #f59e0b, #ec4899)";
         }
+        if (nameEl) nameEl.innerText = "Manuel";
+        if (roleEl) roleEl.innerText = "Líder Supremo";
+    } else if (current === "jazmin") {
+        if (elements.sidebarAvatar) {
+            elements.sidebarAvatar.innerText = "J";
+            const jasCloser = getCloserById("jazmin");
+            if (jasCloser && jasCloser.avatarUrl) {
+                elements.sidebarAvatar.style.backgroundImage = `url('${jasCloser.avatarUrl}')`;
+                elements.sidebarAvatar.style.backgroundSize = "cover";
+                elements.sidebarAvatar.style.backgroundPosition = "center";
+                elements.sidebarAvatar.innerText = "";
+            } else {
+                elements.sidebarAvatar.style.backgroundImage = "none";
+                elements.sidebarAvatar.style.background = "linear-gradient(135deg, var(--color-accent), var(--color-primary))";
+            }
+        }
+        if (nameEl) nameEl.innerText = "Jazmín Merlo";
+        if (roleEl) roleEl.innerText = "Sublíder Languages";
     } else {
-        elements.sidebarAvatar.innerText = "T";
-        // Check if Tomás has a profile photo in the closers list
-        const tomCloser = getCloserById("tomas");
-        if (tomCloser && tomCloser.avatarUrl) {
-            elements.sidebarAvatar.style.backgroundImage = `url('${tomCloser.avatarUrl}')`;
-            elements.sidebarAvatar.style.backgroundSize = "cover";
-            elements.sidebarAvatar.style.backgroundPosition = "center";
-            elements.sidebarAvatar.innerText = "";
-        } else {
-            elements.sidebarAvatar.style.backgroundImage = "none";
-            elements.sidebarAvatar.style.background = "linear-gradient(135deg, var(--color-secondary), var(--color-primary))";
+        if (elements.sidebarAvatar) {
+            elements.sidebarAvatar.innerText = "T";
+            const tomCloser = getCloserById("tomas");
+            if (tomCloser && tomCloser.avatarUrl) {
+                elements.sidebarAvatar.style.backgroundImage = `url('${tomCloser.avatarUrl}')`;
+                elements.sidebarAvatar.style.backgroundSize = "cover";
+                elements.sidebarAvatar.style.backgroundPosition = "center";
+                elements.sidebarAvatar.innerText = "";
+            } else {
+                elements.sidebarAvatar.style.backgroundImage = "none";
+                elements.sidebarAvatar.style.background = "linear-gradient(135deg, var(--color-secondary), var(--color-primary))";
+            }
         }
+        if (nameEl) nameEl.innerText = "Tomás";
+        if (roleEl) roleEl.innerText = "Sublíder Block";
     }
 }
 
@@ -1411,26 +1424,40 @@ function renderTeamFollowups(teamName, listContainer) {
         const dateObj = new Date(log.date);
         const formattedDate = dateObj.toLocaleDateString("es-ES") + " " + dateObj.toLocaleTimeString("es-ES", {hour: '2-digit', minute:'2-digit'});
         
-        const isAuthorMe = log.author.toLowerCase() === state.currentSubleader || (log.author.toLowerCase() === "jazmín" && state.currentSubleader === "jazmin") || (log.author.toLowerCase() === "jasmine" && state.currentSubleader === "jazmin");
+        const authorLower = log.author.toLowerCase();
+        const isAuthorMe = authorLower === state.currentSubleader || 
+            (authorLower === "jazmín" && state.currentSubleader === "jazmin") || 
+            (authorLower === "jazmin" && state.currentSubleader === "jazmin") || 
+            (authorLower === "jasmine" && state.currentSubleader === "jazmin");
         const deleteBtn = isAuthorMe ? 
             `<button class="btn-delete-task btn-delete-team-followup" data-team="${teamName}" data-id="${log.id}"><i class="fa-solid fa-trash-can"></i></button>` : '';
         
-        const authorId = log.author.toLowerCase() === "jazmín" || log.author.toLowerCase() === "jasmine" ? "jazmin" : "tomas";
+        let authorId = "tomas";
+        if (authorLower === "jazmín" || authorLower === "jasmine" || authorLower === "jazmin") {
+            authorId = "jazmin";
+        } else if (authorLower === "manuel") {
+            authorId = "manuel";
+        }
+        
         const authorCloser = getCloserById(authorId);
         const authorAvatarStyle = authorCloser && authorCloser.avatarUrl ? 
             `style="background-image: url('${authorCloser.avatarUrl}'); background-size: cover; background-position: center; color: transparent;"` : '';
-        const authorAvatarHTML = authorCloser && authorCloser.avatarUrl ?
-            `<div class="table-closer-avatar" ${authorAvatarStyle} style="width: 24px; height: 24px; font-size: 10px;"></div>` :
-            `<div class="table-closer-avatar" style="width: 24px; height: 24px; font-size: 10px; background: rgba(255,255,255,0.05);">${log.author.charAt(0)}</div>`;
+        const authorAvatarHTML = authorId === "manuel" ?
+            `<div class="table-closer-avatar" style="width: 24px; height: 24px; font-size: 10px; background: linear-gradient(135deg, #f59e0b, #ec4899); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">M</div>` :
+            (authorCloser && authorCloser.avatarUrl ?
+                `<div class="table-closer-avatar" ${authorAvatarStyle} style="width: 24px; height: 24px; font-size: 10px;"></div>` :
+                `<div class="table-closer-avatar" style="width: 24px; height: 24px; font-size: 10px; background: rgba(255,255,255,0.05);">${log.author.charAt(0)}</div>`
+            );
             
-        const badgeClass = authorId === "jazmin" ? "badge-accent" : "badge-secondary";
+        const badgeClass = authorId === "jazmin" ? "badge-accent" : (authorId === "manuel" ? "badge-primary" : "badge-secondary");
+        const roleLabel = authorId === "manuel" ? "Líder" : "Sublíder";
         
         item.innerHTML = `
             <div class="followup-meta">
                 <div class="followup-author" style="display: flex; align-items: center; gap: 8px;">
                     ${authorAvatarHTML}
                     <span class="badge ${badgeClass}">${log.author}</span>
-                    <span class="text-muted">Sublíder</span>
+                    <span class="text-muted">${roleLabel}</span>
                 </div>
                 <div style="display:flex; align-items:center; gap:8px;">
                     <span class="followup-date">${formattedDate}</span>
@@ -1623,19 +1650,33 @@ function renderCloserLogs(closer) {
         const dateObj = new Date(log.date);
         const formattedDate = dateObj.toLocaleDateString("es-ES") + " " + dateObj.toLocaleTimeString("es-ES", {hour: '2-digit', minute:'2-digit'});
         
-        const isAuthorMe = log.author.toLowerCase() === state.currentSubleader || (log.author.toLowerCase() === "jazmín" && state.currentSubleader === "jazmin") || (log.author.toLowerCase() === "jasmine" && state.currentSubleader === "jazmin");
+        const authorLower = log.author.toLowerCase();
+        const isAuthorMe = authorLower === state.currentSubleader || 
+            (authorLower === "jazmín" && state.currentSubleader === "jazmin") || 
+            (authorLower === "jazmin" && state.currentSubleader === "jazmin") || 
+            (authorLower === "jasmine" && state.currentSubleader === "jazmin");
         const deleteBtn = isAuthorMe ? 
             `<button class="btn-delete-task btn-delete-closer-log" data-id="${log.id}"><i class="fa-solid fa-trash-can"></i></button>` : '';
             
-        const authorId = log.author.toLowerCase() === "jazmín" || log.author.toLowerCase() === "jasmine" ? "jazmin" : "tomas";
+        let authorId = "tomas";
+        if (authorLower === "jazmín" || authorLower === "jasmine" || authorLower === "jazmin") {
+            authorId = "jazmin";
+        } else if (authorLower === "manuel") {
+            authorId = "manuel";
+        }
+        
         const authorCloser = getCloserById(authorId);
         const authorAvatarStyle = authorCloser && authorCloser.avatarUrl ? 
             `style="background-image: url('${authorCloser.avatarUrl}'); background-size: cover; background-position: center; color: transparent;"` : '';
-        const authorAvatarHTML = authorCloser && authorCloser.avatarUrl ?
-            `<div class="table-closer-avatar" ${authorAvatarStyle} style="width: 24px; height: 24px; font-size: 10px;"></div>` :
-            `<div class="table-closer-avatar" style="width: 24px; height: 24px; font-size: 10px; background: rgba(255,255,255,0.05);">${log.author.charAt(0)}</div>`;
+        const authorAvatarHTML = authorId === "manuel" ?
+            `<div class="table-closer-avatar" style="width: 24px; height: 24px; font-size: 10px; background: linear-gradient(135deg, #f59e0b, #ec4899); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">M</div>` :
+            (authorCloser && authorCloser.avatarUrl ?
+                `<div class="table-closer-avatar" ${authorAvatarStyle} style="width: 24px; height: 24px; font-size: 10px;"></div>` :
+                `<div class="table-closer-avatar" style="width: 24px; height: 24px; font-size: 10px; background: rgba(255,255,255,0.05);">${log.author.charAt(0)}</div>`
+            );
             
-        const badgeClass = authorId === "jazmin" ? "badge-accent" : "badge-secondary";
+        const badgeClass = authorId === "jazmin" ? "badge-accent" : (authorId === "manuel" ? "badge-primary" : "badge-secondary");
+        const roleLabel = authorId === "manuel" ? "Líder" : "Sublíder";
         
         const linkHTML = log.link ? `
             <div style="margin-top: 8px;">
@@ -1651,7 +1692,7 @@ function renderCloserLogs(closer) {
                 <div class="followup-author" style="display: flex; align-items: center; gap: 8px;">
                     ${authorAvatarHTML}
                     <span class="badge ${badgeClass}">${log.author}</span>
-                    <span class="text-muted">Sublíder</span>
+                    <span class="text-muted">${roleLabel}</span>
                 </div>
                 <div style="display:flex; align-items:center; gap:8px;">
                     <span class="followup-date">${formattedDate}</span>
@@ -1778,7 +1819,10 @@ function setupEventListeners() {
         state.currentSubleader = e.target.value;
         saveState();
         updateSubleaderUI();
-        showToast(`Sesión cambiada a: ${e.target.value === 'jazmin' ? 'Jazmín' : 'Tomás'}`);
+        let name = "Manuel";
+        if (e.target.value === 'jazmin') name = 'Jazmín';
+        else if (e.target.value === 'tomas') name = 'Tomás';
+        showToast(`Sesión cambiada a: ${name}`);
         renderAll();
     });
     
@@ -1948,7 +1992,7 @@ function setupEventListeners() {
         const closer = getCloserById(state.selectedCloserId);
         if (!closer) return;
         
-        const authorName = state.currentSubleader === "jazmin" ? "Jazmín" : "Tomás";
+        const authorName = state.currentSubleader === "manuel" ? "Manuel" : (state.currentSubleader === "jazmin" ? "Jazmín" : "Tomás");
         
         const newLog = {
             id: "log_" + Date.now(),
@@ -1972,7 +2016,7 @@ function setupEventListeners() {
         const text = elements.languagesFollowupInput.value.trim();
         if (!text) return;
         
-        const authorName = state.currentSubleader === "jazmin" ? "Jazmín" : "Tomás";
+        const authorName = state.currentSubleader === "manuel" ? "Manuel" : (state.currentSubleader === "jazmin" ? "Jazmín" : "Tomás");
         
         const newLog = {
             id: "glog_" + Date.now(),
@@ -1993,7 +2037,7 @@ function setupEventListeners() {
         const text = elements.blockFollowupInput.value.trim();
         if (!text) return;
         
-        const authorName = state.currentSubleader === "jazmin" ? "Jazmín" : "Tomás";
+        const authorName = state.currentSubleader === "manuel" ? "Manuel" : (state.currentSubleader === "jazmin" ? "Jazmín" : "Tomás");
         
         const newLog = {
             id: "glog_" + Date.now(),
@@ -2067,34 +2111,159 @@ function setupEventListeners() {
         });
     }
 
-    // Login Screen Cursor Glow Trail Effect (with LERP interpolation)
+    // Login Screen Cursor Glow Trail Effect (with LERP and Canvas Particles)
     if (elements.loginScreen) {
+        const canvas = document.getElementById("login-canvas");
+        let ctx = null;
+        let particles = [];
+        let lastX = 0;
+        let lastY = 0;
         let targetX = window.innerWidth / 2;
         let targetY = window.innerHeight / 2;
         let currentX = window.innerWidth / 2;
         let currentY = window.innerHeight / 2;
+        let colorPhase = 0;
+        let isLoopRunning = false;
+        
+        if (canvas) {
+            ctx = canvas.getContext("2d");
+            
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            
+            window.addEventListener("resize", resizeCanvas);
+            resizeCanvas();
+        }
+        
+        // Particle classes for the trail
+        class GasParticle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * 1.2;
+                this.vy = (Math.random() - 0.5) * 1.2;
+                this.size = Math.random() * 20 + 15; // Tighter size for smaller spotlight radius
+                this.color = color;
+                this.alpha = 0.7;
+                this.decay = Math.random() * 0.01 + 0.008;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.alpha -= this.decay;
+                if (this.size > 2) this.size -= 0.15;
+            }
+            draw() {
+                if (!ctx) return;
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.beginPath();
+                const grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size);
+                grad.addColorStop(0, this.color);
+                grad.addColorStop(1, "rgba(0, 0, 0, 0)");
+                ctx.fillStyle = grad;
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+        
+        class SparkleParticle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * 3;
+                this.vy = (Math.random() - 0.5) * 3;
+                this.size = Math.random() * 3 + 1;
+                this.alpha = 1.0;
+                this.decay = Math.random() * 0.02 + 0.015;
+                const rand = Math.random();
+                if (rand < 0.45) {
+                    this.color = "rgba(6, 182, 212, "; // Cyan
+                } else if (rand < 0.9) {
+                    this.color = "rgba(249, 115, 22, "; // Orange
+                } else {
+                    this.color = "rgba(255, 255, 255, "; // White
+                }
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.alpha -= this.decay;
+            }
+            draw() {
+                if (!ctx) return;
+                ctx.beginPath();
+                ctx.fillStyle = this.color + this.alpha + ")";
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
         
         elements.loginScreen.addEventListener("mousemove", (e) => {
             const rect = elements.loginScreen.getBoundingClientRect();
             targetX = e.clientX - rect.left;
             targetY = e.clientY - rect.top;
+            
+            // Spawn particles based on distance moved
+            const dx = targetX - lastX;
+            const dy = targetY - lastY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            
+            if (dist > 4) {
+                colorPhase += 0.04;
+                const ratio = (Math.sin(colorPhase) + 1) / 2;
+                const r = Math.round(6 + (249 - 6) * ratio);
+                const g = Math.round(182 + (115 - 182) * ratio);
+                const b = Math.round(212 + (22 - 212) * ratio);
+                const colorStr = `rgb(${r}, ${g}, ${b})`;
+                
+                // Spawn one aura particle
+                particles.push(new GasParticle(targetX, targetY, colorStr));
+                
+                // Spawn 1-2 sparkles
+                const sparkleCount = Math.floor(Math.random() * 2) + 1;
+                for (let i = 0; i < sparkleCount; i++) {
+                    particles.push(new SparkleParticle(targetX, targetY));
+                }
+                
+                lastX = targetX;
+                lastY = targetY;
+            }
         });
         
         function animateGlow() {
-            // LERP formula for smooth liquid-like color trail effect
+            // LERP for smooth backup spot glow position
             currentX += (targetX - currentX) * 0.08;
             currentY += (targetY - currentY) * 0.08;
             
             elements.loginScreen.style.setProperty("--mouse-x", `${currentX}px`);
             elements.loginScreen.style.setProperty("--mouse-y", `${currentY}px`);
             
+            // Canvas updates
+            if (ctx && canvas) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw and filter particles
+                particles.forEach(p => {
+                    p.update();
+                    p.draw();
+                });
+                particles = particles.filter(p => p.alpha > 0);
+            }
+            
             // Only continue loop if login screen is visible
             if (elements.loginScreen.style.display !== "none" && !elements.loginScreen.classList.contains("hidden")) {
                 requestAnimationFrame(animateGlow);
+            } else {
+                isLoopRunning = false;
             }
         }
         
         // Start animation loop
+        isLoopRunning = true;
         animateGlow();
         
         // Restart loop when logging out
@@ -2105,7 +2274,13 @@ function setupEventListeners() {
                     targetY = window.innerHeight / 2;
                     currentX = window.innerWidth / 2;
                     currentY = window.innerHeight / 2;
-                    animateGlow();
+                    lastX = targetX;
+                    lastY = targetY;
+                    particles = [];
+                    if (!isLoopRunning) {
+                        isLoopRunning = true;
+                        animateGlow();
+                    }
                 }, 100);
             });
         }
