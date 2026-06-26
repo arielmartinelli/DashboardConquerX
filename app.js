@@ -439,7 +439,13 @@ const elements = {
     
     // Toast
     toast: document.getElementById("toast"),
-    toastMessage: document.getElementById("toast-message")
+    toastMessage: document.getElementById("toast-message"),
+    
+    // Mobile Navigation Controls
+    mobileSidebarToggle: document.getElementById("mobile-sidebar-toggle"),
+    mobileSidebarClose: document.getElementById("mobile-sidebar-close"),
+    sidebarOverlay: document.getElementById("sidebar-overlay"),
+    sidebarElement: document.querySelector(".sidebar")
 };
 
 // Chart instances
@@ -1532,14 +1538,55 @@ function switchTab(tabName) {
     renderAll();
 }
 
+function closeMobileSidebar() {
+    if (elements.sidebarElement && elements.sidebarElement.classList.contains("open")) {
+        elements.sidebarElement.classList.remove("open");
+    }
+    if (elements.sidebarOverlay && elements.sidebarOverlay.classList.contains("active")) {
+        elements.sidebarOverlay.classList.remove("active");
+    }
+}
+
 function setupTabNavigation() {
-    elements.tabOverviewBtn.addEventListener("click", () => switchTab("overview"));
-    elements.tabLanguagesBtn.addEventListener("click", () => switchTab("languages"));
-    elements.tabBlockBtn.addEventListener("click", () => switchTab("block"));
-    elements.tabCloserBtn.addEventListener("click", () => switchTab("closer-profile"));
+    elements.tabOverviewBtn.addEventListener("click", () => {
+        switchTab("overview");
+        closeMobileSidebar();
+    });
+    elements.tabLanguagesBtn.addEventListener("click", () => {
+        switchTab("languages");
+        closeMobileSidebar();
+    });
+    elements.tabBlockBtn.addEventListener("click", () => {
+        switchTab("block");
+        closeMobileSidebar();
+    });
+    elements.tabCloserBtn.addEventListener("click", () => {
+        switchTab("closer-profile");
+        closeMobileSidebar();
+    });
 }
 
 function setupEventListeners() {
+    // Mobile navigation drawer toggle listeners
+    if (elements.mobileSidebarToggle) {
+        elements.mobileSidebarToggle.addEventListener("click", () => {
+            elements.sidebarElement.classList.add("open");
+            elements.sidebarOverlay.classList.add("active");
+        });
+    }
+    
+    if (elements.mobileSidebarClose) {
+        elements.mobileSidebarClose.addEventListener("click", () => {
+            closeMobileSidebar();
+        });
+    }
+    
+    if (elements.sidebarOverlay) {
+        elements.sidebarOverlay.addEventListener("click", () => {
+            closeMobileSidebar();
+        });
+    }
+
     elements.subleaderSelect.addEventListener("change", (e) => {
         state.currentSubleader = e.target.value;
         saveState();

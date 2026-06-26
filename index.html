@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard ConquerX - CRM de Gestión de Closers</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="favicon.png">
     <!-- Google Fonts: Inter & Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -41,6 +43,9 @@
                     <h1>ConquerX</h1>
                     <span>Dashboard CRM</span>
                 </div>
+                <button id="mobile-sidebar-close" class="mobile-close-btn" title="Cerrar">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
             </div>
             
             <nav class="sidebar-menu">
@@ -108,10 +113,16 @@
             </div>
         </aside>
 
+        <!-- Mobile Sidebar Drawer Overlay -->
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
         <!-- Main Content Area -->
         <main class="main-content">
             <!-- Header bar -->
             <header class="content-header">
+                <button id="mobile-sidebar-toggle" class="mobile-toggle-btn" title="Menú">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
                 <div class="header-title-area">
                     <h2 id="current-view-title">Vista General</h2>
                     <p class="text-muted" id="current-view-subtitle">Resumen consolidado de ventas y porcentajes de cierre</p>
