@@ -304,7 +304,7 @@ const DEFAULT_TEAM_LOGS = {
 let state = {
     closers: {},
     teamLogs: {},
-    generalTasks: [],
+    generalTasks: { manuel: [], jazmin: [], tomas: [] },
     currentSubleader: "jazmin", // jazmin or tomas
     activeTab: "overview",
     selectedCloserId: "jazmin",
@@ -744,24 +744,49 @@ function init() {
         state.selectedCloserId = "jazmin";
     }
 
+    function initDefaultGeneralTasks() {
+        state.generalTasks = {
+            manuel: [
+                { id: "gt_m1", text: "Revisar KPI de ventas global", completed: false, assignedBy: "manuel", assignedTo: "manuel" },
+                { id: "gt_m2", text: "Alinear metas de facturación mensual", completed: false, assignedBy: "manuel", assignedTo: "manuel" }
+            ],
+            jazmin: [
+                { id: "gt_j1", text: "Revisar KPI de ventas de Languages", completed: false, assignedBy: "jazmin", assignedTo: "jazmin" },
+                { id: "gt_j2", text: "Alinear con closers sobre nuevos leads", completed: false, assignedBy: "jazmin", assignedTo: "jazmin" },
+                { id: "gt_j3", text: "Roleplay grupal de objeciones", completed: false, assignedBy: "jazmin", assignedTo: "jazmin" }
+            ],
+            tomas: [
+                { id: "gt_t1", text: "Analizar llamadas grabadas de Block", completed: false, assignedBy: "tomas", assignedTo: "tomas" },
+                { id: "gt_t2", text: "Revisión semanal de leads con Cristian", completed: false, assignedBy: "tomas", assignedTo: "tomas" }
+            ]
+        };
+        saveState();
+    }
+
     let savedGeneralTasks = localStorage.getItem("conquerx_general_tasks");
     if (savedGeneralTasks) {
         try {
-            state.generalTasks = JSON.parse(savedGeneralTasks);
+            const parsed = JSON.parse(savedGeneralTasks);
+            if (Array.isArray(parsed)) {
+                // Migrate old array format to object format
+                state.generalTasks = {
+                    manuel: [],
+                    jazmin: parsed,
+                    tomas: []
+                };
+                saveState();
+            } else {
+                state.generalTasks = parsed;
+                if (!state.generalTasks.manuel) state.generalTasks.manuel = [];
+                if (!state.generalTasks.jazmin) state.generalTasks.jazmin = [];
+                if (!state.generalTasks.tomas) state.generalTasks.tomas = [];
+            }
         } catch (e) {
-            state.generalTasks = [
-                { id: "gt1", text: "Revisar KPI de ventas semanal", completed: false },
-                { id: "gt2", text: "Alinear con closers sobre nuevos leads", completed: false },
-                { id: "gt3", text: "Roleplay grupal de objeciones", completed: false }
-            ];
-            saveState();
+            console.error("Error loading general tasks", e);
+            initDefaultGeneralTasks();
         }
-        state.generalTasks = [
-            { id: "gt1", text: "Revisar KPI de ventas semanal", completed: false },
-            { id: "gt2", text: "Alinear con closers sobre nuevos leads", completed: false },
-            { id: "gt3", text: "Roleplay grupal de objeciones", completed: false }
-        ];
-        saveState();
+    } else {
+        initDefaultGeneralTasks();
     }
 
     let savedRankingFilter = localStorage.getItem("conquerx_ranking_filter");
@@ -1050,7 +1075,12 @@ function renderSidebarPendingTasks() {
 }
 
 function renderSidebarGeneralTasks() {
-    const pendingTasks = state.generalTasks.filter(t => !t.completed);
+    const activeLeader = state.currentSubleader || "manuel";
+    if (!state.generalTasks[activeLeader]) {
+        state.generalTasks[activeLeader] = [];
+    }
+    const leaderTasks = state.generalTasks[activeLeader];
+    const pendingTasks = leaderTasks.filter(t => !t.completed);
     const count = pendingTasks.length;
     
     elements.sidebarGeneralCount.innerText = count;
@@ -1061,15 +1091,25 @@ function renderSidebarGeneralTasks() {
         elements.sidebarGeneralBell.classList.remove("bell-alert");
     }
     
+    // Toggle assignment dropdown for Manuel
+    const assignContainer = document.getElementById("sidebar-assign-container");
+    if (assignContainer) {
+        if (state.currentSubleader === "manuel") {
+            assignContainer.style.display = "flex";
+        } else {
+            assignContainer.style.display = "none";
+        }
+    }
+    
     elements.sidebarGeneralList.innerHTML = "";
     
-    if (state.generalTasks.length === 0) {
+    if (leaderTasks.length === 0) {
         elements.sidebarGeneralList.innerHTML = `<p class="text-muted" style="font-size: 11px; margin: 0; padding: 4px 0;">No hay tareas generales.</p>`;
         return;
     }
     
     // Sort: pending first, completed last
-    const sortedTasks = [...state.generalTasks].sort((a, b) => a.completed - b.completed);
+    const sortedTasks = [...leaderTasks].sort((a, b) => a.completed - b.completed);
     
     sortedTasks.forEach(task => {
         const taskRow = document.createElement("div");
@@ -1085,9 +1125,19 @@ function renderSidebarGeneralTasks() {
         const checkedAttr = task.completed ? "checked" : "";
         const textDecoration = task.completed ? "line-through; color: var(--text-muted);" : "color: var(--text-main);";
         
+        let assignLabel = "";
+        if (task.assignedBy === "manuel" && task.assignedTo && task.assignedTo !== "manuel") {
+            assignLabel = `<div style="font-size: 9px; color: #3b82f6; margin-top: 3px; font-weight: 600; display: flex; align-items: center; gap: 4px;"><i class="fa-solid fa-user-shield"></i> Asignada por Manuel</div>`;
+        } else {
+            assignLabel = `<div style="font-size: 9px; color: var(--text-muted); margin-top: 3px; display: flex; align-items: center; gap: 4px;"><i class="fa-solid fa-user-check"></i> Autoasignada</div>`;
+        }
+        
         taskRow.innerHTML = `
             <input type="checkbox" class="general-task-checkbox" ${checkedAttr} style="cursor: pointer; flex-shrink: 0; width: 14px; height: 14px;">
-            <span style="flex-grow: 1; word-break: break-word; line-height: 1.25; ${textDecoration}">${task.text}</span>
+            <div style="flex-grow: 1; display: flex; flex-direction: column;">
+                <span style="word-break: break-word; line-height: 1.25; ${textDecoration}">${task.text}</span>
+                ${assignLabel}
+            </div>
             <button class="btn-delete-task" style="padding: 2px; font-size: 11px; flex-shrink: 0;"><i class="fa-solid fa-trash-can"></i></button>
         `;
         
@@ -1098,7 +1148,7 @@ function renderSidebarGeneralTasks() {
         });
         
         taskRow.querySelector(".btn-delete-task").addEventListener("click", () => {
-            state.generalTasks = state.generalTasks.filter(t => t.id !== task.id);
+            state.generalTasks[activeLeader] = state.generalTasks[activeLeader].filter(t => t.id !== task.id);
             saveState();
             renderSidebarGeneralTasks();
         });
@@ -1892,14 +1942,35 @@ function setupEventListeners() {
         const textVal = elements.sidebarGeneralInput.value.trim();
         if (!textVal) return;
         
+        let assignTo = state.currentSubleader;
+        const assignSelect = document.getElementById("sidebar-assign-select");
+        if (state.currentSubleader === "manuel" && assignSelect) {
+            assignTo = assignSelect.value;
+        }
+        
         const newTask = {
             id: "gt_" + Date.now(),
             text: textVal,
-            completed: false
+            completed: false,
+            createdAt: new Date().toISOString(),
+            assignedBy: state.currentSubleader,
+            assignedTo: assignTo
         };
-        state.generalTasks.push(newTask);
+        
+        if (!state.generalTasks[assignTo]) {
+            state.generalTasks[assignTo] = [];
+        }
+        
+        state.generalTasks[assignTo].push(newTask);
         elements.sidebarGeneralInput.value = "";
         saveState();
+        
+        let targetName = "tu lista";
+        if (assignTo === "jazmin") targetName = "lista de Jazmín";
+        else if (assignTo === "tomas") targetName = "lista de Tomás";
+        else if (assignTo === "manuel" && state.currentSubleader !== "manuel") targetName = "lista de Manuel";
+        
+        showToast(`Tarea agregada a la ${targetName}`);
         renderSidebarGeneralTasks();
     });
     
@@ -2144,10 +2215,10 @@ function setupEventListeners() {
                 this.y = y;
                 this.vx = (Math.random() - 0.5) * 1.2;
                 this.vy = (Math.random() - 0.5) * 1.2;
-                this.size = Math.random() * 20 + 15; // Tighter size for smaller spotlight radius
+                this.size = Math.random() * 80 + 80; // Larger size for highly diffuse mist
                 this.color = color;
-                this.alpha = 0.7;
-                this.decay = Math.random() * 0.01 + 0.008;
+                this.alpha = 0.35; // Lower opacity for soft glow
+                this.decay = Math.random() * 0.006 + 0.004; // Slower decay for smooth misty trail
             }
             update() {
                 this.x += this.vx;
@@ -2235,13 +2306,6 @@ function setupEventListeners() {
         });
         
         function animateGlow() {
-            // LERP for smooth backup spot glow position
-            currentX += (targetX - currentX) * 0.08;
-            currentY += (targetY - currentY) * 0.08;
-            
-            elements.loginScreen.style.setProperty("--mouse-x", `${currentX}px`);
-            elements.loginScreen.style.setProperty("--mouse-y", `${currentY}px`);
-            
             // Canvas updates
             if (ctx && canvas) {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
