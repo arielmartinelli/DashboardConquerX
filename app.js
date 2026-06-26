@@ -2213,18 +2213,18 @@ function setupEventListeners() {
             constructor(x, y, color) {
                 this.x = x;
                 this.y = y;
-                this.vx = (Math.random() - 0.5) * 1.2;
-                this.vy = (Math.random() - 0.5) * 1.2;
-                this.size = Math.random() * 80 + 80; // Larger size for highly diffuse mist
+                this.vx = (Math.random() - 0.5) * 0.8; // slower drift
+                this.vy = (Math.random() - 0.5) * 0.8;
+                this.size = Math.random() * 60 + 120; // very large (120px - 180px)
                 this.color = color;
-                this.alpha = 0.35; // Lower opacity for soft glow
-                this.decay = Math.random() * 0.006 + 0.004; // Slower decay for smooth misty trail
+                this.alpha = 0.15; // lower opacity to prevent bright stacking hotspots
+                this.decay = Math.random() * 0.005 + 0.005; // lives about 1.5 - 3 seconds
             }
             update() {
                 this.x += this.vx;
                 this.y += this.vy;
                 this.alpha -= this.decay;
-                if (this.size > 2) this.size -= 0.15;
+                // Keep size constant so it doesn't shrink into a tiny intense hotspot
             }
             draw() {
                 if (!ctx) return;
@@ -2251,7 +2251,7 @@ function setupEventListeners() {
             const dy = targetY - lastY;
             const dist = Math.sqrt(dx * dx + dy * dy);
             
-            if (dist > 4) {
+            if (dist > 15) { // increased threshold to avoid too many overlapping particles
                 colorPhase += 0.04;
                 const ratio = (Math.sin(colorPhase) + 1) / 2;
                 const r = Math.round(6 + (249 - 6) * ratio);
