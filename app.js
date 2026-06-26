@@ -326,6 +326,10 @@ const elements = {
     sidebarGeneralBell: document.getElementById("sidebar-general-bell"),
     sidebarGeneralAddForm: document.getElementById("sidebar-general-add-form"),
     sidebarGeneralInput: document.getElementById("sidebar-general-input"),
+    btnOpenGeneralTaskModal: document.getElementById("btn-open-general-task-modal"),
+    generalTaskModal: document.getElementById("general-task-modal"),
+    btnCloseGeneralTaskModal: document.getElementById("btn-close-general-task-modal"),
+    btnCancelGeneralTaskModal: document.getElementById("btn-cancel-general-task-modal"),
     
     // Tab buttons
     tabOverviewBtn: document.getElementById("btn-tab-overview"),
@@ -1937,6 +1941,45 @@ function setupEventListeners() {
         }
     });
     
+    // General Task Modal Toggle Listeners
+    if (elements.btnOpenGeneralTaskModal) {
+        elements.btnOpenGeneralTaskModal.addEventListener("click", () => {
+            if (elements.generalTaskModal) {
+                elements.generalTaskModal.classList.add("active");
+                setTimeout(() => {
+                    if (elements.sidebarGeneralInput) {
+                        elements.sidebarGeneralInput.focus();
+                    }
+                }, 100);
+            }
+        });
+    }
+
+    const closeGeneralTaskModal = () => {
+        if (elements.generalTaskModal) {
+            elements.generalTaskModal.classList.remove("active");
+            if (elements.sidebarGeneralInput) {
+                elements.sidebarGeneralInput.value = "";
+            }
+        }
+    };
+
+    if (elements.btnCloseGeneralTaskModal) {
+        elements.btnCloseGeneralTaskModal.addEventListener("click", closeGeneralTaskModal);
+    }
+
+    if (elements.btnCancelGeneralTaskModal) {
+        elements.btnCancelGeneralTaskModal.addEventListener("click", closeGeneralTaskModal);
+    }
+
+    if (elements.generalTaskModal) {
+        elements.generalTaskModal.addEventListener("click", (e) => {
+            if (e.target === elements.generalTaskModal) {
+                closeGeneralTaskModal();
+            }
+        });
+    }
+
     elements.sidebarGeneralAddForm.addEventListener("submit", (e) => {
         e.preventDefault();
         const textVal = elements.sidebarGeneralInput.value.trim();
@@ -1972,6 +2015,7 @@ function setupEventListeners() {
         
         showToast(`Tarea agregada a la ${targetName}`);
         renderSidebarGeneralTasks();
+        closeGeneralTaskModal();
     });
     
     elements.closerSettingsForm.addEventListener("submit", (e) => {
