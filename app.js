@@ -507,6 +507,10 @@ const elements = {
     kpiCallsIndivWeekly: document.getElementById("kpi-calls-indiv-weekly"),
     kpiCallsMissingWeekly: document.getElementById("kpi-calls-missing-weekly"),
     kpiCallsMissingMonthly: document.getElementById("kpi-calls-missing-monthly"),
+    kpiCallsGlobalFill: document.getElementById("kpi-calls-global-fill"),
+    kpiCallsLangFill: document.getElementById("kpi-calls-lang-fill"),
+    kpiCallsBlockFill: document.getElementById("kpi-calls-block-fill"),
+    kpiCallsIndivFill: document.getElementById("kpi-calls-indiv-fill"),
     
     // Mobile Navigation Controls
     mobileSidebarToggle: document.getElementById("mobile-sidebar-toggle"),
@@ -552,6 +556,7 @@ let rateChartInstance = null;
 
 // --- USER DATABASE & AUTHENTICATION ---
 const USERS = {
+    ariel: { username: "ariel", name: "Ariel", role: "master", password: "1122" },
     manuel: { username: "manuel", name: "Manuel", role: "admin", password: "manuel123", subleaderId: "manuel" },
     jazmin: { username: "jazmin", name: "Jazmín Merlo", role: "subleader", password: "jazmin123", subleaderId: "jazmin" },
     tomas: { username: "tomas", name: "Tomás", role: "subleader", password: "tomas123", subleaderId: "tomas" }
@@ -627,7 +632,14 @@ function applyUserPermissions() {
     const accordion = document.querySelector(".edit-closer-details-accordion");
     if (accordion) accordion.style.display = "block";
 
-    if (user.role === "admin" || user.role === "subleader") {
+    if (user.role === "master") {
+        // Ariel has full master access
+        state.currentSubleader = "manuel"; // default
+        if (subleaderSelect) {
+            subleaderSelect.value = state.currentSubleader;
+            subleaderSelect.disabled = false; // master can switch subleader views
+        }
+    } else if (user.role === "admin" || user.role === "subleader") {
         // Both Admin and Subleader have access to all teams/tabs but are locked to their own account session
         state.currentSubleader = user.subleaderId || "manuel";
         saveState();
@@ -666,6 +678,26 @@ function applyUserPermissions() {
         // Hide details editor accordion completely
         const accordion = document.querySelector(".edit-closer-details-accordion");
         if (accordion) accordion.style.display = "none";
+    }
+
+    // Toggle tickets/suggestions view layout depending on master/ariel role
+    const ticketsGrid = document.getElementById("tickets-grid");
+    const ticketsFormPanel = document.getElementById("tickets-form-panel");
+    const ticketsListPanel = document.getElementById("tickets-list-panel");
+    
+    if (ticketsGrid && ticketsFormPanel && ticketsListPanel) {
+        if (user.role === "master") {
+            ticketsListPanel.style.display = "block";
+            ticketsGrid.className = "grid-layout grid-2-columns";
+            ticketsFormPanel.style.maxWidth = "none";
+            ticketsFormPanel.style.margin = "0";
+        } else {
+            ticketsListPanel.style.display = "none";
+            ticketsGrid.className = "grid-layout grid-1-column";
+            ticketsFormPanel.style.maxWidth = "600px";
+            ticketsFormPanel.style.margin = "0 auto";
+            ticketsFormPanel.style.width = "100%";
+        }
     }
 }
 
@@ -1429,6 +1461,19 @@ function renderGlobalKPIs() {
         elements.kpiCallsGlobalMonthly.innerText = `${combined.callsMonthly} / ${monthlyTarget}`;
         elements.kpiCallsLangMonthly.innerText = `${langStats.callsMonthly} / ${80 * langStats.count}`;
         elements.kpiCallsBlockMonthly.innerText = `${blockStats.callsMonthly} / ${80 * blockStats.count}`;
+        
+        if (elements.kpiCallsGlobalFill) {
+            const globalPct = Math.min((combined.callsMonthly / (monthlyTarget || 1)) * 100, 100);
+            elements.kpiCallsGlobalFill.style.width = `${globalPct}%`;
+        }
+        if (elements.kpiCallsLangFill) {
+            const langPct = Math.min((langStats.callsMonthly / ((80 * langStats.count) || 1)) * 100, 100);
+            elements.kpiCallsLangFill.style.width = `${langPct}%`;
+        }
+        if (elements.kpiCallsBlockFill) {
+            const blockPct = Math.min((blockStats.callsMonthly / ((80 * blockStats.count) || 1)) * 100, 100);
+            elements.kpiCallsBlockFill.style.width = `${blockPct}%`;
+        }
     }
 
     // Populate and update interactive calls select on Overview card
@@ -1467,6 +1512,10 @@ function renderGlobalKPIs() {
             }
             if (elements.kpiCallsIndivWeekly) {
                 elements.kpiCallsIndivWeekly.innerText = `${selectedCloser.callsWeekly || 0} / 20`;
+            }
+            if (elements.kpiCallsIndivFill) {
+                const indivPct = Math.min(((selectedCloser.callsWeekly || 0) / 20) * 100, 100);
+                elements.kpiCallsIndivFill.style.width = `${indivPct}%`;
             }
             if (elements.kpiCallsMissingWeekly) {
                 elements.kpiCallsMissingWeekly.innerHTML = getCallsProjectionText(selectedCloser, true);
@@ -1858,15 +1907,15 @@ function getCallsProjectionText(closer, isWeekly) {
     const label = isWeekly ? "Semanal" : "Mensual";
     
     if (!hasSales) {
-        return `${label}: Sin ventas. Con tasa objetivo del 15.0%, necesitas <strong>${totalCallsNeeded15}</strong> llamadas (faltan <strong>${remainingCalls15}</strong>).`;
+        return `<strong>${label}:</strong> Sin ventas este mes. Tasa objetivo del 15.0%: total de <strong>${totalCallsNeeded15}</strong> llamadas (faltan <strong class="text-warning">${remainingCalls15}</strong>).`;
     }
     
     const totalCallsNeeded = Math.ceil(targetCloses / rate);
     const remainingCalls = Math.max(0, totalCallsNeeded - currentCalls);
     
-    let text = `${label}: Con cierre de <strong>${ratePercent}%</strong>, necesitas <strong>${totalCallsNeeded}</strong> llamadas (faltan <strong>${remainingCalls}</strong>).`;
+    let text = `<strong>${label}:</strong> Con tasa de cierre del <span class="badge-rate">${ratePercent}%</span>, requiere <strong>${totalCallsNeeded}</strong> llamadas en total (faltan <strong class="text-warning">${remainingCalls}</strong>).`;
     if (ratePercent !== "15.0") {
-        text += ` <span style="font-size:9.5px; opacity:0.85;">(Meta 15%: faltan ${remainingCalls15})</span>`;
+        text += ` <span style="font-size:9.5px; opacity:0.85;">(Faltarían ${remainingCalls15} con tasa estándar 15%)</span>`;
     }
     return text;
 }
@@ -1953,6 +2002,10 @@ function renderCloserProfileTab() {
     if (elements.kpiCallsIndivWeekly) {
         elements.kpiCallsIndivName.innerText = closer.name.split(" ")[0]; // just first name
         elements.kpiCallsIndivWeekly.innerText = `${closer.callsWeekly || 0} / 20`;
+        if (elements.kpiCallsIndivFill) {
+            const indivPct = Math.min(((closer.callsWeekly || 0) / 20) * 100, 100);
+            elements.kpiCallsIndivFill.style.width = `${indivPct}%`;
+        }
         elements.kpiCallsMissingWeekly.innerHTML = getCallsProjectionText(closer, true);
         elements.kpiCallsMissingMonthly.innerHTML = getCallsProjectionText(closer, false);
     }
@@ -3014,15 +3067,16 @@ function renderTickets() {
         const dateObj = new Date(ticket.date);
         const formattedDate = dateObj.toLocaleDateString("es-ES") + " " + dateObj.toLocaleTimeString("es-ES", {hour: '2-digit', minute:'2-digit'});
         
-        // Show status update buttons if leader/subleader
-        const isLeader = state.loggedUser && (state.loggedUser.role === "admin" || state.loggedUser.role === "subleader");
+        // Show status update buttons ONLY if user is Ariel (role === "master")
+        const isAriel = state.loggedUser && state.loggedUser.role === "master";
         
         let actionButtons = "";
-        if (isLeader) {
+        if (isAriel) {
             actionButtons = `
                 <div class="ticket-actions">
-                    ${ticket.status !== "progress" && ticket.status !== "resolved" ? `<button class="ticket-action-btn btn-progress" data-id="${ticket.id}">Marcar En Proceso</button>` : ''}
-                    ${ticket.status !== "resolved" ? `<button class="ticket-action-btn btn-resolve" data-id="${ticket.id}">Resolver</button>` : ''}
+                    ${ticket.status !== "progress" && ticket.status !== "resolved" ? `<button class="ticket-action-btn btn-progress" data-id="${ticket.id}"><i class="fa-solid fa-spinner"></i> En Proceso</button>` : ''}
+                    ${ticket.status !== "resolved" ? `<button class="ticket-action-btn btn-resolve" data-id="${ticket.id}"><i class="fa-solid fa-check"></i> Listo</button>` : ''}
+                    ${ticket.status === "resolved" ? `<button class="ticket-action-btn btn-reopen" data-id="${ticket.id}"><i class="fa-solid fa-rotate-left"></i> No Listo (Reabrir)</button>` : ''}
                     <button class="ticket-action-btn btn-delete" data-id="${ticket.id}"><i class="fa-solid fa-trash-can"></i></button>
                 </div>
             `;
@@ -3043,7 +3097,7 @@ function renderTickets() {
         `;
         
         // Bind action buttons click handlers
-        if (isLeader) {
+        if (isAriel) {
             const btnProg = item.querySelector(".btn-progress");
             if (btnProg) {
                 btnProg.addEventListener("click", () => updateTicketStatus(ticket.id, "progress"));
@@ -3051,6 +3105,10 @@ function renderTickets() {
             const btnRes = item.querySelector(".btn-resolve");
             if (btnRes) {
                 btnRes.addEventListener("click", () => updateTicketStatus(ticket.id, "resolved"));
+            }
+            const btnReopen = item.querySelector(".btn-reopen");
+            if (btnReopen) {
+                btnReopen.addEventListener("click", () => updateTicketStatus(ticket.id, "open"));
             }
             const btnDel = item.querySelector(".btn-delete");
             if (btnDel) {
@@ -3063,16 +3121,27 @@ function renderTickets() {
 }
 
 function updateTicketStatus(ticketId, newStatus) {
+    if (!state.loggedUser || state.loggedUser.role !== "master") {
+        showToast("Acción no permitida: Solo Ariel puede gestionar tickets.");
+        return;
+    }
     const ticket = state.tickets.find(t => t.id === ticketId);
     if (ticket) {
         ticket.status = newStatus;
         saveState();
-        showToast(`Ticket estado actualizado a: ${newStatus}`);
+        let statusText = "Abierto";
+        if (newStatus === "progress") statusText = "En Proceso";
+        else if (newStatus === "resolved") statusText = "Listo / Resuelto";
+        showToast(`Ticket estado actualizado a: ${statusText}`);
         renderTickets();
     }
 }
 
 function deleteTicket(ticketId) {
+    if (!state.loggedUser || state.loggedUser.role !== "master") {
+        showToast("Acción no permitida: Solo Ariel puede gestionar tickets.");
+        return;
+    }
     state.tickets = state.tickets.filter(t => t.id !== ticketId);
     saveState();
     showToast("Ticket eliminado");

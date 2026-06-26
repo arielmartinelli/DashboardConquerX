@@ -191,75 +191,72 @@
                 </div>
             </header>
 
-            <!-- Global Target Banner / KPIs (Rediseñado: 6/12 + 6/12) -->
-            <section class="kpis-section-redesigned" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
-                <!-- Columna Izquierda (6/12): Cash Collected & Porcentaje Cierre Con Segmentación -->
-                <div class="kpi-column-half" style="display: flex; flex-direction: column; gap: 20px;">
-                    <!-- KPI Cash Collected -->
-                    <div class="kpi-card" id="kpi-cash-card" style="padding: 20px;">
-                        <div class="kpi-header">
-                            <span class="kpi-title">CASH COLLECTED MENSUAL</span>
-                            <i class="fa-solid fa-euro-sign kpi-icon text-success"></i>
+            <!-- Global Target Banner / KPIs (Rediseñado: 3/12 + 3/12 + 6/12) -->
+            <section class="kpis-section-redesigned">
+                <!-- KPI Cash Collected (3/12) -->
+                <div class="kpi-card" id="kpi-cash-card" style="padding: 20px;">
+                    <div class="kpi-header">
+                        <span class="kpi-title">CASH COLLECTED MENSUAL</span>
+                        <i class="fa-solid fa-euro-sign kpi-icon text-success"></i>
+                    </div>
+                    <div class="kpi-value-container" style="display: flex; justify-content: space-between; align-items: baseline; flex-direction: column; gap: 4px;">
+                        <span class="kpi-value" id="total-cash-value" style="font-size: 24px; font-weight: 800; font-family: var(--font-heading);">€0</span>
+                        <span class="kpi-target" style="font-size: 10px; color: var(--text-muted);">Meta: €200,000</span>
+                    </div>
+                    
+                    <div class="kpi-progress-bar-container">
+                        <div class="progress-bar-track">
+                            <div class="progress-bar-fill fill-cash" id="cash-progress-fill" style="width: 0%"></div>
                         </div>
-                        <div class="kpi-value-container" style="display: flex; justify-content: space-between; align-items: baseline;">
-                            <span class="kpi-value" id="total-cash-value" style="font-size: 24px; font-weight: 800; font-family: var(--font-heading);">€0</span>
-                            <span class="kpi-target" style="font-size: 11px; color: var(--text-muted);">Objetivo Global: €200,000</span>
+                        <div class="progress-labels" style="display: flex; justify-content: space-between; font-size: 9px; color: var(--text-muted); margin-top: 4px;">
+                            <span id="cash-progress-percent">0%</span>
+                            <span id="cash-remaining">Faltan €200k</span>
                         </div>
-                        
-                        <div class="kpi-progress-bar-container">
-                            <div class="progress-bar-track">
-                                <div class="progress-bar-fill fill-cash" id="cash-progress-fill" style="width: 0%"></div>
-                            </div>
-                            <div class="progress-labels" style="display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); margin-top: 4px;">
-                                <span id="cash-progress-percent">0% completado</span>
-                                <span id="cash-remaining">Faltan €200,000</span>
-                            </div>
+                    </div>
+                    
+                    <!-- Desglose por equipo -->
+                    <div class="team-kpi-breakdown" style="border-top: 1px solid var(--panel-border); padding-top: 10px; display: flex; flex-direction: column; gap: 8px; font-size: 11px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="display: flex; align-items: center; gap: 6px;"><span class="team-dot dot-languages" style="width: 8px; height: 8px; border-radius: 50%; background: var(--color-accent); display: inline-block;"></span>Lang:</span>
+                            <strong id="sum-languages-cash-kpi">€0 (0%)</strong>
                         </div>
-                        
-                        <!-- Desglose por equipo -->
-                        <div class="team-kpi-breakdown" style="border-top: 1px solid var(--panel-border); padding-top: 10px; display: flex; flex-direction: column; gap: 8px; font-size: 11.5px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span style="display: flex; align-items: center; gap: 6px;"><span class="team-dot dot-languages" style="width: 8px; height: 8px; border-radius: 50%; background: var(--color-accent); display: inline-block;"></span>Languages:</span>
-                                <strong id="sum-languages-cash-kpi">€0 (0%)</strong>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span style="display: flex; align-items: center; gap: 6px;"><span class="team-dot dot-block" style="width: 8px; height: 8px; border-radius: 50%; background: var(--color-secondary); display: inline-block;"></span>Block:</span>
-                                <strong id="sum-block-cash-kpi">€0 (0%)</strong>
-                            </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="display: flex; align-items: center; gap: 6px;"><span class="team-dot dot-block" style="width: 8px; height: 8px; border-radius: 50%; background: var(--color-secondary); display: inline-block;"></span>Block:</span>
+                            <strong id="sum-block-cash-kpi">€0 (0%)</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI Porcentaje de Cierre (3/12) -->
+                <div class="kpi-card" id="kpi-rate-card" style="padding: 20px;">
+                    <div class="kpi-header">
+                        <span class="kpi-title">PORCENTAJE DE CIERRE</span>
+                        <i class="fa-solid fa-percentage kpi-icon text-accent"></i>
+                    </div>
+                    <div class="kpi-value-container" style="display: flex; justify-content: space-between; align-items: baseline; flex-direction: column; gap: 4px;">
+                        <span class="kpi-value" id="global-rate-value" style="font-size: 24px; font-weight: 800; font-family: var(--font-heading);">0%</span>
+                        <span class="kpi-target" style="font-size: 10px; color: var(--text-muted);">Objetivo: 15%</span>
+                    </div>
+                    
+                    <div class="kpi-progress-bar-container">
+                        <div class="progress-bar-track">
+                            <div class="progress-bar-fill fill-rate" id="rate-progress-fill" style="width: 0%"></div>
+                        </div>
+                        <div class="progress-labels" style="display: flex; justify-content: space-between; font-size: 9px; color: var(--text-muted); margin-top: 4px;">
+                            <span id="rate-status-label">Bajo</span>
+                            <span id="rate-diff-label">-15%</span>
                         </div>
                     </div>
 
-                    <!-- KPI Porcentaje de Cierre -->
-                    <div class="kpi-card" id="kpi-rate-card" style="padding: 20px;">
-                        <div class="kpi-header">
-                            <span class="kpi-title">PORCENTAJE DE CIERRE</span>
-                            <i class="fa-solid fa-percentage kpi-icon text-accent"></i>
+                    <!-- Desglose por equipo -->
+                    <div class="team-kpi-breakdown" style="border-top: 1px solid var(--panel-border); padding-top: 10px; display: flex; flex-direction: column; gap: 8px; font-size: 11px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="display: flex; align-items: center; gap: 6px;"><span class="team-dot dot-languages" style="width: 8px; height: 8px; border-radius: 50%; background: var(--color-accent); display: inline-block;"></span>Lang:</span>
+                            <strong id="sum-languages-rate-kpi">0%</strong>
                         </div>
-                        <div class="kpi-value-container" style="display: flex; justify-content: space-between; align-items: baseline;">
-                            <span class="kpi-value" id="global-rate-value" style="font-size: 24px; font-weight: 800; font-family: var(--font-heading);">0%</span>
-                            <span class="kpi-target" style="font-size: 11px; color: var(--text-muted);">Objetivo Global: 15%</span>
-                        </div>
-                        
-                        <div class="kpi-progress-bar-container">
-                            <div class="progress-bar-track">
-                                <div class="progress-bar-fill fill-rate" id="rate-progress-fill" style="width: 0%"></div>
-                            </div>
-                            <div class="progress-labels" style="display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); margin-top: 4px;">
-                                <span id="rate-status-label">Bajo el objetivo</span>
-                                <span id="rate-diff-label">-15%</span>
-                            </div>
-                        </div>
-
-                        <!-- Desglose por equipo -->
-                        <div class="team-kpi-breakdown" style="border-top: 1px solid var(--panel-border); padding-top: 10px; display: flex; flex-direction: column; gap: 8px; font-size: 11.5px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span style="display: flex; align-items: center; gap: 6px;"><span class="team-dot dot-languages" style="width: 8px; height: 8px; border-radius: 50%; background: var(--color-accent); display: inline-block;"></span>Languages:</span>
-                                <strong id="sum-languages-rate-kpi">0%</strong>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span style="display: flex; align-items: center; gap: 6px;"><span class="team-dot dot-block" style="width: 8px; height: 8px; border-radius: 50%; background: var(--color-secondary); display: inline-block;"></span>Block:</span>
-                                <strong id="sum-block-rate-kpi">0%</strong>
-                            </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="display: flex; align-items: center; gap: 6px;"><span class="team-dot dot-block" style="width: 8px; height: 8px; border-radius: 50%; background: var(--color-secondary); display: inline-block;"></span>Block:</span>
+                            <strong id="sum-block-rate-kpi">0%</strong>
                         </div>
                     </div>
                 </div>
@@ -272,40 +269,64 @@
                         <i class="fa-solid fa-phone-volume kpi-icon text-accent"></i>
                     </div>
                     
-                    <div class="calls-mini-summary" style="font-size: 11.5px; line-height: 1.5; display: flex; flex-direction: column; gap: 6px; color: var(--text-main); flex-grow: 1;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span><strong>Global Mensual:</strong></span>
-                            <span id="kpi-calls-global-monthly" style="font-weight: 700;">0 / 0</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span><strong>Languages Mensual:</strong></span>
-                            <span id="kpi-calls-lang-monthly" style="font-weight: 700;">0 / 0</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span><strong>Block Mensual:</strong></span>
-                            <span id="kpi-calls-block-monthly" style="font-weight: 700;">0 / 0</span>
+                    <div class="calls-card-body-grid">
+                        <!-- Left Side: Team/Global Progress -->
+                        <div class="calls-team-section">
+                            <h4 class="calls-section-title"><i class="fa-solid fa-users text-primary"></i> Equipos (Mensual)</h4>
+                            <div class="calls-progress-row">
+                                <div class="calls-progress-info">
+                                    <span>Global</span>
+                                    <strong id="kpi-calls-global-monthly">0 / 0</strong>
+                                </div>
+                                <div class="progress-bar-track mini-track">
+                                    <div class="progress-bar-fill fill-primary" id="kpi-calls-global-fill" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="calls-progress-row">
+                                <div class="calls-progress-info">
+                                    <span>Languages</span>
+                                    <strong id="kpi-calls-lang-monthly">0 / 0</strong>
+                                </div>
+                                <div class="progress-bar-track mini-track">
+                                    <div class="progress-bar-fill fill-accent" id="kpi-calls-lang-fill" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="calls-progress-row">
+                                <div class="calls-progress-info">
+                                    <span>Block</span>
+                                    <strong id="kpi-calls-block-monthly">0 / 0</strong>
+                                </div>
+                                <div class="progress-bar-track mini-track">
+                                    <div class="progress-bar-fill fill-secondary" id="kpi-calls-block-fill" style="width: 0%"></div>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Selector y Proyección por Persona integrado -->
-                        <div style="border-top: 1px solid var(--panel-border); padding-top: 10px; margin-top: 4px; display: flex; flex-direction: column; gap: 8px;">
-                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
-                                <span style="font-size: 10.5px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.3px;">Progreso por Persona:</span>
+                        <!-- Right Side: Individual Projection -->
+                        <div class="calls-indiv-section">
+                            <div class="calls-section-subtitle-right">
+                                <h4 class="calls-section-title" style="margin: 0;"><i class="fa-solid fa-user text-accent"></i> Por Closer</h4>
                                 <div class="custom-select-wrapper" style="width: 130px;">
                                     <select id="kpi-calls-closer-select" class="styled-select" style="padding: 4px 20px 4px 8px; font-size: 11px; height: 26px; border-radius: var(--radius-sm);">
                                         <!-- Dinámico -->
                                     </select>
                                 </div>
                             </div>
-                            
-                            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255, 255, 255, 0.02); padding: 6px 10px; border-radius: var(--radius-sm); border: 1px solid var(--panel-border);">
-                                <span style="font-size: 11px;">Semanal (<strong id="kpi-calls-indiv-name">Closer</strong>):</span>
-                                <span id="kpi-calls-indiv-weekly" style="font-weight: 700; color: var(--color-warning);">0 / 20</span>
+
+                            <div class="indiv-calls-kpi-box">
+                                <div class="calls-progress-info">
+                                    <span>Meta Semanal (<strong id="kpi-calls-indiv-name">Closer</strong>)</span>
+                                    <strong id="kpi-calls-indiv-weekly" style="color: var(--color-warning);">0 / 20</strong>
+                                </div>
+                                <div class="progress-bar-track mini-track">
+                                    <div class="progress-bar-fill fill-warning" id="kpi-calls-indiv-fill" style="width: 0%"></div>
+                                </div>
                             </div>
 
-                            <div class="projection-box-kpi" style="background: rgba(0, 0, 0, 0.15); border: 1px solid var(--panel-border); border-radius: var(--radius-sm); padding: 10px; font-size: 10px; line-height: 1.4; color: var(--text-muted);">
-                                <strong style="color: var(--color-warning); font-size: 10.5px; display: block; margin-bottom: 4px;"><i class="fa-solid fa-calculator"></i> Proyección Faltantes:</strong>
-                                <div id="kpi-calls-missing-weekly" style="color: var(--text-main); margin-bottom: 2px;">Semanal: ...</div>
-                                <div id="kpi-calls-missing-monthly" style="color: var(--text-main);">Mensual: ...</div>
+                            <div class="projection-box-kpi">
+                                <strong class="projection-box-header"><i class="fa-solid fa-calculator text-warning"></i> Proyección Faltante:</strong>
+                                <div id="kpi-calls-missing-weekly" class="projection-item-text">Semanal: ...</div>
+                                <div id="kpi-calls-missing-monthly" class="projection-item-text">Mensual: ...</div>
                             </div>
                         </div>
                     </div>
@@ -804,9 +825,9 @@
 
             <!-- TAB CONTENT 5: TICKETS / SUGGESTIONS SYSTEM -->
             <section class="tab-content" id="view-tickets">
-                <div class="grid-layout grid-2-columns">
+                <div class="grid-layout grid-2-columns" id="tickets-grid">
                     <!-- Left: Form to create ticket -->
-                    <div class="glass-panel">
+                    <div class="glass-panel" id="tickets-form-panel">
                         <div class="panel-header">
                             <h3><i class="fa-solid fa-square-plus text-warning"></i> Reportar Nueva Sugerencia / Ticket</h3>
                         </div>
@@ -840,7 +861,7 @@
                     </div>
 
                     <!-- Right: Tickets list with interactive filtering -->
-                    <div class="glass-panel">
+                    <div class="glass-panel" id="tickets-list-panel">
                         <div class="panel-header header-with-actions">
                             <h3><i class="fa-solid fa-list-check"></i> Listado de Sugerencias</h3>
                             <div class="segmented-control" id="ticket-filter-status" style="margin-left: auto;">
