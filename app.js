@@ -2066,6 +2066,50 @@ function setupEventListeners() {
             showToast("Sesión cerrada");
         });
     }
+
+    // Login Screen Cursor Glow Trail Effect (with LERP interpolation)
+    if (elements.loginScreen) {
+        let targetX = window.innerWidth / 2;
+        let targetY = window.innerHeight / 2;
+        let currentX = window.innerWidth / 2;
+        let currentY = window.innerHeight / 2;
+        
+        elements.loginScreen.addEventListener("mousemove", (e) => {
+            const rect = elements.loginScreen.getBoundingClientRect();
+            targetX = e.clientX - rect.left;
+            targetY = e.clientY - rect.top;
+        });
+        
+        function animateGlow() {
+            // LERP formula for smooth liquid-like color trail effect
+            currentX += (targetX - currentX) * 0.08;
+            currentY += (targetY - currentY) * 0.08;
+            
+            elements.loginScreen.style.setProperty("--mouse-x", `${currentX}px`);
+            elements.loginScreen.style.setProperty("--mouse-y", `${currentY}px`);
+            
+            // Only continue loop if login screen is visible
+            if (elements.loginScreen.style.display !== "none" && !elements.loginScreen.classList.contains("hidden")) {
+                requestAnimationFrame(animateGlow);
+            }
+        }
+        
+        // Start animation loop
+        animateGlow();
+        
+        // Restart loop when logging out
+        if (elements.btnLogout) {
+            elements.btnLogout.addEventListener("click", () => {
+                setTimeout(() => {
+                    targetX = window.innerWidth / 2;
+                    targetY = window.innerHeight / 2;
+                    currentX = window.innerWidth / 2;
+                    currentY = window.innerHeight / 2;
+                    animateGlow();
+                }, 100);
+            });
+        }
+    }
 }
 
 function toggleTaskCompleted(closerId, taskId) {

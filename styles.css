@@ -1610,7 +1610,9 @@ body, aside, main, header, .glass-panel, .kpi-card, .menu-item, .styled-select, 
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: radial-gradient(circle at center, var(--bg-main) 0%, #090d16 100%);
+    --mouse-x: 50%;
+    --mouse-y: 50%;
+    background: radial-gradient(circle 600px at var(--mouse-x) var(--mouse-y), rgba(6, 182, 212, 0.15) 0%, rgba(249, 115, 22, 0.12) 45%, var(--bg-main) 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1626,7 +1628,7 @@ body, aside, main, header, .glass-panel, .kpi-card, .menu-item, .styled-select, 
 }
 
 body[data-theme="light"] .login-screen {
-    background: radial-gradient(circle at center, #ffffff 0%, #e2e8f0 100%);
+    background: radial-gradient(circle 600px at var(--mouse-x) var(--mouse-y), rgba(6, 182, 212, 0.10) 0%, rgba(249, 115, 22, 0.08) 45%, #e2e8f0 100%);
 }
 
 .login-card {
