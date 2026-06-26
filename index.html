@@ -240,6 +240,37 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- KPI Calls & Projections -->
+                <div class="kpi-card glassmorphic-kpi" id="kpi-calls-summary">
+                    <div class="kpi-header">
+                        <span class="kpi-title">MÉTRICAS DE LLAMADAS</span>
+                        <i class="fa-solid fa-phone-volume kpi-icon text-accent"></i>
+                    </div>
+                    <div class="calls-mini-summary" style="font-size: 11.5px; line-height: 1.45; display: flex; flex-direction: column; gap: 6px; color: var(--text-main);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span><strong>Global Mensual:</strong></span>
+                            <span id="kpi-calls-global-monthly" style="font-weight: 700;">0 / 0</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span><strong>Languages Mensual:</strong></span>
+                            <span id="kpi-calls-lang-monthly" style="font-weight: 700;">0 / 0</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span><strong>Block Mensual:</strong></span>
+                            <span id="kpi-calls-block-monthly" style="font-weight: 700;">0 / 0</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--panel-border); padding-top: 4px;">
+                            <span><strong>Semanal (<span id="kpi-calls-indiv-name">Closer</span>):</strong></span>
+                            <span id="kpi-calls-indiv-weekly" style="font-weight: 700; color: var(--color-warning);">0 / 20</span>
+                        </div>
+                        <div style="border-top: 1px solid var(--panel-border); padding-top: 4px; font-size: 9.5px; color: var(--text-muted); display: flex; flex-direction: column; gap: 3px;">
+                            <strong>Proyección Faltantes:</strong>
+                            <div id="kpi-calls-missing-weekly">Semanal: ...</div>
+                            <div id="kpi-calls-missing-monthly">Mensual: ...</div>
+                        </div>
+                    </div>
+                </div>
             </section>
 
             <!-- TAB CONTENT 1: OVERVIEW -->
@@ -295,6 +326,61 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Projections of Calls & Sales (Global and Team) -->
+                <div class="grid-layout grid-1-column margin-top-lg">
+                    <div class="glass-panel">
+                        <div class="panel-header">
+                            <h3><i class="fa-solid fa-calculator text-primary"></i> Proyecciones de Llamadas y Ventas (Grupal y por Equipo)</h3>
+                        </div>
+                        <div class="panel-body grid-layout grid-3-columns" style="gap: 20px; padding: 20px;">
+                            <!-- Combined (Global) -->
+                            <div class="projection-card" style="background: rgba(0,0,0,0.15); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--panel-border);">
+                                <h4 style="font-family: var(--font-heading); font-size: 13px; font-weight: 700; color: var(--color-primary); text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; justify-content: center;">
+                                    <i class="fa-solid fa-globe"></i> Ambos Equipos (Global)
+                                </h4>
+                                <div style="font-size: 12px; line-height: 1.6; display: flex; flex-direction: column; gap: 8px;">
+                                    <div><strong>Llamadas Semanales:</strong> <span id="global-calls-weekly">0 / 0</span></div>
+                                    <div><strong>Llamadas Mensuales:</strong> <span id="global-calls-monthly">0 / 0</span></div>
+                                    <hr style="border: 0; border-top: 1px solid var(--panel-border); margin: 6px 0;">
+                                    <div id="global-projection-weekly-text" style="color: var(--text-main); font-size: 11px;">Calculando proyección...</div>
+                                    <div id="global-projection-monthly-text" style="color: var(--text-main); font-size: 11px;">Calculando proyección...</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Languages Team -->
+                            <div class="projection-card" style="background: rgba(0,0,0,0.15); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--panel-border);">
+                                <h4 style="font-family: var(--font-heading); font-size: 13px; font-weight: 700; color: var(--color-accent); text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; justify-content: center;">
+                                    <i class="fa-solid fa-language"></i> Equipo Languages
+                                </h4>
+                                <div style="font-size: 12px; line-height: 1.6; display: flex; flex-direction: column; gap: 8px;">
+                                    <div><strong>Llamadas Semanales:</strong> <span id="lang-calls-weekly">0 / 0</span></div>
+                                    <div><strong>Llamadas Mensuales:</strong> <span id="lang-calls-monthly">0 / 0</span></div>
+                                    <hr style="border: 0; border-top: 1px solid var(--panel-border); margin: 6px 0;">
+                                    <div id="lang-projection-weekly-text" style="color: var(--text-main); font-size: 11px;">Calculando proyección...</div>
+                                    <div id="lang-projection-monthly-text" style="color: var(--text-main); font-size: 11px;">Calculando proyección...</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Block Team -->
+                            <div class="projection-card" style="background: rgba(0,0,0,0.15); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--panel-border);">
+                                <h4 style="font-family: var(--font-heading); font-size: 13px; font-weight: 700; color: var(--color-secondary); text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; justify-content: center;">
+                                    <i class="fa-solid fa-cubes"></i> Equipo Block
+                                </h4>
+                                <div style="font-size: 12px; line-height: 1.6; display: flex; flex-direction: column; gap: 8px;">
+                                    <div><strong>Llamadas Semanales:</strong> <span id="block-calls-weekly">0 / 0</span></div>
+                                    <div><strong>Llamadas Mensuales:</strong> <span id="block-calls-monthly">0 / 0</span></div>
+                                    <hr style="border: 0; border-top: 1px solid var(--panel-border); margin: 6px 0;">
+                                    <div id="block-projection-weekly-text" style="color: var(--text-main); font-size: 11px;">Calculando proyección...</div>
+                                    <div id="block-projection-monthly-text" style="color: var(--text-main); font-size: 11px;">Calculando proyección...</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="padding: 10px 20px; background: rgba(255,255,255,0.02); font-size: 10.5px; color: var(--text-muted); border-top: 1px solid var(--panel-border); border-bottom-left-radius: var(--radius-lg); border-bottom-right-radius: var(--radius-lg);">
+                            <i class="fa-solid fa-info-circle"></i> <strong>Ecuación de Proyección:</strong> Llamadas Faltantes = (Ventas Objetivo / Tasa de Cierre Actual) - Llamadas Realizadas. El objetivo semanal es de 20 llamadas por closer y el mensual de 80 llamadas por closer. Las ventas objetivo corresponden a una tasa estándar de 15% sobre las llamadas objetivo (Semanal: 3 ventas, Mensual: 12 ventas).
+                        </div>
+                    </div>
+                </div>
             </section>
 
             <!-- TAB CONTENT 2: LANGUAGES TEAM -->
@@ -316,6 +402,10 @@
                         <div class="stat-ribbon-item">
                             <span class="ribbon-val" id="lang-stat-closers">7</span>
                             <span class="ribbon-lbl">Closers Activos</span>
+                        </div>
+                        <div class="stat-ribbon-item">
+                            <span class="ribbon-val" id="lang-stat-calls">0 / 0</span>
+                            <span class="ribbon-lbl">Llamadas (Sem / Mes)</span>
                         </div>
                     </div>
                 </div>
@@ -365,6 +455,10 @@
                         <div class="stat-ribbon-item">
                             <span class="ribbon-val" id="block-stat-closers">5</span>
                             <span class="ribbon-lbl">Closers Activos</span>
+                        </div>
+                        <div class="stat-ribbon-item">
+                            <span class="ribbon-val" id="block-stat-calls">0 / 0</span>
+                            <span class="ribbon-lbl">Llamadas (Sem / Mes)</span>
                         </div>
                     </div>
                 </div>
@@ -483,8 +577,44 @@
                                     </div>
                                 </div>
 
+                                <hr class="divider" style="margin: 12px 0;">
 
-                                
+                                <!-- Individual Calls & Projections Area -->
+                                <div class="calls-progress-area" style="width: 100%; text-align: left; display: flex; flex-direction: column; gap: 6px;">
+                                    <span class="form-section-title" style="font-size: 10px; margin: 0; letter-spacing: 0.2px;"><i class="fa-solid fa-phone-volume text-accent"></i> Registro y Proyección de Llamadas</span>
+                                    
+                                    <!-- Weekly Calls -->
+                                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                                        <div style="display: flex; justify-content: space-between; font-size: 11px;">
+                                            <span>Llamadas Semanales (Objetivo: 20):</span>
+                                            <strong id="profile-calls-weekly-text">0 / 20</strong>
+                                        </div>
+                                        <div class="progress-bar-track" style="height: 6px; background: var(--progress-track); border-radius: 3px; overflow: hidden;">
+                                            <div class="progress-bar-fill fill-rate" id="profile-calls-weekly-fill" style="width: 0%; height: 100%; background: var(--color-accent); border-radius: 3px;"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Monthly Calls -->
+                                    <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px;">
+                                        <div style="display: flex; justify-content: space-between; font-size: 11px;">
+                                            <span>Llamadas Mensuales (Objetivo: 80):</span>
+                                            <strong id="profile-calls-monthly-text">0 / 80</strong>
+                                        </div>
+                                        <div class="progress-bar-track" style="height: 6px; background: var(--progress-track); border-radius: 3px; overflow: hidden;">
+                                            <div class="progress-bar-fill fill-rate" id="profile-calls-monthly-fill" style="width: 0%; height: 100%; background: var(--color-primary); border-radius: 3px;"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Projections Box -->
+                                    <div class="projection-result-box" style="background: rgba(0,0,0,0.15); border: 1px solid var(--panel-border); border-radius: var(--radius-sm); padding: 10px 12px; margin-top: 8px; font-size: 11px; line-height: 1.4;">
+                                        <div style="font-weight: 700; color: var(--color-warning); margin-bottom: 4px; display: flex; align-items: center; gap: 5px;">
+                                            <i class="fa-solid fa-calculator"></i> Proyección de Llamadas Faltantes:
+                                        </div>
+                                        <div id="profile-projection-weekly" style="margin-bottom: 4px; color: var(--text-main);">Semanal: Calculando...</div>
+                                        <div id="profile-projection-monthly" style="color: var(--text-main);">Mensual: Calculando...</div>
+                                    </div>
+                                </div>
+
                                 <!-- Collapsible Accordion form to edit Closer details and metrics -->
                                 <details class="edit-closer-details-accordion">
                                     <summary class="btn btn-secondary" style="width: 100%; font-size: 12px; padding: 8px 12px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
@@ -522,6 +652,17 @@
                                                 <div class="form-group">
                                                     <label for="edit-sales" style="font-size: 11px;">Ventas</label>
                                                     <input type="number" id="edit-sales" min="0" required class="styled-input" style="padding: 8px 10px; font-size: 12.5px;">
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="form-row-2">
+                                                <div class="form-group">
+                                                    <label for="edit-calls-weekly" style="font-size: 11px;">Llamadas Semanales</label>
+                                                    <input type="number" id="edit-calls-weekly" min="0" required class="styled-input" style="padding: 8px 10px; font-size: 12.5px;">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="edit-calls-monthly" style="font-size: 11px;">Llamadas Mensuales</label>
+                                                    <input type="number" id="edit-calls-monthly" min="0" required class="styled-input" style="padding: 8px 10px; font-size: 12.5px;">
                                                 </div>
                                             </div>
                                             

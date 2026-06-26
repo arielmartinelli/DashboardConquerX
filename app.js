@@ -12,6 +12,8 @@ const DEFAULT_CLOSERS = {
             cashCollected: 5000,
             targetCash: 25000,
             commissionRate: 7,
+            callsWeekly: 15,
+            callsMonthly: 60,
             avatarUrl: "https://media-eze1-2.cdn.whatsapp.net/v/t61.24694-24/688439856_1688070622524540_6748855887472131216_n.jpg?ccb=11-4&oh=01_Q5Aa4wELq3r63qy5H3saKJtxeK37_S9xCKAR-kK_9huii7_Urw&oe=6A4A977E&_nc_sid=5e03e0&_nc_cat=106",
             driveUrl: "https://drive.google.com/drive/folders/1A_B_C_Languages_Jasmine_Dummy",
             nextMeeting: null,
@@ -40,6 +42,8 @@ const DEFAULT_CLOSERS = {
             cashCollected: 15000,
             targetCash: 20000,
             commissionRate: 5,
+            callsWeekly: 20,
+            callsMonthly: 70,
             avatarUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=150",
             driveUrl: "https://drive.google.com/drive/folders/1B_Merlo_Recorded_Calls",
             nextMeeting: null,
@@ -63,6 +67,8 @@ const DEFAULT_CLOSERS = {
             cashCollected: 21000,
             targetCash: 20000,
             commissionRate: 5,
+            callsWeekly: 28,
+            callsMonthly: 90,
             avatarUrl: "https://media-eze1-2.cdn.whatsapp.net/v/t61.24694-24/678165232_2281853229010844_6127097492774794344_n.jpg?ccb=11-4&oh=01_Q5Aa4wH5W4JIuLTTfls5Pf-7M04vRfA7PQQIXZuuwHx5DKVkMA&oe=6A4A9538&_nc_sid=5e03e0&_nc_cat=107",
             driveUrl: "https://drive.google.com/drive/folders/1C_ArielM_Calls",
             nextMeeting: null,
@@ -91,6 +97,8 @@ const DEFAULT_CLOSERS = {
             cashCollected: 12000,
             targetCash: 15000,
             commissionRate: 5,
+            callsWeekly: 16,
+            callsMonthly: 60,
             avatarUrl: "https://media-eze1-2.cdn.whatsapp.net/v/t61.24694-24/588727318_4025474887585902_323612380752492272_n.jpg?ccb=11-4&oh=01_Q5Aa4wFRxGdkS2Bxo2emMm4VSHmt8a6ukfkYleWaGL4-uzFtDA&oe=6A4A8628&_nc_sid=5e03e0&_nc_cat=101",
             driveUrl: "",
             nextMeeting: null,
@@ -115,6 +123,8 @@ const DEFAULT_CLOSERS = {
             cashCollected: 9000,
             targetCash: 15000,
             commissionRate: 5,
+            callsWeekly: 12,
+            callsMonthly: 50,
             avatarUrl: "https://media-eze1-2.cdn.whatsapp.net/v/t61.24694-24/596521480_1289854622946035_6304448030381604272_n.jpg?ccb=11-4&oh=01_Q5Aa4wEJ6PWcWkpR87DOAU47wjlJyA55EX5Q7dnNcTjVwXtGFA&oe=6A4AB16A&_nc_sid=5e03e0&_nc_cat=105",
             driveUrl: "",
             nextMeeting: null,
@@ -137,6 +147,8 @@ const DEFAULT_CLOSERS = {
             cashCollected: 16500,
             targetCash: 20000,
             commissionRate: 5,
+            callsWeekly: 22,
+            callsMonthly: 75,
             avatarUrl: "",
             driveUrl: "",
             nextMeeting: null,
@@ -159,6 +171,8 @@ const DEFAULT_CLOSERS = {
             cashCollected: 13500,
             targetCash: 18000,
             commissionRate: 5,
+            callsWeekly: 18,
+            callsMonthly: 65,
             avatarUrl: "",
             driveUrl: "",
             nextMeeting: null,
@@ -183,6 +197,8 @@ const DEFAULT_CLOSERS = {
             cashCollected: 20000,
             targetCash: 25000,
             commissionRate: 7,
+            callsWeekly: 26,
+            callsMonthly: 80,
             avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150",
             driveUrl: "https://drive.google.com/drive/folders/1D_Blogs_Tomas_Dummy_Key",
             nextMeeting: null,
@@ -207,6 +223,8 @@ const DEFAULT_CLOSERS = {
             cashCollected: 15000,
             targetCash: 20000,
             commissionRate: 5,
+            callsWeekly: 20,
+            callsMonthly: 75,
             avatarUrl: "",
             driveUrl: "",
             nextMeeting: null,
@@ -229,6 +247,8 @@ const DEFAULT_CLOSERS = {
             cashCollected: 13500,
             targetCash: 18000,
             commissionRate: 5,
+            callsWeekly: 18,
+            callsMonthly: 70,
             avatarUrl: "",
             driveUrl: "",
             nextMeeting: null,
@@ -251,6 +271,8 @@ const DEFAULT_CLOSERS = {
             cashCollected: 10500,
             targetCash: 15000,
             commissionRate: 5,
+            callsWeekly: 14,
+            callsMonthly: 65,
             avatarUrl: "",
             driveUrl: "",
             nextMeeting: null,
@@ -273,6 +295,8 @@ const DEFAULT_CLOSERS = {
             cashCollected: 13500,
             targetCash: 18000,
             commissionRate: 5,
+            callsWeekly: 18,
+            callsMonthly: 60,
             avatarUrl: "",
             driveUrl: "",
             nextMeeting: null,
@@ -445,6 +469,39 @@ const elements = {
     // Toast
     toast: document.getElementById("toast"),
     toastMessage: document.getElementById("toast-message"),
+    
+    // Calls & Projections Mappings
+    langStatCalls: document.getElementById("lang-stat-calls"),
+    blockStatCalls: document.getElementById("block-stat-calls"),
+    profileCallsWeeklyText: document.getElementById("profile-calls-weekly-text"),
+    profileCallsWeeklyFill: document.getElementById("profile-calls-weekly-fill"),
+    profileCallsMonthlyText: document.getElementById("profile-calls-monthly-text"),
+    profileCallsMonthlyFill: document.getElementById("profile-calls-monthly-fill"),
+    profileProjectionWeekly: document.getElementById("profile-projection-weekly"),
+    profileProjectionMonthly: document.getElementById("profile-projection-monthly"),
+    globalCallsWeekly: document.getElementById("global-calls-weekly"),
+    globalCallsMonthly: document.getElementById("global-calls-monthly"),
+    globalProjectionWeeklyText: document.getElementById("global-projection-weekly-text"),
+    globalProjectionMonthlyText: document.getElementById("global-projection-monthly-text"),
+    langCallsWeekly: document.getElementById("lang-calls-weekly"),
+    langCallsMonthly: document.getElementById("lang-calls-monthly"),
+    langProjectionWeeklyText: document.getElementById("lang-projection-weekly-text"),
+    langProjectionMonthlyText: document.getElementById("lang-projection-monthly-text"),
+    blockCallsWeekly: document.getElementById("block-calls-weekly"),
+    blockCallsMonthly: document.getElementById("block-calls-monthly"),
+    blockProjectionWeeklyText: document.getElementById("block-projection-weekly-text"),
+    blockProjectionMonthlyText: document.getElementById("block-projection-monthly-text"),
+    editCallsWeekly: document.getElementById("edit-calls-weekly"),
+    editCallsMonthly: document.getElementById("edit-calls-monthly"),
+    
+    // 4th KPI Calls Mappings
+    kpiCallsGlobalMonthly: document.getElementById("kpi-calls-global-monthly"),
+    kpiCallsLangMonthly: document.getElementById("kpi-calls-lang-monthly"),
+    kpiCallsBlockMonthly: document.getElementById("kpi-calls-block-monthly"),
+    kpiCallsIndivName: document.getElementById("kpi-calls-indiv-name"),
+    kpiCallsIndivWeekly: document.getElementById("kpi-calls-indiv-weekly"),
+    kpiCallsMissingWeekly: document.getElementById("kpi-calls-missing-weekly"),
+    kpiCallsMissingMonthly: document.getElementById("kpi-calls-missing-monthly"),
     
     // Mobile Navigation Controls
     mobileSidebarToggle: document.getElementById("mobile-sidebar-toggle"),
@@ -707,6 +764,21 @@ function init() {
         state.closers = DEFAULT_CLOSERS;
         saveState();
     }
+
+    // Ensure all closers have calls fields initialized
+    const ensureCallsField = (list) => {
+        list.forEach(c => {
+            if (c.callsWeekly === undefined || c.callsWeekly === null) {
+                c.callsWeekly = c.leadsClosed ? Math.max(10, c.leadsClosed * 2) : 15;
+            }
+            if (c.callsMonthly === undefined || c.callsMonthly === null) {
+                c.callsMonthly = c.leadsContacted || 60;
+            }
+        });
+    };
+    if (state.closers.languages) ensureCallsField(state.closers.languages);
+    if (state.closers.block) ensureCallsField(state.closers.block);
+    saveState();
     
     let savedTeamLogs = localStorage.getItem("conquerx_team_logs");
     if (savedTeamLogs) {
@@ -883,14 +955,18 @@ function getTeamStats(teamName) {
     let cash = 0;
     let leads = 0;
     let closed = 0;
+    let callsWeekly = 0;
+    let callsMonthly = 0;
     list.forEach(c => {
         cash += Number(c.cashCollected || 0);
         leads += Number(c.leadsContacted || 0);
         closed += Number(c.leadsClosed || 0);
+        callsWeekly += Number(c.callsWeekly || 0);
+        callsMonthly += Number(c.callsMonthly || 0);
     });
     
     const rate = leads > 0 ? (closed / leads) * 100 : 0;
-    return { cash, leads, closed, rate, count: list.length };
+    return { cash, leads, closed, rate, callsWeekly, callsMonthly, count: list.length };
 }
 
 function getCombinedStats() {
@@ -901,8 +977,10 @@ function getCombinedStats() {
     const leads = langStats.leads + blockStats.leads;
     const closed = langStats.closed + blockStats.closed;
     const rate = leads > 0 ? (closed / leads) * 100 : 0;
+    const callsWeekly = langStats.callsWeekly + blockStats.callsWeekly;
+    const callsMonthly = langStats.callsMonthly + blockStats.callsMonthly;
     
-    return { cash, leads, closed, rate };
+    return { cash, leads, closed, rate, callsWeekly, callsMonthly };
 }
 
 function getAllClosersSorted() {
@@ -1021,7 +1099,8 @@ function renderSidebarPendingTasks() {
                         closerName: closer.name,
                         closerId: closer.id,
                         taskText: task.text,
-                        taskId: task.id
+                        taskId: task.id,
+                        createdBy: task.createdBy
                     });
                 }
             });
@@ -1058,12 +1137,15 @@ function renderSidebarPendingTasks() {
         
         const isLanguages = langList.some(c => c.id === item.closerId);
         const teamColor = isLanguages ? "var(--color-accent)" : "var(--color-secondary)";
+        const creator = item.createdBy || (isLanguages ? "Jazmín" : "Tomás");
+        const authorTag = `<span style="color: var(--text-muted); font-size: 9.5px;"> • Creado por ${creator}</span>`;
         
         taskRow.innerHTML = `
             <span style="color: var(--text-main); font-weight: 500; word-break: break-word; line-height: 1.2;">${item.taskText}</span>
-            <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
+            <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px; flex-wrap: wrap;">
                 <span style="width: 6px; height: 6px; border-radius: 50%; background: ${teamColor}; box-shadow: 0 0 6px ${teamColor};"></span>
                 <span style="color: ${teamColor}; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px;">${item.closerName}</span>
+                ${authorTag}
             </div>
         `;
         
@@ -1161,6 +1243,34 @@ function renderSidebarGeneralTasks() {
     });
 }
 
+function getTeamProjectionText(teamCloses, teamMonthlyCalls, teamCurrentCalls, targetCloses, label) {
+    let rate = 0.15; // default 15%
+    let hasSales = false;
+    if (teamMonthlyCalls > 0 && teamCloses > 0) {
+        rate = teamCloses / teamMonthlyCalls;
+        hasSales = true;
+    }
+    
+    const ratePercent = (rate * 100).toFixed(1);
+    
+    // Proyección con tasa del 15%
+    const totalCallsNeeded15 = Math.ceil(targetCloses / 0.15);
+    const remainingCalls15 = Math.max(0, totalCallsNeeded15 - teamCurrentCalls);
+    
+    if (!hasSales) {
+        return `${label}: Sin ventas. Con tasa objetivo de 15.0%, se requieren <strong>${totalCallsNeeded15}</strong> llamadas (faltan <strong>${remainingCalls15}</strong>).`;
+    }
+    
+    const totalCallsNeeded = Math.ceil(targetCloses / rate);
+    const remainingCalls = Math.max(0, totalCallsNeeded - teamCurrentCalls);
+    
+    let text = `${label}: Con tasa de <strong>${ratePercent}%</strong>, se requieren <strong>${totalCallsNeeded}</strong> llamadas (faltan <strong>${remainingCalls}</strong>).`;
+    if (ratePercent !== "15.0") {
+        text += ` <span style="font-size:9.5px; opacity:0.85;">(Meta 15%: faltan ${remainingCalls15})</span>`;
+    }
+    return text;
+}
+
 function renderGlobalKPIs() {
     const combined = getCombinedStats();
     const langStats = getTeamStats("languages");
@@ -1204,6 +1314,57 @@ function renderGlobalKPIs() {
     
     elements.sumLanguagesCash.innerText = `€${langStats.cash.toLocaleString("es-ES")} (${langPercent}%)`;
     elements.sumBlockCash.innerText = `€${blockStats.cash.toLocaleString("es-ES")} (${blockPercent}%)`;
+
+    // Render team calls in ribbons
+    if (elements.langStatCalls) {
+        elements.langStatCalls.innerText = `${langStats.callsWeekly} / ${langStats.callsMonthly}`;
+    }
+    if (elements.blockStatCalls) {
+        elements.blockStatCalls.innerText = `${blockStats.callsWeekly} / ${blockStats.callsMonthly}`;
+    }
+    
+    // Render Overview Projections
+    // Global
+    if (elements.globalCallsWeekly) {
+        const totalClosers = langStats.count + blockStats.count;
+        const weeklyTarget = 20 * totalClosers;
+        const monthlyTarget = 80 * totalClosers;
+        
+        elements.globalCallsWeekly.innerText = `${combined.callsWeekly} / ${weeklyTarget}`;
+        elements.globalCallsMonthly.innerText = `${combined.callsMonthly} / ${monthlyTarget}`;
+        
+        elements.globalProjectionWeeklyText.innerHTML = getTeamProjectionText(combined.closed, combined.callsMonthly, combined.callsWeekly, 3 * totalClosers, "Semanal");
+        elements.globalProjectionMonthlyText.innerHTML = getTeamProjectionText(combined.closed, combined.callsMonthly, combined.callsMonthly, 12 * totalClosers, "Mensual");
+        
+        // Update 4th KPI Card global and team metrics
+        if (elements.kpiCallsGlobalMonthly) {
+            elements.kpiCallsGlobalMonthly.innerText = `${combined.callsMonthly} / ${monthlyTarget}`;
+            elements.kpiCallsLangMonthly.innerText = `${langStats.callsMonthly} / ${80 * langStats.count}`;
+            elements.kpiCallsBlockMonthly.innerText = `${blockStats.callsMonthly} / ${80 * blockStats.count}`;
+        }
+    }
+    
+    // Languages Team Projections
+    if (elements.langCallsWeekly) {
+        const weeklyTarget = 20 * langStats.count;
+        const monthlyTarget = 80 * langStats.count;
+        elements.langCallsWeekly.innerText = `${langStats.callsWeekly} / ${weeklyTarget}`;
+        elements.langCallsMonthly.innerText = `${langStats.callsMonthly} / ${monthlyTarget}`;
+        
+        elements.langProjectionWeeklyText.innerHTML = getTeamProjectionText(langStats.closed, langStats.callsMonthly, langStats.callsWeekly, 3 * langStats.count, "Semanal");
+        elements.langProjectionMonthlyText.innerHTML = getTeamProjectionText(langStats.closed, langStats.callsMonthly, langStats.callsMonthly, 12 * langStats.count, "Mensual");
+    }
+    
+    // Block Team Projections
+    if (elements.blockCallsWeekly) {
+        const weeklyTarget = 20 * blockStats.count;
+        const monthlyTarget = 80 * blockStats.count;
+        elements.blockCallsWeekly.innerText = `${blockStats.callsWeekly} / ${weeklyTarget}`;
+        elements.blockCallsMonthly.innerText = `${blockStats.callsMonthly} / ${monthlyTarget}`;
+        
+        elements.blockProjectionWeeklyText.innerHTML = getTeamProjectionText(blockStats.closed, blockStats.callsMonthly, blockStats.callsWeekly, 3 * blockStats.count, "Semanal");
+        elements.blockProjectionMonthlyText.innerHTML = getTeamProjectionText(blockStats.closed, blockStats.callsMonthly, blockStats.callsMonthly, 12 * blockStats.count, "Mensual");
+    }
 }
 
 function renderOverviewTab() {
@@ -1429,7 +1590,7 @@ function renderCloserGrid(teamName, container) {
                 </div>
             </div>
             
-            <div class="card-metrics">
+            <div class="card-metrics" style="grid-template-columns: repeat(3, 1fr);">
                 <div class="card-metric-box">
                     <span class="val">€${c.cashCollected.toLocaleString("es-ES")}</span>
                     <span class="lbl">Cash</span>
@@ -1437,6 +1598,10 @@ function renderCloserGrid(teamName, container) {
                 <div class="card-metric-box">
                     <span class="val">${rate.toFixed(1)}%</span>
                     <span class="lbl">% Cierre</span>
+                </div>
+                <div class="card-metric-box">
+                    <span class="val" style="font-size: 12.5px;">${c.callsWeekly || 0} / ${c.callsMonthly || 0}</span>
+                    <span class="lbl">Llamadas (S|M)</span>
                 </div>
             </div>
             
@@ -1534,6 +1699,45 @@ function renderTeamFollowups(teamName, listContainer) {
     listContainer.scrollTop = listContainer.scrollHeight;
 }
 
+function getCallsProjectionText(closer, isWeekly) {
+    const targetCloses = isWeekly ? 3 : 12;
+    const currentCalls = isWeekly ? (closer.callsWeekly || 0) : (closer.callsMonthly || 0);
+    const targetCallsStandard = isWeekly ? 20 : 80;
+    
+    let rate = 0.15; // default 15%
+    let hasSales = false;
+    
+    const totalMonthlyCalls = closer.callsMonthly || 0;
+    if (totalMonthlyCalls > 0 && (closer.leadsClosed || 0) > 0) {
+        rate = closer.leadsClosed / totalMonthlyCalls;
+        hasSales = true;
+    } else if (closer.leadsContacted > 0 && (closer.leadsClosed || 0) > 0) {
+        rate = closer.leadsClosed / closer.leadsContacted;
+        hasSales = true;
+    }
+    
+    const ratePercent = (rate * 100).toFixed(1);
+    
+    // Proyección con tasa del 15%
+    const totalCallsNeeded15 = targetCallsStandard;
+    const remainingCalls15 = Math.max(0, totalCallsNeeded15 - currentCalls);
+    
+    const label = isWeekly ? "Semanal" : "Mensual";
+    
+    if (!hasSales) {
+        return `${label}: Sin ventas. Con tasa objetivo del 15.0%, necesitas <strong>${totalCallsNeeded15}</strong> llamadas (faltan <strong>${remainingCalls15}</strong>).`;
+    }
+    
+    const totalCallsNeeded = Math.ceil(targetCloses / rate);
+    const remainingCalls = Math.max(0, totalCallsNeeded - currentCalls);
+    
+    let text = `${label}: Con cierre de <strong>${ratePercent}%</strong>, necesitas <strong>${totalCallsNeeded}</strong> llamadas (faltan <strong>${remainingCalls}</strong>).`;
+    if (ratePercent !== "15.0") {
+        text += ` <span style="font-size:9.5px; opacity:0.85;">(Meta 15%: faltan ${remainingCalls15})</span>`;
+    }
+    return text;
+}
+
 function renderCloserProfileTab() {
     const closer = getCloserById(state.selectedCloserId);
     if (!closer) return;
@@ -1593,6 +1797,32 @@ function renderCloserProfileTab() {
         elements.bonusStatusMessage.innerHTML = `<i class="fa-solid fa-trophy text-warning"></i> ¡Todos los Bonus conseguidos! (€25k+)`;
         elements.bonusStatusMessage.style.color = "var(--color-success)";
     }
+
+    // Render Calls & Projections
+    if (elements.profileCallsWeeklyText) {
+        elements.profileCallsWeeklyText.innerText = `${closer.callsWeekly || 0} / 20`;
+        const weeklyPct = Math.min(((closer.callsWeekly || 0) / 20) * 100, 100);
+        elements.profileCallsWeeklyFill.style.width = `${weeklyPct}%`;
+    }
+    if (elements.profileCallsMonthlyText) {
+        elements.profileCallsMonthlyText.innerText = `${closer.callsMonthly || 0} / 80`;
+        const monthlyPct = Math.min(((closer.callsMonthly || 0) / 80) * 100, 100);
+        elements.profileCallsMonthlyFill.style.width = `${monthlyPct}%`;
+    }
+    if (elements.profileProjectionWeekly) {
+        elements.profileProjectionWeekly.innerHTML = getCallsProjectionText(closer, true);
+    }
+    if (elements.profileProjectionMonthly) {
+        elements.profileProjectionMonthly.innerHTML = getCallsProjectionText(closer, false);
+    }
+    
+    // Update 4th KPI Card (Calls summary) individual details
+    if (elements.kpiCallsIndivWeekly) {
+        elements.kpiCallsIndivName.innerText = closer.name.split(" ")[0]; // just first name
+        elements.kpiCallsIndivWeekly.innerText = `${closer.callsWeekly || 0} / 20`;
+        elements.kpiCallsMissingWeekly.innerHTML = getCallsProjectionText(closer, true);
+        elements.kpiCallsMissingMonthly.innerHTML = getCallsProjectionText(closer, false);
+    }
     
     // Refill Form
     elements.editName.value = closer.name;
@@ -1602,6 +1832,8 @@ function renderCloserProfileTab() {
     elements.editLeads.value = closer.leadsContacted;
     elements.editSales.value = closer.leadsClosed;
     elements.editCash.value = closer.cashCollected;
+    elements.editCallsWeekly.value = closer.callsWeekly || 0;
+    elements.editCallsMonthly.value = closer.callsMonthly || 0;
     elements.editNote.value = closer.note || "";
     
     // Render note info box
@@ -1638,11 +1870,16 @@ function renderCloserTasks(closer) {
         const item = document.createElement("li");
         item.className = `task-item ${task.completed ? 'completed' : ''}`;
         
+        const creator = task.createdBy || (closer.team === "languages" ? "Jazmín" : "Tomás");
+        
         item.innerHTML = `
             <div class="task-checkbox-wrapper">
                 <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''}>
             </div>
-            <span class="task-text">${task.text}</span>
+            <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px;">
+                <span class="task-text">${task.text}</span>
+                <small style="color: var(--text-muted); font-size: 10.5px; display: block; margin-top: 1px;">Creado por ${creator}</small>
+            </div>
             <button class="btn-delete-task" title="Eliminar tarea"><i class="fa-solid fa-trash-can"></i></button>
         `;
         
@@ -1673,9 +1910,14 @@ function renderCloserTips(closer) {
         const item = document.createElement("li");
         item.className = "tip-item";
         
+        const creator = tip.createdBy || (closer.team === "languages" ? "Jazmín" : "Tomás");
+        
         item.innerHTML = `
             <i class="fa-solid fa-lightbulb tip-icon"></i>
-            <span class="tip-text">${tip.text}</span>
+            <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px;">
+                <span class="tip-text">${tip.text}</span>
+                <small style="color: var(--text-muted); font-size: 10.5px; display: block; margin-top: 1px;">Creado por ${creator}</small>
+            </div>
             <button class="btn-delete-tip" title="Eliminar tip"><i class="fa-solid fa-trash-can"></i></button>
         `;
         
@@ -2032,6 +2274,8 @@ function setupEventListeners() {
         closer.leadsContacted = Number(elements.editLeads.value);
         closer.leadsClosed = Number(elements.editSales.value);
         closer.cashCollected = Number(elements.editCash.value);
+        closer.callsWeekly = Number(elements.editCallsWeekly.value || 0);
+        closer.callsMonthly = Number(elements.editCallsMonthly.value || 0);
         closer.note = elements.editNote.value.trim();
         
         if (previousTeam !== targetTeam) {
@@ -2057,10 +2301,13 @@ function setupEventListeners() {
         const textVal = elements.taskInput.value.trim();
         if (!textVal) return;
         
+        const authorName = state.currentSubleader === "manuel" ? "Manuel" : (state.currentSubleader === "jazmin" ? "Jazmín" : "Tomás");
+        
         const newTask = {
             id: "t_" + Date.now(),
             text: textVal,
-            completed: false
+            completed: false,
+            createdBy: authorName
         };
         
         if (!Array.isArray(closer.tasks)) closer.tasks = [];
@@ -2080,10 +2327,13 @@ function setupEventListeners() {
         const textVal = elements.tipInput.value.trim();
         if (!textVal) return;
         
+        const authorName = state.currentSubleader === "manuel" ? "Manuel" : (state.currentSubleader === "jazmin" ? "Jazmín" : "Tomás");
+        
         const newTip = {
             id: "tip_" + Date.now(),
             text: textVal,
-            category: "general"
+            category: "general",
+            createdBy: authorName
         };
         
         if (!Array.isArray(closer.tips)) closer.tips = [];
