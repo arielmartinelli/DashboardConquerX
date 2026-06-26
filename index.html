@@ -34,6 +34,38 @@
     <meta name="twitter:image" content="https://dashboard-conquerx.vercel.app/og-image.png">
 </head>
 <body>
+    <!-- Login Screen -->
+    <div class="login-screen" id="login-screen">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="login-logo"><i class="fa-solid fa-chart-line-up"></i></div>
+                <h2>ConquerX CRM</h2>
+                <p>Ingresa tus credenciales para acceder</p>
+            </div>
+            
+            <div class="login-error" id="login-error">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span id="login-error-msg">Usuario o contraseña incorrectos.</span>
+            </div>
+            
+            <form class="login-form" id="login-form">
+                <div class="form-group">
+                    <label for="login-username">Usuario</label>
+                    <input type="text" id="login-username" class="styled-input" placeholder="Nombre de usuario" required autocomplete="username">
+                </div>
+                
+                <div class="form-group">
+                    <label for="login-password">Contraseña</label>
+                    <input type="password" id="login-password" class="styled-input" placeholder="••••••••" required autocomplete="current-password">
+                </div>
+                
+                <button type="submit" class="btn btn-submit" style="margin-top: 12px;">
+                    Iniciar Sesión <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
     <div class="app-container">
         <!-- Sidebar Navigation -->
         <aside class="sidebar">
@@ -131,6 +163,9 @@
                 <div class="header-actions">
                     <button id="theme-toggle" title="Cambiar Tema">
                         <i class="fa-solid fa-moon"></i>
+                    </button>
+                    <button id="btn-logout" title="Cerrar Sesión" class="btn-logout-header">
+                        <i class="fa-solid fa-right-from-bracket"></i>
                     </button>
                 </div>
             </header>
@@ -358,7 +393,7 @@
                 <!-- Dropdown Selector closer -->
                 <div class="closer-selector-panel glass-panel">
                     <div class="panel-body selection-flex">
-                        <div class="form-group-flex">
+                        <div class="form-group-flex" id="closer-select-container-wrapper">
                             <label for="closer-profile-select"><i class="fa-solid fa-id-card"></i> Seleccionar Closer:</label>
                             <div class="custom-select-wrapper">
                                 <select id="closer-profile-select" class="styled-select">
@@ -367,6 +402,7 @@
                                 </select>
                             </div>
                         </div>
+                        <h3 id="closer-logged-title" style="display: none; font-family: var(--font-heading); font-weight: 700; margin: 0; font-size: 18px;"><i class="fa-solid fa-user-tie text-primary"></i> Mi Perfil Profesional</h3>
                         <div class="closer-actions-quick">
                             <span class="badge" id="profile-team-badge">Equipo</span>
                         </div>

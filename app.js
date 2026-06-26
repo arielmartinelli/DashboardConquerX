@@ -308,7 +308,8 @@ let state = {
     currentSubleader: "jazmin", // jazmin or tomas
     activeTab: "overview",
     selectedCloserId: "jazmin",
-    rankingFilter: "all"
+    rankingFilter: "all",
+    loggedUser: null
 };
 
 // --- DOM ELEMENTS ---
@@ -445,12 +446,175 @@ const elements = {
     mobileSidebarToggle: document.getElementById("mobile-sidebar-toggle"),
     mobileSidebarClose: document.getElementById("mobile-sidebar-close"),
     sidebarOverlay: document.getElementById("sidebar-overlay"),
-    sidebarElement: document.querySelector(".sidebar")
+    sidebarElement: document.querySelector(".sidebar"),
+
+    // Login Screen Mappings
+    loginScreen: document.getElementById("login-screen"),
+    loginForm: document.getElementById("login-form"),
+    loginUsername: document.getElementById("login-username"),
+    loginPassword: document.getElementById("login-password"),
+    loginError: document.getElementById("login-error"),
+    loginErrorMsg: document.getElementById("login-error-msg"),
+    btnLogout: document.getElementById("btn-logout"),
+    closerLoggedTitle: document.getElementById("closer-logged-title"),
+    closerSelectContainerWrapper: document.getElementById("closer-select-container-wrapper")
 };
 
 // Chart instances
 let cashChartInstance = null;
 let rateChartInstance = null;
+
+// --- USER DATABASE & AUTHENTICATION ---
+const USERS = {
+    manuel: { username: "manuel", name: "Manuel", role: "admin", password: "manuel123" },
+    jazmin: { username: "jazmin", name: "Jazmín Merlo", role: "subleader", password: "jazmin123", subleaderId: "jazmin" },
+    tomas: { username: "tomas", name: "Tomás", role: "subleader", password: "tomas123", subleaderId: "tomas" }
+};
+
+function findCloserByUsername(username) {
+    const cleanUsername = username.toLowerCase().trim();
+    if (state.closers.languages) {
+        const c = state.closers.languages.find(x => x.id === cleanUsername || x.name.toLowerCase().replace(/\s+/g, "") === cleanUsername);
+        if (c) return c;
+    }
+    if (state.closers.block) {
+        const c = state.closers.block.find(x => x.id === cleanUsername || x.name.toLowerCase().replace(/\s+/g, "") === cleanUsername);
+        if (c) return c;
+    }
+    return null;
+}
+
+function authenticate(username, password) {
+    const cleanUsername = username.toLowerCase().trim();
+    
+    // Check predefined users (Manuel, Jazmín, Tomás)
+    if (USERS[cleanUsername] && USERS[cleanUsername].password === password) {
+        return USERS[cleanUsername];
+    }
+    
+    // Check closers
+    const closer = findCloserByUsername(cleanUsername);
+    if (closer && password === `${closer.id}123`) {
+        return {
+            username: closer.id,
+            name: closer.name,
+            role: "closer",
+            closerId: closer.id
+        };
+    }
+    
+    return null;
+}
+
+function applyUserPermissions() {
+    const user = state.loggedUser;
+    if (!user) return;
+    
+    const overviewBtn = document.getElementById("btn-tab-overview");
+    const languagesBtn = document.getElementById("btn-tab-languages");
+    const blockBtn = document.getElementById("btn-tab-block");
+    const closerBtn = document.getElementById("btn-tab-closer");
+    
+    const subleaderSelect = document.getElementById("subleader-select");
+    const subleaderCard = document.querySelector(".sidebar-footer"); // Hide footer subleader select for closers
+    
+    // Show all by default
+    if (overviewBtn) overviewBtn.style.display = "flex";
+    if (languagesBtn) languagesBtn.style.display = "flex";
+    if (blockBtn) blockBtn.style.display = "flex";
+    if (closerBtn) closerBtn.style.display = "flex";
+    if (subleaderCard) subleaderCard.style.display = "block";
+    if (subleaderSelect) subleaderSelect.disabled = false;
+    
+    if (elements.closerProfileSelect) {
+        elements.closerProfileSelect.disabled = false;
+        elements.closerProfileSelect.style.display = "block";
+    }
+    if (elements.closerSelectContainerWrapper) {
+        elements.closerSelectContainerWrapper.style.display = "flex";
+    }
+    if (elements.closerLoggedTitle) {
+        elements.closerLoggedTitle.style.display = "none";
+    }
+    
+    // Default show setting forms
+    const accordion = document.querySelector(".edit-closer-details-accordion");
+    if (accordion) accordion.style.display = "block";
+
+    if (user.role === "admin") {
+        // Manuel - Jefe Supremo
+        // Can do anything, can switch subleader
+    } else if (user.role === "subleader") {
+        // Jazmín or Tomás
+        // Set subleader and lock it
+        state.currentSubleader = user.subleaderId;
+        saveState();
+        updateSubleaderUI();
+        if (subleaderSelect) {
+            subleaderSelect.value = user.subleaderId;
+            subleaderSelect.disabled = true;
+        }
+    } else if (user.role === "closer") {
+        // Regular Closer
+        // Hide other tabs
+        if (overviewBtn) overviewBtn.style.display = "none";
+        if (languagesBtn) languagesBtn.style.display = "none";
+        if (blockBtn) blockBtn.style.display = "none";
+        
+        // Lock to their profile tab
+        selectCloser(user.closerId);
+        switchTab("closer-profile");
+        
+        // Hide selector and show "Mi Perfil Profesional" title
+        if (elements.closerProfileSelect) {
+            elements.closerProfileSelect.value = user.closerId;
+            elements.closerProfileSelect.disabled = true;
+            elements.closerProfileSelect.style.display = "none";
+        }
+        if (elements.closerSelectContainerWrapper) {
+            elements.closerSelectContainerWrapper.style.display = "none";
+        }
+        if (elements.closerLoggedTitle) {
+            elements.closerLoggedTitle.style.display = "block";
+        }
+        
+        // Hide footer subleader select entirely
+        if (subleaderCard) subleaderCard.style.display = "none";
+        
+        // Hide details editor accordion completely
+        const accordion = document.querySelector(".edit-closer-details-accordion");
+        if (accordion) accordion.style.display = "none";
+    }
+}
+
+function logout() {
+    state.loggedUser = null;
+    localStorage.removeItem("conquerx_logged_user");
+    
+    // Show login screen
+    if (elements.loginScreen) {
+        elements.loginScreen.style.display = "flex";
+        elements.loginScreen.classList.remove("hidden");
+    }
+    
+    // Reset login inputs
+    if (elements.loginUsername) elements.loginUsername.value = "";
+    if (elements.loginPassword) elements.loginPassword.value = "";
+    if (elements.loginError) elements.loginError.style.display = "none";
+    
+    // Restore default displays
+    const overviewBtn = document.getElementById("btn-tab-overview");
+    const languagesBtn = document.getElementById("btn-tab-languages");
+    const blockBtn = document.getElementById("btn-tab-block");
+    const closerBtn = document.getElementById("btn-tab-closer");
+    const subleaderCard = document.querySelector(".sidebar-footer");
+    
+    if (overviewBtn) overviewBtn.style.display = "flex";
+    if (languagesBtn) languagesBtn.style.display = "flex";
+    if (blockBtn) blockBtn.style.display = "flex";
+    if (closerBtn) closerBtn.style.display = "flex";
+    if (subleaderCard) subleaderCard.style.display = "block";
+}
 
 // --- CORE LOGIC & INITIALIZATION ---
 function init() {
@@ -635,6 +799,26 @@ function init() {
     
     // Event listeners for forms and buttons
     setupEventListeners();
+    
+    // Load Session / Authenticate
+    const savedUser = localStorage.getItem("conquerx_logged_user");
+    if (savedUser) {
+        try {
+            state.loggedUser = JSON.parse(savedUser);
+            if (elements.loginScreen) {
+                elements.loginScreen.style.display = "none";
+                elements.loginScreen.classList.add("hidden");
+            }
+            applyUserPermissions();
+        } catch (e) {
+            console.error("Error reading saved user session", e);
+        }
+    } else {
+        if (elements.loginScreen) {
+            elements.loginScreen.style.display = "flex";
+            elements.loginScreen.classList.remove("hidden");
+        }
+    }
     
     // Initial Render
     renderAll();
@@ -1500,6 +1684,9 @@ function selectCloser(closerId) {
 }
 
 function switchTab(tabName) {
+    if (state.loggedUser && state.loggedUser.role === "closer" && tabName !== "closer-profile") {
+        return;
+    }
     state.activeTab = tabName;
     
     elements.tabOverviewBtn.classList.remove("active");
@@ -1837,6 +2024,48 @@ function setupEventListeners() {
             panel.classList.remove("expanded");
         }
     });
+
+    // Login Form Submission Listener
+    if (elements.loginForm) {
+        elements.loginForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const username = elements.loginUsername.value;
+            const password = elements.loginPassword.value;
+            
+            const authenticatedUser = authenticate(username, password);
+            if (authenticatedUser) {
+                state.loggedUser = authenticatedUser;
+                localStorage.setItem("conquerx_logged_user", JSON.stringify(authenticatedUser));
+                
+                // Hide login screen
+                if (elements.loginScreen) {
+                    elements.loginScreen.style.display = "none";
+                    elements.loginScreen.classList.add("hidden");
+                }
+                
+                // Apply permissions and render
+                applyUserPermissions();
+                renderAll();
+                showToast(`¡Bienvenido, ${authenticatedUser.name}!`);
+            } else {
+                if (elements.loginError) {
+                    elements.loginError.style.display = "flex";
+                    // Trigger shake animation again
+                    elements.loginError.style.animation = "none";
+                    elements.loginError.offsetHeight; // trigger reflow
+                    elements.loginError.style.animation = null;
+                }
+            }
+        });
+    }
+
+    // Logout Click Listener
+    if (elements.btnLogout) {
+        elements.btnLogout.addEventListener("click", () => {
+            logout();
+            showToast("Sesión cerrada");
+        });
+    }
 }
 
 function toggleTaskCompleted(closerId, taskId) {
