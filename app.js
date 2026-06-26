@@ -2241,38 +2241,6 @@ function setupEventListeners() {
             }
         }
         
-        class SparkleParticle {
-            constructor(x, y) {
-                this.x = x;
-                this.y = y;
-                this.vx = (Math.random() - 0.5) * 3;
-                this.vy = (Math.random() - 0.5) * 3;
-                this.size = Math.random() * 3 + 1;
-                this.alpha = 1.0;
-                this.decay = Math.random() * 0.02 + 0.015;
-                const rand = Math.random();
-                if (rand < 0.45) {
-                    this.color = "rgba(6, 182, 212, "; // Cyan
-                } else if (rand < 0.9) {
-                    this.color = "rgba(249, 115, 22, "; // Orange
-                } else {
-                    this.color = "rgba(255, 255, 255, "; // White
-                }
-            }
-            update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                this.alpha -= this.decay;
-            }
-            draw() {
-                if (!ctx) return;
-                ctx.beginPath();
-                ctx.fillStyle = this.color + this.alpha + ")";
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-        
         elements.loginScreen.addEventListener("mousemove", (e) => {
             const rect = elements.loginScreen.getBoundingClientRect();
             targetX = e.clientX - rect.left;
@@ -2293,12 +2261,6 @@ function setupEventListeners() {
                 
                 // Spawn one aura particle
                 particles.push(new GasParticle(targetX, targetY, colorStr));
-                
-                // Spawn 1-2 sparkles
-                const sparkleCount = Math.floor(Math.random() * 2) + 1;
-                for (let i = 0; i < sparkleCount; i++) {
-                    particles.push(new SparkleParticle(targetX, targetY));
-                }
                 
                 lastX = targetX;
                 lastY = targetY;
