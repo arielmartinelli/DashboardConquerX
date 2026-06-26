@@ -341,9 +341,9 @@ body {
 }
 
 /* Global Target Banner / KPIs */
-.kpis-section {
+.kpis-section, .kpis-section-redesigned {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 20px;
 }
 
@@ -381,6 +381,10 @@ body {
 
 #kpi-teams-summary::before {
     background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+}
+
+#kpi-calls-summary-card::before {
+    background: linear-gradient(90deg, #f59e0b, #ec4899); /* Premium orange/pink glow border */
 }
 
 .kpi-header {
@@ -1905,5 +1909,105 @@ body[data-theme="light"] .login-card {
     box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
     background: rgba(0, 0, 0, 0.35) !important;
 }
+
+/* Premium Tickets Styles */
+.ticket-card {
+    background: var(--hover-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: all var(--transition-fast);
+}
+
+.ticket-card:hover {
+    background: var(--hover-bg-strong);
+    border-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-1px);
+}
+
+.ticket-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.ticket-header-area {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.ticket-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-main);
+    font-family: var(--font-heading);
+}
+
+.ticket-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.45;
+}
+
+.ticket-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    border-top: 1px solid var(--panel-border);
+    padding-top: 10px;
+    margin-top: 4px;
+}
+
+.ticket-action-btn {
+    padding: 4px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    border: 1px solid transparent;
+}
+
+.ticket-action-btn.btn-progress {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--color-warning);
+    border-color: rgba(245, 158, 11, 0.25);
+}
+
+.ticket-action-btn.btn-progress:hover {
+    background: var(--color-warning);
+    color: white;
+}
+
+.ticket-action-btn.btn-resolve {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--color-success);
+    border-color: rgba(16, 185, 129, 0.25);
+}
+
+.ticket-action-btn.btn-resolve:hover {
+    background: var(--color-success);
+    color: white;
+}
+
+.ticket-action-btn.btn-delete {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--color-danger);
+    border-color: rgba(239, 68, 68, 0.15);
+    margin-left: auto;
+}
+
+.ticket-action-btn.btn-delete:hover {
+    background: var(--color-danger);
+    color: white;
+}
+
 
 

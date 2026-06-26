@@ -98,6 +98,10 @@
                     <i class="fa-solid fa-user-tie"></i>
                     <span>Ficha de Closer</span>
                 </button>
+                <button class="menu-item" data-tab="tickets" id="btn-tab-tickets">
+                    <i class="fa-solid fa-ticket-simple text-warning"></i>
+                    <span>Sugerencias / Tickets</span>
+                </button>
             </nav>
 
             <!-- Pending Tasks Sidebar Area -->
@@ -167,7 +171,17 @@
                     <p class="text-muted" id="current-view-subtitle">Resumen consolidado de ventas y porcentajes de cierre</p>
                 </div>
                 
-                <div class="header-actions">
+                <div class="header-actions" style="display: flex; align-items: center; gap: 12px;">
+                    <!-- Month Filter Select -->
+                    <div class="month-selector-wrapper" style="position: relative; display: flex; align-items: center;">
+                        <i class="fa-solid fa-calendar-days" style="position: absolute; left: 10px; color: var(--text-muted); font-size: 12px; pointer-events: none;"></i>
+                        <select id="header-month-select" class="styled-select" style="padding: 6px 28px 6px 28px; font-size: 12px; height: 32px; border-radius: var(--radius-sm); background: var(--input-bg); border: 1px solid var(--panel-border); color: var(--text-main); cursor: pointer; outline: none; transition: border-color var(--transition-fast);">
+                            <option value="2026-06">Junio 2026 (Actual)</option>
+                            <option value="2026-05">Mayo 2026</option>
+                            <option value="2026-04">Abril 2026</option>
+                            <option value="2026-03">Marzo 2026</option>
+                        </select>
+                    </div>
                     <button id="theme-toggle" title="Cambiar Tema">
                         <i class="fa-solid fa-moon"></i>
                     </button>
@@ -177,77 +191,88 @@
                 </div>
             </header>
 
-            <!-- Global Target Banner / KPIs -->
-            <section class="kpis-section">
-                <!-- KPI Cash Collected -->
-                <div class="kpi-card" id="kpi-cash-card">
-                    <div class="kpi-header">
-                        <span class="kpi-title">CASH COLLECTED MENSUAL</span>
-                        <i class="fa-solid fa-euro-sign kpi-icon text-success"></i>
-                    </div>
-                    <div class="kpi-value-container">
-                        <span class="kpi-value" id="total-cash-value">€0</span>
-                        <span class="kpi-target">Objetivo Global: €200,000</span>
-                    </div>
-                    <div class="kpi-progress-bar-container">
-                        <div class="progress-bar-track">
-                            <div class="progress-bar-fill fill-cash" id="cash-progress-fill" style="width: 0%"></div>
+            <!-- Global Target Banner / KPIs (Rediseñado: 6/12 + 6/12) -->
+            <section class="kpis-section-redesigned" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+                <!-- Columna Izquierda (6/12): Cash Collected & Porcentaje Cierre Con Segmentación -->
+                <div class="kpi-column-half" style="display: flex; flex-direction: column; gap: 20px;">
+                    <!-- KPI Cash Collected -->
+                    <div class="kpi-card" id="kpi-cash-card" style="padding: 20px;">
+                        <div class="kpi-header">
+                            <span class="kpi-title">CASH COLLECTED MENSUAL</span>
+                            <i class="fa-solid fa-euro-sign kpi-icon text-success"></i>
                         </div>
-                        <div class="progress-labels">
-                            <span id="cash-progress-percent">0% completado</span>
-                            <span id="cash-remaining">Faltan €200,000</span>
+                        <div class="kpi-value-container" style="display: flex; justify-content: space-between; align-items: baseline;">
+                            <span class="kpi-value" id="total-cash-value" style="font-size: 24px; font-weight: 800; font-family: var(--font-heading);">€0</span>
+                            <span class="kpi-target" style="font-size: 11px; color: var(--text-muted);">Objetivo Global: €200,000</span>
+                        </div>
+                        
+                        <div class="kpi-progress-bar-container">
+                            <div class="progress-bar-track">
+                                <div class="progress-bar-fill fill-cash" id="cash-progress-fill" style="width: 0%"></div>
+                            </div>
+                            <div class="progress-labels" style="display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); margin-top: 4px;">
+                                <span id="cash-progress-percent">0% completado</span>
+                                <span id="cash-remaining">Faltan €200,000</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Desglose por equipo -->
+                        <div class="team-kpi-breakdown" style="border-top: 1px solid var(--panel-border); padding-top: 10px; display: flex; flex-direction: column; gap: 8px; font-size: 11.5px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="display: flex; align-items: center; gap: 6px;"><span class="team-dot dot-languages" style="width: 8px; height: 8px; border-radius: 50%; background: var(--color-accent); display: inline-block;"></span>Languages:</span>
+                                <strong id="sum-languages-cash-kpi">€0 (0%)</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="display: flex; align-items: center; gap: 6px;"><span class="team-dot dot-block" style="width: 8px; height: 8px; border-radius: 50%; background: var(--color-secondary); display: inline-block;"></span>Block:</span>
+                                <strong id="sum-block-cash-kpi">€0 (0%)</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KPI Porcentaje de Cierre -->
+                    <div class="kpi-card" id="kpi-rate-card" style="padding: 20px;">
+                        <div class="kpi-header">
+                            <span class="kpi-title">PORCENTAJE DE CIERRE</span>
+                            <i class="fa-solid fa-percentage kpi-icon text-accent"></i>
+                        </div>
+                        <div class="kpi-value-container" style="display: flex; justify-content: space-between; align-items: baseline;">
+                            <span class="kpi-value" id="global-rate-value" style="font-size: 24px; font-weight: 800; font-family: var(--font-heading);">0%</span>
+                            <span class="kpi-target" style="font-size: 11px; color: var(--text-muted);">Objetivo Global: 15%</span>
+                        </div>
+                        
+                        <div class="kpi-progress-bar-container">
+                            <div class="progress-bar-track">
+                                <div class="progress-bar-fill fill-rate" id="rate-progress-fill" style="width: 0%"></div>
+                            </div>
+                            <div class="progress-labels" style="display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); margin-top: 4px;">
+                                <span id="rate-status-label">Bajo el objetivo</span>
+                                <span id="rate-diff-label">-15%</span>
+                            </div>
+                        </div>
+
+                        <!-- Desglose por equipo -->
+                        <div class="team-kpi-breakdown" style="border-top: 1px solid var(--panel-border); padding-top: 10px; display: flex; flex-direction: column; gap: 8px; font-size: 11.5px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="display: flex; align-items: center; gap: 6px;"><span class="team-dot dot-languages" style="width: 8px; height: 8px; border-radius: 50%; background: var(--color-accent); display: inline-block;"></span>Languages:</span>
+                                <strong id="sum-languages-rate-kpi">0%</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="display: flex; align-items: center; gap: 6px;"><span class="team-dot dot-block" style="width: 8px; height: 8px; border-radius: 50%; background: var(--color-secondary); display: inline-block;"></span>Block:</span>
+                                <strong id="sum-block-rate-kpi">0%</strong>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- KPI Closing Rate -->
-                <div class="kpi-card" id="kpi-rate-card">
-                    <div class="kpi-header">
-                        <span class="kpi-title">PORCENTAJE DE CIERRE</span>
-                        <i class="fa-solid fa-percentage kpi-icon text-accent"></i>
-                    </div>
-                    <div class="kpi-value-container">
-                        <span class="kpi-value" id="global-rate-value">0%</span>
-                        <span class="kpi-target">Objetivo: 15%</span>
-                    </div>
-                    <div class="kpi-progress-bar-container">
-                        <div class="progress-bar-track">
-                            <div class="progress-bar-fill fill-rate" id="rate-progress-fill" style="width: 0%"></div>
-                        </div>
-                        <div class="progress-labels">
-                            <span id="rate-status-label">Bajo el objetivo</span>
-                            <span id="rate-diff-label">-15%</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- KPI Quick Summary (Languages vs Block) -->
-                <div class="kpi-card glassmorphic-kpi" id="kpi-teams-summary">
-                    <div class="kpi-header">
-                        <span class="kpi-title">REPARTO POR EQUIPOS</span>
-                        <i class="fa-solid fa-chart-pie kpi-icon"></i>
-                    </div>
-                    <div class="teams-mini-table">
-                        <div class="team-row">
-                            <span class="team-dot dot-languages"></span>
-                            <span class="team-name">Languages:</span>
-                            <span class="team-summary-val" id="sum-languages-cash">€0 (0%)</span>
-                        </div>
-                        <div class="team-row">
-                            <span class="team-dot dot-block"></span>
-                            <span class="team-name">Block:</span>
-                            <span class="team-summary-val" id="sum-block-cash">€0 (0%)</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- KPI Calls & Projections -->
-                <div class="kpi-card glassmorphic-kpi" id="kpi-calls-summary">
+                <!-- Columna Derecha (6/12): Métricas de Llamadas y Proyección con Filtro por Persona -->
+                <div class="kpi-card glassmorphic-kpi" id="kpi-calls-summary-card" style="padding: 20px; display: flex; flex-direction: column; gap: 12px; position: relative;">
+                    <!-- Color Bar decoration top will be handled in CSS using ::before on #kpi-calls-summary-card -->
                     <div class="kpi-header">
                         <span class="kpi-title">MÉTRICAS DE LLAMADAS</span>
                         <i class="fa-solid fa-phone-volume kpi-icon text-accent"></i>
                     </div>
-                    <div class="calls-mini-summary" style="font-size: 11.5px; line-height: 1.45; display: flex; flex-direction: column; gap: 6px; color: var(--text-main);">
+                    
+                    <div class="calls-mini-summary" style="font-size: 11.5px; line-height: 1.5; display: flex; flex-direction: column; gap: 6px; color: var(--text-main); flex-grow: 1;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <span><strong>Global Mensual:</strong></span>
                             <span id="kpi-calls-global-monthly" style="font-weight: 700;">0 / 0</span>
@@ -260,18 +285,33 @@
                             <span><strong>Block Mensual:</strong></span>
                             <span id="kpi-calls-block-monthly" style="font-weight: 700;">0 / 0</span>
                         </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--panel-border); padding-top: 4px;">
-                            <span><strong>Semanal (<span id="kpi-calls-indiv-name">Closer</span>):</strong></span>
-                            <span id="kpi-calls-indiv-weekly" style="font-weight: 700; color: var(--color-warning);">0 / 20</span>
-                        </div>
-                        <div style="border-top: 1px solid var(--panel-border); padding-top: 4px; font-size: 9.5px; color: var(--text-muted); display: flex; flex-direction: column; gap: 3px;">
-                            <strong>Proyección Faltantes:</strong>
-                            <div id="kpi-calls-missing-weekly">Semanal: ...</div>
-                            <div id="kpi-calls-missing-monthly">Mensual: ...</div>
+
+                        <!-- Selector y Proyección por Persona integrado -->
+                        <div style="border-top: 1px solid var(--panel-border); padding-top: 10px; margin-top: 4px; display: flex; flex-direction: column; gap: 8px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                                <span style="font-size: 10.5px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.3px;">Progreso por Persona:</span>
+                                <div class="custom-select-wrapper" style="width: 130px;">
+                                    <select id="kpi-calls-closer-select" class="styled-select" style="padding: 4px 20px 4px 8px; font-size: 11px; height: 26px; border-radius: var(--radius-sm);">
+                                        <!-- Dinámico -->
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255, 255, 255, 0.02); padding: 6px 10px; border-radius: var(--radius-sm); border: 1px solid var(--panel-border);">
+                                <span style="font-size: 11px;">Semanal (<strong id="kpi-calls-indiv-name">Closer</strong>):</span>
+                                <span id="kpi-calls-indiv-weekly" style="font-weight: 700; color: var(--color-warning);">0 / 20</span>
+                            </div>
+
+                            <div class="projection-box-kpi" style="background: rgba(0, 0, 0, 0.15); border: 1px solid var(--panel-border); border-radius: var(--radius-sm); padding: 10px; font-size: 10px; line-height: 1.4; color: var(--text-muted);">
+                                <strong style="color: var(--color-warning); font-size: 10.5px; display: block; margin-bottom: 4px;"><i class="fa-solid fa-calculator"></i> Proyección Faltantes:</strong>
+                                <div id="kpi-calls-missing-weekly" style="color: var(--text-main); margin-bottom: 2px;">Semanal: ...</div>
+                                <div id="kpi-calls-missing-monthly" style="color: var(--text-main);">Mensual: ...</div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </section>
+
 
             <!-- TAB CONTENT 1: OVERVIEW -->
             <section class="tab-content active" id="view-overview">
@@ -757,6 +797,61 @@
                                     <i class="fa-solid fa-plus"></i> Añadir Nota de Seguimiento
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB CONTENT 5: TICKETS / SUGGESTIONS SYSTEM -->
+            <section class="tab-content" id="view-tickets">
+                <div class="grid-layout grid-2-columns">
+                    <!-- Left: Form to create ticket -->
+                    <div class="glass-panel">
+                        <div class="panel-header">
+                            <h3><i class="fa-solid fa-square-plus text-warning"></i> Reportar Nueva Sugerencia / Ticket</h3>
+                        </div>
+                        <div class="panel-body">
+                            <form id="new-ticket-form" style="display: flex; flex-direction: column; gap: 16px;">
+                                <div class="form-group">
+                                    <label for="ticket-title" style="font-size: 12px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 6px;">Título / Idea principal</label>
+                                    <input type="text" id="ticket-title" required class="styled-input" placeholder="Ej. Filtro rápido en tabla de clasificación" style="padding: 10px; font-size: 13px;">
+                                </div>
+                                <div class="form-group">
+                                    <label for="ticket-desc" style="font-size: 12px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 6px;">Detalle / Descripción de la sugerencia</label>
+                                    <textarea id="ticket-desc" required class="styled-input" rows="4" placeholder="Explica detalladamente qué te gustaría agregar, mejorar o corregir..." style="padding: 10px; font-size: 13px; resize: none; font-family: var(--font-body);"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="ticket-category" style="font-size: 12px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 6px;">Categoría</label>
+                                    <div class="custom-select-wrapper" style="width: 100%;">
+                                        <select id="ticket-category" class="styled-select" style="padding: 10px; font-size: 13px;">
+                                            <option value="ui">Diseño e Interfaz (UI)</option>
+                                            <option value="ux">Experiencia de Usuario (UX)</option>
+                                            <option value="math">Cálculos / Proyecciones</option>
+                                            <option value="feature">Nueva Funcionalidad</option>
+                                            <option value="bug">Error / Bug</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="margin-top: 10px; padding: 12px; font-size: 13px; font-weight: 700;">
+                                    <i class="fa-solid fa-paper-plane"></i> Enviar Sugerencia
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Right: Tickets list with interactive filtering -->
+                    <div class="glass-panel">
+                        <div class="panel-header header-with-actions">
+                            <h3><i class="fa-solid fa-list-check"></i> Listado de Sugerencias</h3>
+                            <div class="segmented-control" id="ticket-filter-status" style="margin-left: auto;">
+                                <button class="active" data-status="all">Todos</button>
+                                <button data-status="open">Abierto</button>
+                                <button data-status="progress">En Proceso</button>
+                                <button data-status="resolved">Resuelto</button>
+                            </div>
+                        </div>
+                        <div class="panel-body flex-column-container" style="max-height: 520px; overflow-y: auto; gap: 12px;" id="tickets-list-container">
+                            <!-- Dinámico -->
                         </div>
                     </div>
                 </div>

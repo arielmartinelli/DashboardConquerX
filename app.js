@@ -333,7 +333,12 @@ let state = {
     activeTab: "overview",
     selectedCloserId: "jazmin",
     rankingFilter: "all",
-    loggedUser: null
+    loggedUser: null,
+    
+    // New Monthly Filtering & Ticket System State
+    selectedMonth: "2026-06", 
+    metricsHistory: {}, // stores a snapshot of closers and teamLogs by month
+    tickets: [] // support ticket objects
 };
 
 // --- DOM ELEMENTS ---
@@ -517,8 +522,28 @@ const elements = {
     loginError: document.getElementById("login-error"),
     loginErrorMsg: document.getElementById("login-error-msg"),
     btnLogout: document.getElementById("btn-logout"),
+    closerSelectContainerWrapper: document.getElementById("closer-select-container-wrapper"),
     closerLoggedTitle: document.getElementById("closer-logged-title"),
-    closerSelectContainerWrapper: document.getElementById("closer-select-container-wrapper")
+
+    // Redesigned Overview & Tickets elements
+    headerMonthSelect: document.getElementById("header-month-select"),
+    tabTicketsBtn: document.getElementById("btn-tab-tickets"),
+    viewTickets: document.getElementById("view-tickets"),
+    newTicketForm: document.getElementById("new-ticket-form"),
+    ticketTitle: document.getElementById("ticket-title"),
+    ticketDesc: document.getElementById("ticket-desc"),
+    ticketCategory: document.getElementById("ticket-category"),
+    ticketFilterStatus: document.getElementById("ticket-filter-status"),
+    ticketsListContainer: document.getElementById("tickets-list-container"),
+    
+    // KPI Cards Team splits
+    sumLanguagesCashKPI: document.getElementById("sum-languages-cash-kpi"),
+    sumBlockCashKPI: document.getElementById("sum-block-cash-kpi"),
+    sumLanguagesRateKPI: document.getElementById("sum-languages-rate-kpi"),
+    sumBlockRateKPI: document.getElementById("sum-block-rate-kpi"),
+    
+    // Inline Calls selector
+    kpiCallsCloserSelect: document.getElementById("kpi-calls-closer-select")
 };
 
 // Chart instances
@@ -865,14 +890,53 @@ function init() {
         initDefaultGeneralTasks();
     }
 
-    let savedRankingFilter = localStorage.getItem("conquerx_ranking_filter");
-    if (savedRankingFilter) {
-        state.rankingFilter = savedRankingFilter;
-    } else {
-        state.rankingFilter = "all";
-    }
-    
     verifySelection();
+
+    // 0.6 Load Support Tickets
+    let savedTickets = localStorage.getItem("conquerx_tickets");
+    if (savedTickets) {
+        try {
+            state.tickets = JSON.parse(savedTickets);
+        } catch (e) {
+            console.error("Error loading tickets", e);
+            state.tickets = [];
+        }
+    } else {
+        // Initial dummy support tickets to look premium
+        state.tickets = [
+            { id: "t_d1", title: "Corregir centrado de avatares", description: "En algunas resoluciones móviles el avatar del closer se desfasa un poco hacia la izquierda.", category: "ui", status: "resolved", createdBy: "Jazmín", date: new Date(Date.now() - 86400000 * 3).toISOString() },
+            { id: "t_d2", title: "Agregar cálculo automático de comisión", description: "Estaría genial que cuando se asigne un porcentaje de comisión se calcule el total ganado acumulado.", category: "feature", status: "progress", createdBy: "Tomás", date: new Date(Date.now() - 86400000 * 1).toISOString() }
+        ];
+        localStorage.setItem("conquerx_tickets", JSON.stringify(state.tickets));
+    }
+
+    // 0.7 Load Monthly Metrics History Snapshots
+    let savedMetricsHistory = localStorage.getItem("conquerx_metrics_history");
+    if (savedMetricsHistory) {
+        try {
+            state.metricsHistory = JSON.parse(savedMetricsHistory);
+        } catch (e) {
+            console.error("Error loading metrics history", e);
+            state.metricsHistory = {};
+        }
+    }
+
+    // Initialize month selector value from state
+    if (elements.headerMonthSelect) {
+        // Find if month selection is saved
+        let savedMonth = localStorage.getItem("conquerx_selected_month");
+        if (savedMonth) {
+            state.selectedMonth = savedMonth;
+            elements.headerMonthSelect.value = savedMonth;
+        } else {
+            state.selectedMonth = "2026-06";
+            elements.headerMonthSelect.value = "2026-06";
+        }
+        
+        // If switching to historical month, load that month's data. If current month (2026-06), load standard closer states.
+        loadMetricsForSelectedMonth();
+    }
+
     
     // Initialize UI Dropdowns and Selections
     elements.subleaderSelect.value = state.currentSubleader;
@@ -939,6 +1003,9 @@ function saveState() {
     localStorage.setItem("conquerx_subleader", state.currentSubleader);
     localStorage.setItem("conquerx_selected_closer", state.selectedCloserId);
     localStorage.setItem("conquerx_ranking_filter", state.rankingFilter);
+    localStorage.setItem("conquerx_selected_month", state.selectedMonth);
+    localStorage.setItem("conquerx_metrics_history", JSON.stringify(state.metricsHistory));
+    localStorage.setItem("conquerx_tickets", JSON.stringify(state.tickets));
 }
 
 // --- UTILITY COMPUTATIONS ---
@@ -1082,6 +1149,8 @@ function renderAll() {
         renderBlockTab();
     } else if (state.activeTab === "closer-profile") {
         renderCloserProfileTab();
+    } else if (state.activeTab === "tickets") {
+        renderTickets();
     }
 }
 
@@ -1307,13 +1376,31 @@ function renderGlobalKPIs() {
         elements.rateDiffLabel.className = "text-muted";
     }
     
-    // Teams mini split
+    // Teams mini split (for backwards compatibility if elements exist)
     const totalCollected = combined.cash > 0 ? combined.cash : 1;
     const langPercent = Math.round((langStats.cash / totalCollected) * 100);
     const blockPercent = Math.round((blockStats.cash / totalCollected) * 100);
     
-    elements.sumLanguagesCash.innerText = `€${langStats.cash.toLocaleString("es-ES")} (${langPercent}%)`;
-    elements.sumBlockCash.innerText = `€${blockStats.cash.toLocaleString("es-ES")} (${blockPercent}%)`;
+    if (elements.sumLanguagesCash) {
+        elements.sumLanguagesCash.innerText = `€${langStats.cash.toLocaleString("es-ES")} (${langPercent}%)`;
+    }
+    if (elements.sumBlockCash) {
+        elements.sumBlockCash.innerText = `€${blockStats.cash.toLocaleString("es-ES")} (${blockPercent}%)`;
+    }
+
+    // Redesigned UI element injections
+    if (elements.sumLanguagesCashKPI) {
+        elements.sumLanguagesCashKPI.innerText = `€${langStats.cash.toLocaleString("es-ES")} (${langPercent}%)`;
+    }
+    if (elements.sumBlockCashKPI) {
+        elements.sumBlockCashKPI.innerText = `€${blockStats.cash.toLocaleString("es-ES")} (${blockPercent}%)`;
+    }
+    if (elements.sumLanguagesRateKPI) {
+        elements.sumLanguagesRateKPI.innerText = `${langStats.rate.toFixed(1)}%`;
+    }
+    if (elements.sumBlockRateKPI) {
+        elements.sumBlockRateKPI.innerText = `${blockStats.rate.toFixed(1)}%`;
+    }
 
     // Render team calls in ribbons
     if (elements.langStatCalls) {
@@ -1325,22 +1412,68 @@ function renderGlobalKPIs() {
     
     // Render Overview Projections
     // Global
+    const totalClosers = langStats.count + blockStats.count;
+    const weeklyTarget = 20 * totalClosers;
+    const monthlyTarget = 80 * totalClosers;
+    
     if (elements.globalCallsWeekly) {
-        const totalClosers = langStats.count + blockStats.count;
-        const weeklyTarget = 20 * totalClosers;
-        const monthlyTarget = 80 * totalClosers;
-        
         elements.globalCallsWeekly.innerText = `${combined.callsWeekly} / ${weeklyTarget}`;
         elements.globalCallsMonthly.innerText = `${combined.callsMonthly} / ${monthlyTarget}`;
         
         elements.globalProjectionWeeklyText.innerHTML = getTeamProjectionText(combined.closed, combined.callsMonthly, combined.callsWeekly, 3 * totalClosers, "Semanal");
         elements.globalProjectionMonthlyText.innerHTML = getTeamProjectionText(combined.closed, combined.callsMonthly, combined.callsMonthly, 12 * totalClosers, "Mensual");
-        
-        // Update 4th KPI Card global and team metrics
-        if (elements.kpiCallsGlobalMonthly) {
-            elements.kpiCallsGlobalMonthly.innerText = `${combined.callsMonthly} / ${monthlyTarget}`;
-            elements.kpiCallsLangMonthly.innerText = `${langStats.callsMonthly} / ${80 * langStats.count}`;
-            elements.kpiCallsBlockMonthly.innerText = `${blockStats.callsMonthly} / ${80 * blockStats.count}`;
+    }
+
+    // Update 4th KPI Card global and team metrics
+    if (elements.kpiCallsGlobalMonthly) {
+        elements.kpiCallsGlobalMonthly.innerText = `${combined.callsMonthly} / ${monthlyTarget}`;
+        elements.kpiCallsLangMonthly.innerText = `${langStats.callsMonthly} / ${80 * langStats.count}`;
+        elements.kpiCallsBlockMonthly.innerText = `${blockStats.callsMonthly} / ${80 * blockStats.count}`;
+    }
+
+    // Populate and update interactive calls select on Overview card
+    if (elements.kpiCallsCloserSelect) {
+        // Build selection group if empty
+        if (elements.kpiCallsCloserSelect.children.length === 0) {
+            const langGroup = document.createElement("optgroup");
+            langGroup.label = "Equipo Languages";
+            state.closers.languages.forEach(c => {
+                const opt = document.createElement("option");
+                opt.value = c.id;
+                opt.innerText = c.name;
+                langGroup.appendChild(opt);
+            });
+            elements.kpiCallsCloserSelect.appendChild(langGroup);
+
+            const blockGroup = document.createElement("optgroup");
+            blockGroup.label = "Equipo Block";
+            state.closers.block.forEach(c => {
+                const opt = document.createElement("option");
+                opt.value = c.id;
+                opt.innerText = c.name;
+                blockGroup.appendChild(opt);
+            });
+            elements.kpiCallsCloserSelect.appendChild(blockGroup);
+
+            // Default to first language closer or selected closer
+            elements.kpiCallsCloserSelect.value = state.selectedCloserId;
+        }
+
+        const selectedId = elements.kpiCallsCloserSelect.value;
+        const selectedCloser = getCloserById(selectedId);
+        if (selectedCloser) {
+            if (elements.kpiCallsIndivName) {
+                elements.kpiCallsIndivName.innerText = selectedCloser.name.split(" ")[0];
+            }
+            if (elements.kpiCallsIndivWeekly) {
+                elements.kpiCallsIndivWeekly.innerText = `${selectedCloser.callsWeekly || 0} / 20`;
+            }
+            if (elements.kpiCallsMissingWeekly) {
+                elements.kpiCallsMissingWeekly.innerHTML = getCallsProjectionText(selectedCloser, true);
+            }
+            if (elements.kpiCallsMissingMonthly) {
+                elements.kpiCallsMissingMonthly.innerHTML = getCallsProjectionText(selectedCloser, false);
+            }
         }
     }
     
@@ -1872,24 +2005,40 @@ function renderCloserTasks(closer) {
         
         const creator = task.createdBy || (closer.team === "languages" ? "Jazmín" : "Tomás");
         
+        // Check permission: only the creator can complete/delete (or admin Manuel)
+        const authorLower = creator.toLowerCase();
+        const isAuthorMe = state.currentSubleader === "manuel" || 
+            authorLower === state.currentSubleader || 
+            (authorLower === "jazmín" && state.currentSubleader === "jazmin") || 
+            (authorLower === "jazmin" && state.currentSubleader === "jazmin");
+            
+        const checkboxDisabledAttr = isAuthorMe ? "" : "disabled";
+        const deleteButtonHTML = isAuthorMe ? 
+            `<button class="btn-delete-task" title="Eliminar tarea"><i class="fa-solid fa-trash-can"></i></button>` : '';
+        
         item.innerHTML = `
             <div class="task-checkbox-wrapper">
-                <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''}>
+                <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} ${checkboxDisabledAttr}>
             </div>
             <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px;">
                 <span class="task-text">${task.text}</span>
                 <small style="color: var(--text-muted); font-size: 10.5px; display: block; margin-top: 1px;">Creado por ${creator}</small>
             </div>
-            <button class="btn-delete-task" title="Eliminar tarea"><i class="fa-solid fa-trash-can"></i></button>
+            ${deleteButtonHTML}
         `;
         
-        item.querySelector(".task-checkbox").addEventListener("change", () => {
-            toggleTaskCompleted(closer.id, task.id);
-        });
-        
-        item.querySelector(".btn-delete-task").addEventListener("click", () => {
-            deleteCloserTask(closer.id, task.id);
-        });
+        if (isAuthorMe) {
+            item.querySelector(".task-checkbox").addEventListener("change", () => {
+                toggleTaskCompleted(closer.id, task.id);
+            });
+            
+            const btnDelete = item.querySelector(".btn-delete-task");
+            if (btnDelete) {
+                btnDelete.addEventListener("click", () => {
+                    deleteCloserTask(closer.id, task.id);
+                });
+            }
+        }
         
         elements.closerTasksList.appendChild(item);
     });
@@ -1912,18 +2061,33 @@ function renderCloserTips(closer) {
         
         const creator = tip.createdBy || (closer.team === "languages" ? "Jazmín" : "Tomás");
         
+        // Check permission: only the creator can delete (or admin Manuel)
+        const authorLower = creator.toLowerCase();
+        const isAuthorMe = state.currentSubleader === "manuel" || 
+            authorLower === state.currentSubleader || 
+            (authorLower === "jazmín" && state.currentSubleader === "jazmin") || 
+            (authorLower === "jazmin" && state.currentSubleader === "jazmin");
+            
+        const deleteButtonHTML = isAuthorMe ? 
+            `<button class="btn-delete-tip" title="Eliminar tip"><i class="fa-solid fa-trash-can"></i></button>` : '';
+            
         item.innerHTML = `
             <i class="fa-solid fa-lightbulb tip-icon"></i>
             <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px;">
                 <span class="tip-text">${tip.text}</span>
                 <small style="color: var(--text-muted); font-size: 10.5px; display: block; margin-top: 1px;">Creado por ${creator}</small>
             </div>
-            <button class="btn-delete-tip" title="Eliminar tip"><i class="fa-solid fa-trash-can"></i></button>
+            ${deleteButtonHTML}
         `;
         
-        item.querySelector(".btn-delete-tip").addEventListener("click", () => {
-            deleteCloserTip(closer.id, tip.id);
-        });
+        if (isAuthorMe) {
+            const btnDelete = item.querySelector(".btn-delete-tip");
+            if (btnDelete) {
+                btnDelete.addEventListener("click", () => {
+                    deleteCloserTip(closer.id, tip.id);
+                });
+            }
+        }
         
         elements.closerTipsList.appendChild(item);
     });
@@ -2030,16 +2194,19 @@ function switchTab(tabName) {
     elements.tabLanguagesBtn.classList.remove("active");
     elements.tabBlockBtn.classList.remove("active");
     elements.tabCloserBtn.classList.remove("active");
+    if (elements.tabTicketsBtn) elements.tabTicketsBtn.classList.remove("active");
     
     if (tabName === "overview") elements.tabOverviewBtn.classList.add("active");
     else if (tabName === "languages") elements.tabLanguagesBtn.classList.add("active");
     else if (tabName === "block") elements.tabBlockBtn.classList.add("active");
     else if (tabName === "closer-profile") elements.tabCloserBtn.classList.add("active");
+    else if (tabName === "tickets" && elements.tabTicketsBtn) elements.tabTicketsBtn.classList.add("active");
     
     elements.viewOverview.classList.remove("active");
     elements.viewLanguages.classList.remove("active");
     elements.viewBlock.classList.remove("active");
     elements.viewCloserProfile.classList.remove("active");
+    if (elements.viewTickets) elements.viewTickets.classList.remove("active");
     
     if (tabName === "overview") {
         elements.viewOverview.classList.add("active");
@@ -2057,6 +2224,11 @@ function switchTab(tabName) {
         elements.viewCloserProfile.classList.add("active");
         elements.currentViewTitle.innerText = "Ficha de Closer";
         elements.currentViewSubtitle.innerText = "Análisis individual, tareas, tips y feedback particular";
+    } else if (tabName === "tickets" && elements.viewTickets) {
+        elements.viewTickets.classList.add("active");
+        elements.currentViewTitle.innerText = "Sugerencias y Mejoras";
+        elements.currentViewSubtitle.innerText = "Sistema interno de tickets para proponer y votar mejoras de la página";
+        renderTickets();
     }
     
     renderAll();
@@ -2088,6 +2260,12 @@ function setupTabNavigation() {
         switchTab("closer-profile");
         closeMobileSidebar();
     });
+    if (elements.tabTicketsBtn) {
+        elements.tabTicketsBtn.addEventListener("click", () => {
+            switchTab("tickets");
+            closeMobileSidebar();
+        });
+    }
 }
 
 function setupEventListeners() {
@@ -2126,6 +2304,66 @@ function setupEventListeners() {
         selectCloser(e.target.value);
         renderCloserProfileTab();
     });
+
+    if (elements.headerMonthSelect) {
+        elements.headerMonthSelect.addEventListener("change", (e) => {
+            state.selectedMonth = e.target.value;
+            localStorage.setItem("conquerx_selected_month", e.target.value);
+            loadMetricsForSelectedMonth();
+            showToast(`Mostrando datos de: ${elements.headerMonthSelect.options[elements.headerMonthSelect.selectedIndex].text}`);
+            renderAll();
+        });
+    }
+
+    if (elements.kpiCallsCloserSelect) {
+        elements.kpiCallsCloserSelect.addEventListener("change", (e) => {
+            // Re-render global KPIs which reads elements.kpiCallsCloserSelect.value
+            renderGlobalKPIs();
+        });
+    }
+
+    if (elements.newTicketForm) {
+        elements.newTicketForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const title = elements.ticketTitle.value.trim();
+            const desc = elements.ticketDesc.value.trim();
+            const category = elements.ticketCategory.value;
+            if (!title || !desc) return;
+            
+            const author = state.loggedUser ? state.loggedUser.name : "Sublíder";
+            const newTicket = {
+                id: "t_" + Date.now(),
+                title: title,
+                description: desc,
+                category: category,
+                status: "open",
+                createdBy: author,
+                date: new Date().toISOString()
+            };
+            
+            state.tickets.push(newTicket);
+            saveState();
+            
+            // reset form
+            elements.ticketTitle.value = "";
+            elements.ticketDesc.value = "";
+            
+            showToast("Sugerencia reportada correctamente. ¡Gracias!");
+            renderTickets();
+        });
+    }
+
+    if (elements.ticketFilterStatus) {
+        elements.ticketFilterStatus.addEventListener("click", (e) => {
+            const btn = e.target.closest("button");
+            if (!btn) return;
+            
+            elements.ticketFilterStatus.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            
+            renderTickets();
+        });
+    }
 
     if (elements.profileInfoIcon) {
         elements.profileInfoIcon.addEventListener("click", () => {
@@ -2287,6 +2525,12 @@ function setupEventListeners() {
         saveState();
         buildCloserSelectDropdowns();
         elements.closerProfileSelect.value = closer.id;
+        
+        // Auto-close details accordion
+        const accordion = document.querySelector(".edit-closer-details-accordion");
+        if (accordion) {
+            accordion.removeAttribute("open");
+        }
         
         showToast(`Datos actualizados para ${closer.name}`);
         updateSubleaderUI(); // update sub-leader sidebar photo immediately if edited
@@ -2665,6 +2909,176 @@ function deleteTeamFollowup(teamName, logId) {
     else if (teamName === "block") renderBlockTab();
 }
 
+// --- NEW FUNCTIONALITIES: MONTHLY HISTORICAL METRICS & TICKETS SYSTEM ---
+
+function loadMetricsForSelectedMonth() {
+    const selectedMonth = state.selectedMonth;
+    
+    // If it's the current month (June 2026), we use standard active states. Otherwise, we load historical snapshot.
+    if (selectedMonth === "2026-06") {
+        let currentClosers = localStorage.getItem("conquerx_closers");
+        if (currentClosers) {
+            try {
+                state.closers = JSON.parse(currentClosers);
+            } catch (e) {
+                console.error("Error reloading current closers", e);
+            }
+        }
+        let currentTeamLogs = localStorage.getItem("conquerx_team_logs");
+        if (currentTeamLogs) {
+            try {
+                state.teamLogs = JSON.parse(currentTeamLogs);
+            } catch (e) {
+                console.error("Error reloading current team logs", e);
+            }
+        }
+    } else {
+        // Look up snapshot in history
+        const snapshot = state.metricsHistory[selectedMonth];
+        if (snapshot) {
+            state.closers = JSON.parse(JSON.stringify(snapshot.closers));
+            state.teamLogs = JSON.parse(JSON.stringify(snapshot.teamLogs));
+        } else {
+            // No history exists for that month yet. We seed it by making a copy of current closers (with simulated lower numbers for realism)
+            const seedClosers = JSON.parse(localStorage.getItem("conquerx_closers") || JSON.stringify(DEFAULT_CLOSERS));
+            const seedTeamLogs = JSON.parse(localStorage.getItem("conquerx_team_logs") || JSON.stringify(DEFAULT_TEAM_LOGS));
+            
+            // Apply scale factor depending on how far back the month is
+            const scale = selectedMonth === "2026-05" ? 0.85 : (selectedMonth === "2026-04" ? 0.70 : 0.55);
+            const scaleData = (list) => {
+                list.forEach(c => {
+                    c.cashCollected = Math.round(c.cashCollected * scale);
+                    c.leadsContacted = Math.round(c.leadsContacted * scale);
+                    c.leadsClosed = Math.max(0, Math.round(c.leadsClosed * scale));
+                    c.callsWeekly = Math.max(0, Math.round(c.callsWeekly * scale));
+                    c.callsMonthly = Math.max(0, Math.round(c.callsMonthly * scale));
+                });
+            };
+            scaleData(seedClosers.languages);
+            scaleData(seedClosers.block);
+
+            state.metricsHistory[selectedMonth] = {
+                closers: seedClosers,
+                teamLogs: seedTeamLogs
+            };
+            state.closers = seedClosers;
+            state.teamLogs = seedTeamLogs;
+            saveState();
+        }
+    }
+}
+
+function renderTickets() {
+    if (!elements.ticketsListContainer) return;
+    
+    // Read active status filter
+    const activeBtn = elements.ticketFilterStatus.querySelector("button.active");
+    const filterStatus = activeBtn ? activeBtn.dataset.status : "all";
+    
+    elements.ticketsListContainer.innerHTML = "";
+    
+    // Sort tickets: newest first
+    const sorted = [...state.tickets].sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    const filtered = sorted.filter(t => {
+        if (filterStatus === "all") return true;
+        return t.status === filterStatus;
+    });
+    
+    if (filtered.length === 0) {
+        elements.ticketsListContainer.innerHTML = `<p class="text-muted text-center" style="padding: 24px 0;"><i class="fa-solid fa-folder-open" style="font-size: 24px; display: block; margin-bottom: 8px;"></i>No hay sugerencias en esta categoría.</p>`;
+        return;
+    }
+    
+    filtered.forEach(ticket => {
+        const item = document.createElement("div");
+        item.className = "ticket-card";
+        
+        let statusBadgeClass = "badge-secondary";
+        let statusLabel = "Abierto";
+        if (ticket.status === "progress") {
+            statusBadgeClass = "badge-warning";
+            statusLabel = "En Proceso";
+        } else if (ticket.status === "resolved") {
+            statusBadgeClass = "badge-success";
+            statusLabel = "Resuelto";
+        }
+        
+        let categoryLabel = "General";
+        if (ticket.category === "ui") categoryLabel = "Interfaz (UI)";
+        else if (ticket.category === "ux") categoryLabel = "Experiencia (UX)";
+        else if (ticket.category === "math") categoryLabel = "Cálculos/Proyecciones";
+        else if (ticket.category === "feature") categoryLabel = "Nueva Funcionalidad";
+        else if (ticket.category === "bug") categoryLabel = "Error / Bug";
+        
+        const dateObj = new Date(ticket.date);
+        const formattedDate = dateObj.toLocaleDateString("es-ES") + " " + dateObj.toLocaleTimeString("es-ES", {hour: '2-digit', minute:'2-digit'});
+        
+        // Show status update buttons if leader/subleader
+        const isLeader = state.loggedUser && (state.loggedUser.role === "admin" || state.loggedUser.role === "subleader");
+        
+        let actionButtons = "";
+        if (isLeader) {
+            actionButtons = `
+                <div class="ticket-actions">
+                    ${ticket.status !== "progress" && ticket.status !== "resolved" ? `<button class="ticket-action-btn btn-progress" data-id="${ticket.id}">Marcar En Proceso</button>` : ''}
+                    ${ticket.status !== "resolved" ? `<button class="ticket-action-btn btn-resolve" data-id="${ticket.id}">Resolver</button>` : ''}
+                    <button class="ticket-action-btn btn-delete" data-id="${ticket.id}"><i class="fa-solid fa-trash-can"></i></button>
+                </div>
+            `;
+        }
+        
+        item.innerHTML = `
+            <div class="ticket-header-area">
+                <span class="ticket-title">${ticket.title}</span>
+                <span class="badge ${statusBadgeClass}">${statusLabel}</span>
+            </div>
+            <p class="ticket-desc">${ticket.description}</p>
+            <div class="ticket-meta" style="font-size: 10.5px; color: var(--text-muted);">
+                <span>Categoría: <strong>${categoryLabel}</strong></span>
+                <span>Reportado por: <strong>${ticket.createdBy}</strong></span>
+                <span>${formattedDate}</span>
+            </div>
+            ${actionButtons}
+        `;
+        
+        // Bind action buttons click handlers
+        if (isLeader) {
+            const btnProg = item.querySelector(".btn-progress");
+            if (btnProg) {
+                btnProg.addEventListener("click", () => updateTicketStatus(ticket.id, "progress"));
+            }
+            const btnRes = item.querySelector(".btn-resolve");
+            if (btnRes) {
+                btnRes.addEventListener("click", () => updateTicketStatus(ticket.id, "resolved"));
+            }
+            const btnDel = item.querySelector(".btn-delete");
+            if (btnDel) {
+                btnDel.addEventListener("click", () => deleteTicket(ticket.id));
+            }
+        }
+        
+        elements.ticketsListContainer.appendChild(item);
+    });
+}
+
+function updateTicketStatus(ticketId, newStatus) {
+    const ticket = state.tickets.find(t => t.id === ticketId);
+    if (ticket) {
+        ticket.status = newStatus;
+        saveState();
+        showToast(`Ticket estado actualizado a: ${newStatus}`);
+        renderTickets();
+    }
+}
+
+function deleteTicket(ticketId) {
+    state.tickets = state.tickets.filter(t => t.id !== ticketId);
+    saveState();
+    showToast("Ticket eliminado");
+    renderTickets();
+}
+
 let toastTimeout = null;
 function showToast(message) {
     elements.toastMessage.innerText = message;
@@ -2681,3 +3095,4 @@ window.addEventListener("DOMContentLoaded", () => {
     init();
     verifySelection();
 });
+
