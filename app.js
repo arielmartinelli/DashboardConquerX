@@ -567,6 +567,7 @@ const elements = {
 let cashChartInstance = null;
 let rateChartInstance = null;
 let syncTimeout = null;
+let pollInterval = null;
 
 // --- USER DATABASE & AUTHENTICATION ---
 const USERS = {
@@ -1045,7 +1046,7 @@ function init() {
     
     // Load Google Sheets URL
     state.sheetUrl = localStorage.getItem("conquerx_sheet_url");
-    if (state.sheetUrl === null) {
+    if (!state.sheetUrl) { // Handles empty string "" or null/undefined
         state.sheetUrl = "https://script.google.com/a/macros/conquerlanguages.com/s/AKfycbwwNaz0BiZ131o2YFYapDjXxlA-7oWtqxKO-WY9BwhzpOV04-SsIq9KLxsO_NJXO-cifQ/exec";
         localStorage.setItem("conquerx_sheet_url", state.sheetUrl);
     }
@@ -1056,6 +1057,7 @@ function init() {
             if (success) {
                 renderAll();
             }
+            startPeriodicPolling();
         });
     } else {
         updateSyncStatus("none", "Operando en memoria local.");
@@ -1136,6 +1138,55 @@ async function loadFromSheet() {
         showToast("Error de conexión. Se usaron los datos locales.");
         return false;
     }
+}
+
+function startPeriodicPolling() {
+    if (pollInterval) clearInterval(pollInterval);
+    pollInterval = setInterval(async () => {
+        // Only poll if we have a URL and we are not currently saving/syncing
+        if (state.sheetUrl && state.syncStatus !== "syncing") {
+            try {
+                const res = await fetch(state.sheetUrl);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.closers) {
+                        const oldDataStr = JSON.stringify({
+                            closers: state.closers,
+                            teamLogs: state.teamLogs,
+                            generalTasks: state.generalTasks,
+                            tickets: state.tickets
+                        });
+                        const newDataStr = JSON.stringify({
+                            closers: data.closers,
+                            teamLogs: data.teamLogs || { languages: [], block: [] },
+                            generalTasks: data.generalTasks || [],
+                            tickets: data.tickets || []
+                        });
+                        
+                        if (oldDataStr !== newDataStr) {
+                            state.closers = data.closers;
+                            state.teamLogs = data.teamLogs || { languages: [], block: [] };
+                            state.generalTasks = data.generalTasks || [];
+                            state.tickets = data.tickets || [];
+                            
+                            localStorage.setItem("conquerx_closers", JSON.stringify(state.closers));
+                            localStorage.setItem("conquerx_team_logs", JSON.stringify(state.teamLogs));
+                            localStorage.setItem("conquerx_general_tasks", JSON.stringify(state.generalTasks));
+                            localStorage.setItem("conquerx_tickets", JSON.stringify(state.tickets));
+                            
+                            // Re-render UI
+                            renderAll();
+                            buildCloserSelectDropdowns();
+                            showToast("Dashboard actualizado con cambios de la nube.");
+                        }
+                        updateSyncStatus("connected", "Conectado a Google Sheets");
+                    }
+                }
+            } catch (e) {
+                console.error("Error in periodic polling:", e);
+            }
+        }
+    }, 30000); // Poll every 30 seconds
 }
 
 function saveState() {
@@ -3131,10 +3182,12 @@ function setupEventListeners() {
                     showToast("¡Sincronización exitosa con Google Sheets!");
                     renderAll();
                 }
+                startPeriodicPolling();
             } else {
                 localStorage.removeItem("conquerx_sheet_url");
                 updateSyncStatus("none", "El Dashboard está operando localmente.");
                 showToast("Sincronización desvinculada. Operando en local.");
+                if (pollInterval) clearInterval(pollInterval);
             }
             
             if (elements.sheetsConfigModal) {
