@@ -752,6 +752,18 @@ function logout() {
 
 // --- CORE LOGIC & INITIALIZATION ---
 function init() {
+    // Zero-initialize default closers metrics
+    const zeroMetrics = (c) => {
+        c.leadsContacted = 0;
+        c.leadsClosed = 0;
+        c.cashCollected = 0;
+        c.targetCash = 0;
+        c.callsWeekly = 0;
+        c.callsMonthly = 0;
+    };
+    DEFAULT_CLOSERS.languages.forEach(zeroMetrics);
+    if (DEFAULT_CLOSERS.block) DEFAULT_CLOSERS.block.forEach(zeroMetrics);
+
     // Initialize Theme
     const savedTheme = localStorage.getItem("conquerx_theme") || "dark";
     document.body.setAttribute("data-theme", savedTheme);
