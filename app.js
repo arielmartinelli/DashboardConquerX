@@ -338,7 +338,8 @@ let state = {
     // New Monthly Filtering & Ticket System State
     selectedMonth: "2026-06", 
     metricsHistory: {}, // stores a snapshot of closers and teamLogs by month
-    tickets: [] // support ticket objects
+    tickets: [], // support ticket objects
+    viewMode: "monthly"
 };
 
 // --- DOM ELEMENTS ---
@@ -440,9 +441,14 @@ const elements = {
     editTeam: document.getElementById("edit-team"),
     editAvatar: document.getElementById("edit-avatar"),
     editDrive: document.getElementById("edit-drive"),
-    editLeads: document.getElementById("edit-leads"),
-    editSales: document.getElementById("edit-sales"),
-    editCash: document.getElementById("edit-cash"),
+    editLeads: document.getElementById("edit-leads-monthly"),
+    editSales: document.getElementById("edit-sales-monthly"),
+    editCash: document.getElementById("edit-cash-monthly"),
+    editTargetMonthly: document.getElementById("edit-target-monthly"),
+    editLeadsWeekly: document.getElementById("edit-leads-weekly"),
+    editSalesWeekly: document.getElementById("edit-sales-weekly"),
+    editCashWeekly: document.getElementById("edit-cash-weekly"),
+    editTargetWeekly: document.getElementById("edit-target-weekly"),
     editNote: document.getElementById("edit-note"),
     rankingFilterContainer: document.getElementById("ranking-filter-container"),
     
@@ -545,6 +551,9 @@ const elements = {
     sumBlockCashKPI: document.getElementById("sum-block-cash-kpi"),
     sumLanguagesRateKPI: document.getElementById("sum-languages-rate-kpi"),
     sumBlockRateKPI: document.getElementById("sum-block-rate-kpi"),
+    kpiCashTitle: document.getElementById("kpi-cash-title"),
+    kpiCashTargetLabel: document.getElementById("kpi-cash-target-label"),
+    kpiRateTitle: document.getElementById("kpi-rate-title"),
     
     // Inline Calls selector
     kpiCallsCloserSelect: document.getElementById("kpi-calls-closer-select"),
@@ -757,6 +766,10 @@ function init() {
     document.body.setAttribute("data-theme", savedTheme);
     updateThemeToggleIcon(savedTheme);
 
+    // Initialize View Mode
+    state.viewMode = localStorage.getItem("conquerx_view_mode") || "monthly";
+    updateViewModeUI();
+
     // 0. Auto-Migration from jasmine to jazmin / Jazmín
     let savedSubleader = localStorage.getItem("conquerx_subleader");
     let savedSelectedCloser = localStorage.getItem("conquerx_selected_closer");
@@ -795,6 +808,10 @@ function init() {
                         if (typeof l.text === "string") l.text = l.text.replace(/jasmine/gi, "Jazmín");
                     });
                 }
+                if (c.leadsContactedWeekly === undefined) c.leadsContactedWeekly = Math.round(c.leadsContacted / 4) || 0;
+                if (c.leadsClosedWeekly === undefined) c.leadsClosedWeekly = Math.round(c.leadsClosed / 4) || 0;
+                if (c.cashCollectedWeekly === undefined) c.cashCollectedWeekly = Math.round(c.cashCollected / 4) || 0;
+                if (c.targetCashWeekly === undefined) c.targetCashWeekly = Math.round(c.targetCash / 4) || 0;
                 if (c.nextMeeting) delete c.nextMeeting;
             };
             if (parsed.languages) parsed.languages.forEach(migrateCloser);
@@ -1088,6 +1105,31 @@ function updateThemeToggleIcon(theme) {
     }
 }
 
+function updateViewModeUI() {
+    const btnWeekly = document.getElementById("toggle-view-weekly");
+    const btnMonthly = document.getElementById("toggle-view-monthly");
+    
+    if (btnWeekly && btnMonthly) {
+        if (state.viewMode === "weekly") {
+            btnWeekly.classList.add("active");
+            btnWeekly.style.background = "var(--color-primary)";
+            btnWeekly.style.color = "white";
+            
+            btnMonthly.classList.remove("active");
+            btnMonthly.style.background = "none";
+            btnMonthly.style.color = "var(--text-muted)";
+        } else {
+            btnMonthly.classList.add("active");
+            btnMonthly.style.background = "var(--color-primary)";
+            btnMonthly.style.color = "white";
+            
+            btnWeekly.classList.remove("active");
+            btnWeekly.style.background = "none";
+            btnWeekly.style.color = "var(--text-muted)";
+        }
+    }
+}
+
 function updateSyncStatus(status, message) {
     state.syncStatus = status;
     
@@ -1128,6 +1170,25 @@ async function loadFromSheet() {
         
         if (data && data.closers) {
             state.closers = data.closers;
+            
+            // Normalize and fallback for weekly metrics
+            const normalizeCloser = (c) => {
+                c.leadsContacted = Number(c.leadsContacted || 0);
+                c.leadsClosed = Number(c.leadsClosed || 0);
+                c.cashCollected = Number(c.cashCollected || 0);
+                c.targetCash = Number(c.targetCash || 0);
+                c.commissionRate = Number(c.commissionRate || 0);
+                c.callsWeekly = Number(c.callsWeekly || 0);
+                c.callsMonthly = Number(c.callsMonthly || 0);
+                
+                c.leadsContactedWeekly = Number(c.leadsContactedWeekly === undefined || c.leadsContactedWeekly === null || c.leadsContactedWeekly === "" ? Math.round(c.leadsContacted / 4) : c.leadsContactedWeekly);
+                c.leadsClosedWeekly = Number(c.leadsClosedWeekly === undefined || c.leadsClosedWeekly === null || c.leadsClosedWeekly === "" ? Math.round(c.leadsClosed / 4) : c.leadsClosedWeekly);
+                c.cashCollectedWeekly = Number(c.cashCollectedWeekly === undefined || c.cashCollectedWeekly === null || c.cashCollectedWeekly === "" ? Math.round(c.cashCollected / 4) : c.cashCollectedWeekly);
+                c.targetCashWeekly = Number(c.targetCashWeekly === undefined || c.targetCashWeekly === null || c.targetCashWeekly === "" ? Math.round(c.targetCash / 4) : c.targetCashWeekly);
+            };
+            if (state.closers.languages) state.closers.languages.forEach(normalizeCloser);
+            if (state.closers.block) state.closers.block.forEach(normalizeCloser);
+            
             state.teamLogs = data.teamLogs || { languages: [], block: [] };
             state.generalTasks = data.generalTasks || [];
             state.tickets = data.tickets || [];
@@ -1257,10 +1318,19 @@ function getTeamStats(teamName) {
     let closed = 0;
     let callsWeekly = 0;
     let callsMonthly = 0;
+    
+    const isWeekly = state.viewMode === "weekly";
+    
     list.forEach(c => {
-        cash += Number(c.cashCollected || 0);
-        leads += Number(c.leadsContacted || 0);
-        closed += Number(c.leadsClosed || 0);
+        if (isWeekly) {
+            cash += Number(c.cashCollectedWeekly || 0);
+            leads += Number(c.leadsContactedWeekly || 0);
+            closed += Number(c.leadsClosedWeekly || 0);
+        } else {
+            cash += Number(c.cashCollected || 0);
+            leads += Number(c.leadsContacted || 0);
+            closed += Number(c.leadsClosed || 0);
+        }
         callsWeekly += Number(c.callsWeekly || 0);
         callsMonthly += Number(c.callsMonthly || 0);
     });
@@ -1285,10 +1355,17 @@ function getCombinedStats() {
 
 function getAllClosersSorted() {
     const all = [...state.closers.languages, ...state.closers.block];
+    const isWeekly = state.viewMode === "weekly";
     return all.map(c => {
-        const rate = c.leadsContacted > 0 ? (c.leadsClosed / c.leadsContacted) * 100 : 0;
+        const leads = isWeekly ? (c.leadsContactedWeekly || 0) : (c.leadsContacted || 0);
+        const closed = isWeekly ? (c.leadsClosedWeekly || 0) : (c.leadsClosed || 0);
+        const cash = isWeekly ? (c.cashCollectedWeekly || 0) : (c.cashCollected || 0);
+        const rate = leads > 0 ? (closed / leads) * 100 : 0;
         return {
             ...c,
+            cashCollected: cash,
+            leadsContacted: leads,
+            leadsClosed: closed,
             rate: rate
         };
     }).sort((a, b) => b.cashCollected - a.cashCollected);
@@ -1623,8 +1700,21 @@ function renderGlobalKPIs() {
     const langStats = getTeamStats("languages");
     const blockStats = getTeamStats("block");
     
-    // Target 200,000 Cash Collected
-    const targetCash = 200000;
+    const isWeekly = state.viewMode === "weekly";
+    
+    // Update KPI card header titles
+    if (elements.kpiCashTitle) {
+        elements.kpiCashTitle.innerText = isWeekly ? "CASH COLLECTED SEMANAL" : "CASH COLLECTED MENSUAL";
+    }
+    if (elements.kpiCashTargetLabel) {
+        elements.kpiCashTargetLabel.innerText = isWeekly ? "Meta: €50,000" : "Meta: €200,000";
+    }
+    if (elements.kpiRateTitle) {
+        elements.kpiRateTitle.innerText = isWeekly ? "PORCENTAJE DE CIERRE SEMANAL" : "PORCENTAJE DE CIERRE MENSUAL";
+    }
+    
+    // Target Weekly: €50,000 / Monthly: €200,000
+    const targetCash = isWeekly ? 50000 : 200000;
     const cashPercent = Math.min((combined.cash / targetCash) * 100, 120);
     elements.totalCashValue.innerText = `€${combined.cash.toLocaleString("es-ES")}`;
     elements.cashProgressFill.style.width = `${cashPercent}%`;
@@ -1994,7 +2084,12 @@ function renderCloserGrid(teamName, container) {
     const list = state.closers[teamName] || [];
     
     list.forEach(c => {
-        const rate = c.leadsContacted > 0 ? (c.leadsClosed / c.leadsContacted) * 100 : 0;
+        const isWeekly = state.viewMode === "weekly";
+        const leadsContacted = isWeekly ? (c.leadsContactedWeekly || 0) : (c.leadsContacted || 0);
+        const leadsClosed = isWeekly ? (c.leadsClosedWeekly || 0) : (c.leadsClosed || 0);
+        const cashCollected = isWeekly ? (c.cashCollectedWeekly || 0) : (c.cashCollected || 0);
+        
+        const rate = leadsContacted > 0 ? (leadsClosed / leadsContacted) * 100 : 0;
         
         const card = document.createElement("div");
         card.className = `closer-card card-team-${teamName}`;
@@ -2020,12 +2115,12 @@ function renderCloserGrid(teamName, container) {
             
             <div class="card-metrics" style="grid-template-columns: repeat(3, 1fr);">
                 <div class="card-metric-box">
-                    <span class="val">€${c.cashCollected.toLocaleString("es-ES")}</span>
-                    <span class="lbl">Cash</span>
+                    <span class="val">€${cashCollected.toLocaleString("es-ES")}</span>
+                    <span class="lbl">${isWeekly ? 'Cash (S)' : 'Cash'}</span>
                 </div>
                 <div class="card-metric-box">
                     <span class="val">${rate.toFixed(1)}%</span>
-                    <span class="lbl">% Cierre</span>
+                    <span class="lbl">${isWeekly ? '% Cierre (S)' : '% Cierre'}</span>
                 </div>
                 <div class="card-metric-box">
                     <span class="val" style="font-size: 12.5px;">${c.callsWeekly || 0} / ${c.callsMonthly || 0}</span>
@@ -2192,10 +2287,16 @@ function renderCloserProfileTab() {
     elements.profileName.innerText = closer.name;
     elements.profileTeamLbl.innerText = isLang ? "Equipo: Languages (Inglés)" : "Equipo: Block (Programación)";
     
+    const isWeekly = state.viewMode === "weekly";
+    const leadsContacted = isWeekly ? (closer.leadsContactedWeekly || 0) : (closer.leadsContacted || 0);
+    const leadsClosed = isWeekly ? (closer.leadsClosedWeekly || 0) : (closer.leadsClosed || 0);
+    const cashCollected = isWeekly ? (closer.cashCollectedWeekly || 0) : (closer.cashCollected || 0);
+    const targetCash = isWeekly ? (closer.targetCashWeekly || 0) : (closer.targetCash || 25000);
+
     // Calculate rate
-    const rate = closer.leadsContacted > 0 ? (closer.leadsClosed / closer.leadsContacted) * 100 : 0;
+    const rate = leadsContacted > 0 ? (leadsClosed / leadsContacted) * 100 : 0;
     elements.profileRateVal.innerText = `${rate.toFixed(1)}%`;
-    elements.profileCashVal.innerText = `€${closer.cashCollected.toLocaleString("es-ES")}`;
+    elements.profileCashVal.innerText = `€${cashCollected.toLocaleString("es-ES")}`;
     
     // Google Drive Call folder
     if (closer.driveUrl) {
@@ -2207,23 +2308,43 @@ function renderCloserProfileTab() {
         elements.profileDriveEmpty.style.display = "block";
     }
     
-    // Personal Target Progress (1st Bonus: 10k, 2nd Bonus: 25k)
-    const personalTargetPercent = Math.min((closer.cashCollected / 25000) * 100, 100);
+    // Personal Target Progress (Weekly: dynamic target | Monthly: €25k)
+    const personalTargetPercent = Math.min((cashCollected / (targetCash || 1)) * 100, 100);
     elements.profileTargetFill.style.width = `${personalTargetPercent}%`;
-    elements.profileTargetCollected.innerText = `€${closer.cashCollected.toLocaleString("es-ES")} / €25.000`;
+    elements.profileTargetCollected.innerText = `€${cashCollected.toLocaleString("es-ES")} / €${targetCash.toLocaleString("es-ES")}`;
     
-    // Dynamically calculate and render bonus status message
-    if (closer.cashCollected < 10000) {
-        const missing = 10000 - closer.cashCollected;
-        elements.bonusStatusMessage.innerText = `Faltan €${missing.toLocaleString("es-ES")} para el 1er Bonus`;
-        elements.bonusStatusMessage.style.color = "var(--color-warning)";
-    } else if (closer.cashCollected < 25000) {
-        const missing = 25000 - closer.cashCollected;
-        elements.bonusStatusMessage.innerHTML = `<i class="fa-solid fa-circle-check text-success"></i> ¡1er Bonus conseguido! Faltan €${missing.toLocaleString("es-ES")} para el 2do Bonus`;
-        elements.bonusStatusMessage.style.color = "var(--color-primary)";
+    // Hide/show bonus markers and labels based on view mode
+    const markers = document.querySelectorAll(".bonus-marker");
+    const bonusLabel1 = document.getElementById("bonus1-label");
+    const bonusLabel2 = document.getElementById("bonus2-label");
+    
+    markers.forEach(m => m.style.display = isWeekly ? "none" : "block");
+    if (bonusLabel1) bonusLabel1.style.display = isWeekly ? "none" : "block";
+    if (bonusLabel2) bonusLabel2.style.display = isWeekly ? "none" : "block";
+    
+    // Dynamically calculate and render target/bonus status message
+    if (isWeekly) {
+        if (cashCollected >= targetCash) {
+            elements.bonusStatusMessage.innerHTML = `<i class="fa-solid fa-trophy text-warning"></i> ¡Objetivo semanal alcanzado! (€${cashCollected.toLocaleString("es-ES")})`;
+            elements.bonusStatusMessage.style.color = "var(--color-success)";
+        } else {
+            const missing = targetCash - cashCollected;
+            elements.bonusStatusMessage.innerText = `Faltan €${missing.toLocaleString("es-ES")} para alcanzar el objetivo semanal`;
+            elements.bonusStatusMessage.style.color = "var(--color-warning)";
+        }
     } else {
-        elements.bonusStatusMessage.innerHTML = `<i class="fa-solid fa-trophy text-warning"></i> ¡Todos los Bonus conseguidos! (€25k+)`;
-        elements.bonusStatusMessage.style.color = "var(--color-success)";
+        if (cashCollected < 10000) {
+            const missing = 10000 - cashCollected;
+            elements.bonusStatusMessage.innerText = `Faltan €${missing.toLocaleString("es-ES")} para el 1er Bonus`;
+            elements.bonusStatusMessage.style.color = "var(--color-warning)";
+        } else if (cashCollected < 25000) {
+            const missing = 25000 - cashCollected;
+            elements.bonusStatusMessage.innerHTML = `<i class="fa-solid fa-circle-check text-success"></i> ¡1er Bonus conseguido! Faltan €${missing.toLocaleString("es-ES")} para el 2do Bonus`;
+            elements.bonusStatusMessage.style.color = "var(--color-primary)";
+        } else {
+            elements.bonusStatusMessage.innerHTML = `<i class="fa-solid fa-trophy text-warning"></i> ¡Todos los Bonus conseguidos! (€25k+)`;
+            elements.bonusStatusMessage.style.color = "var(--color-success)";
+        }
     }
 
     // Render Calls & Projections
@@ -2261,11 +2382,21 @@ function renderCloserProfileTab() {
     elements.editTeam.value = closer.team;
     elements.editAvatar.value = closer.avatarUrl || "";
     elements.editDrive.value = closer.driveUrl || "";
-    elements.editLeads.value = closer.leadsContacted;
-    elements.editSales.value = closer.leadsClosed;
-    elements.editCash.value = closer.cashCollected;
+    
+    // Refill Form Weekly fields
+    elements.editLeadsWeekly.value = closer.leadsContactedWeekly || 0;
+    elements.editSalesWeekly.value = closer.leadsClosedWeekly || 0;
+    elements.editCashWeekly.value = closer.cashCollectedWeekly || 0;
+    elements.editTargetWeekly.value = closer.targetCashWeekly || 5000;
     elements.editCallsWeekly.value = closer.callsWeekly || 0;
+
+    // Refill Form Monthly fields
+    elements.editLeads.value = closer.leadsContacted || 0;
+    elements.editSales.value = closer.leadsClosed || 0;
+    elements.editCash.value = closer.cashCollected || 0;
+    elements.editTargetMonthly.value = closer.targetCash || 25000;
     elements.editCallsMonthly.value = closer.callsMonthly || 0;
+
     elements.editNote.value = closer.note || "";
     
     // Render note info box
@@ -2706,6 +2837,34 @@ function setupEventListeners() {
         renderAll();
     });
     
+    // View Mode Toggle Listeners (Weekly / Monthly)
+    const btnWeekly = document.getElementById("toggle-view-weekly");
+    const btnMonthly = document.getElementById("toggle-view-monthly");
+    
+    if (btnWeekly) {
+        btnWeekly.addEventListener("click", () => {
+            if (state.viewMode !== "weekly") {
+                state.viewMode = "weekly";
+                localStorage.setItem("conquerx_view_mode", "weekly");
+                updateViewModeUI();
+                renderAll();
+                showToast("Dashboard cambiado a vista semanal.");
+            }
+        });
+    }
+    
+    if (btnMonthly) {
+        btnMonthly.addEventListener("click", () => {
+            if (state.viewMode !== "monthly") {
+                state.viewMode = "monthly";
+                localStorage.setItem("conquerx_view_mode", "monthly");
+                updateViewModeUI();
+                renderAll();
+                showToast("Dashboard cambiado a vista mensual.");
+            }
+        });
+    }
+    
     elements.sidebarGeneralToggleBtn.addEventListener("click", () => {
         const list = elements.sidebarGeneralListPanel;
         const panel = document.querySelector(".sidebar-general-tasks-panel");
@@ -2808,11 +2967,21 @@ function setupEventListeners() {
         closer.name = elements.editName.value.trim();
         closer.avatarUrl = elements.editAvatar.value.trim();
         closer.driveUrl = elements.editDrive.value.trim();
-        closer.leadsContacted = Number(elements.editLeads.value);
-        closer.leadsClosed = Number(elements.editSales.value);
-        closer.cashCollected = Number(elements.editCash.value);
+        
+        // Weekly Metrics
+        closer.leadsContactedWeekly = Number(elements.editLeadsWeekly.value || 0);
+        closer.leadsClosedWeekly = Number(elements.editSalesWeekly.value || 0);
+        closer.cashCollectedWeekly = Number(elements.editCashWeekly.value || 0);
+        closer.targetCashWeekly = Number(elements.editTargetWeekly.value || 5000);
         closer.callsWeekly = Number(elements.editCallsWeekly.value || 0);
+
+        // Monthly Metrics
+        closer.leadsContacted = Number(elements.editLeads.value || 0);
+        closer.leadsClosed = Number(elements.editSales.value || 0);
+        closer.cashCollected = Number(elements.editCash.value || 0);
+        closer.targetCash = Number(elements.editTargetMonthly.value || 25000);
         closer.callsMonthly = Number(elements.editCallsMonthly.value || 0);
+        
         closer.note = elements.editNote.value.trim();
         
         if (previousTeam !== targetTeam) {
