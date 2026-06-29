@@ -844,6 +844,20 @@ function init() {
             checkAndMigrate(parsed.languages);
             if (parsed.block) checkAndMigrate(parsed.block);
             
+            // Deduplicate to prevent any startup duplicates
+            const deduplicateList = (list) => {
+                if (!Array.isArray(list)) return [];
+                const seen = new Set();
+                return list.filter(c => {
+                    if (!c.id) return false;
+                    if (seen.has(c.id)) return false;
+                    seen.add(c.id);
+                    return true;
+                });
+            };
+            if (parsed.languages) parsed.languages = deduplicateList(parsed.languages);
+            if (parsed.block) parsed.block = deduplicateList(parsed.block);
+            
             state.closers = parsed;
             saveState();
         } catch (e) {
@@ -1128,6 +1142,21 @@ async function loadFromSheet() {
         
         if (data && data.closers) {
             state.closers = data.closers;
+            
+            // Deduplicate to prevent duplicates loaded from sheet
+            const deduplicateList = (list) => {
+                if (!Array.isArray(list)) return [];
+                const seen = new Set();
+                return list.filter(c => {
+                    if (!c.id) return false;
+                    if (seen.has(c.id)) return false;
+                    seen.add(c.id);
+                    return true;
+                });
+            };
+            if (state.closers.languages) state.closers.languages = deduplicateList(state.closers.languages);
+            if (state.closers.block) state.closers.block = deduplicateList(state.closers.block);
+            
             state.teamLogs = data.teamLogs || { languages: [], block: [] };
             state.generalTasks = data.generalTasks || [];
             state.tickets = data.tickets || [];
