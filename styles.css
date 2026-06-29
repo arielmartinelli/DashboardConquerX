@@ -2221,3 +2221,20 @@ body[data-theme="light"] .login-card {
     0% { opacity: 0.4; }
     100% { opacity: 1; }
 }
+
+/* Danger Button Styles */
+.btn-danger {
+    background: rgba(239, 68, 68, 0.1) !important;
+    border: 1px solid rgba(239, 68, 68, 0.25) !important;
+    color: var(--color-danger) !important;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all var(--transition-fast);
+}
+.btn-danger:hover {
+    background: var(--color-danger) !important;
+    border-color: var(--color-danger) !important;
+    color: white !important;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.35);
+}
+

@@ -559,7 +559,8 @@ const elements = {
     sheetsUrlInput: document.getElementById("sheets-url-input"),
     sheetsStatusVal: document.getElementById("sheets-status-val"),
     sheetsStatusMsg: document.getElementById("sheets-status-msg"),
-    btnSyncNow: document.getElementById("btn-sync-now")
+    btnSyncNow: document.getElementById("btn-sync-now"),
+    btnDeleteCloser: document.getElementById("btn-delete-closer")
 };
 
 // Chart instances
@@ -644,6 +645,7 @@ function applyUserPermissions() {
     // Default show setting forms
     const accordion = document.querySelector(".edit-closer-details-accordion");
     if (accordion) accordion.style.display = "block";
+    if (elements.btnDeleteCloser) elements.btnDeleteCloser.style.display = "none";
 
     if (user.role === "master") {
         // Ariel has full master access
@@ -651,6 +653,10 @@ function applyUserPermissions() {
         if (subleaderSelect) {
             subleaderSelect.value = state.currentSubleader;
             subleaderSelect.disabled = false; // master can switch subleader views
+        }
+        // Show delete closer button for Ariel
+        if (elements.btnDeleteCloser) {
+            elements.btnDeleteCloser.style.display = "flex";
         }
         // Default selected closer profile to ariel-martinelli for Ariel
         if (state.selectedCloserId === "jazmin") {
@@ -3149,6 +3155,44 @@ function setupEventListeners() {
                 showToast("Intento de guardado en la nube...");
                 saveState();
             }
+        });
+    }
+
+    if (elements.btnDeleteCloser) {
+        elements.btnDeleteCloser.addEventListener("click", () => {
+            const closer = getCloserById(state.selectedCloserId);
+            if (!closer) return;
+            
+            // Prevent Ariel Martinelli from deleting himself
+            if (closer.id === "ariel-martinelli") {
+                showToast("No puedes eliminar tu propio perfil de closer.");
+                return;
+            }
+            
+            const confirmDelete = confirm(`¿Estás seguro de que deseas eliminar permanentemente a ${closer.name} del sistema?\nEsta acción no se puede deshacer y se sincronizará con Google Sheets.`);
+            if (!confirmDelete) return;
+            
+            // Delete from languages or block team
+            if (closer.team === "languages") {
+                state.closers.languages = state.closers.languages.filter(c => c.id !== closer.id);
+            } else {
+                state.closers.block = state.closers.block.filter(c => c.id !== closer.id);
+            }
+            
+            // Save state (updates localStorage and triggers sync POST)
+            saveState();
+            
+            // Re-build select dropdowns to exclude the deleted closer
+            buildCloserSelectDropdowns();
+            
+            // Select another closer and refresh view
+            let nextCloser = state.closers.languages[0] || state.closers.block[0];
+            if (nextCloser) {
+                selectCloser(nextCloser.id);
+            }
+            
+            renderAll();
+            showToast(`Closer ${closer.name} eliminado del sistema.`);
         });
     }
 }
