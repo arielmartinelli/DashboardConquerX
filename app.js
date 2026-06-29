@@ -1128,6 +1128,7 @@ async function loadFromSheet() {
             localStorage.setItem("conquerx_general_tasks", JSON.stringify(state.generalTasks));
             localStorage.setItem("conquerx_tickets", JSON.stringify(state.tickets));
             
+            buildCloserSelectDropdowns(); // Rebuild dropdown selector options with new names
             updateSyncStatus("connected", "Conectado a Google Sheets");
             return true;
         }
@@ -1373,6 +1374,8 @@ function updateSubleaderUI() {
 }
 
 function buildCloserSelectDropdowns() {
+    const activeVal = elements.closerProfileSelect ? elements.closerProfileSelect.value : null;
+
     elements.optgroupLanguages.innerHTML = "";
     elements.optgroupBlock.innerHTML = "";
     
@@ -1389,6 +1392,10 @@ function buildCloserSelectDropdowns() {
         opt.innerText = c.name;
         elements.optgroupBlock.appendChild(opt);
     });
+    
+    if (elements.closerProfileSelect && activeVal) {
+        elements.closerProfileSelect.value = activeVal;
+    }
 }
 
 function renderAll() {
