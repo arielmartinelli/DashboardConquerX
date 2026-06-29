@@ -639,6 +639,11 @@ function applyUserPermissions() {
             subleaderSelect.value = state.currentSubleader;
             subleaderSelect.disabled = false; // master can switch subleader views
         }
+        // Default selected closer profile to ariel-martinelli for Ariel
+        if (state.selectedCloserId === "jazmin") {
+            state.selectedCloserId = "ariel-martinelli";
+            saveState();
+        }
     } else if (user.role === "admin" || user.role === "subleader") {
         // Both Admin and Subleader have access to all teams/tabs but are locked to their own account session
         state.currentSubleader = user.subleaderId || "manuel";
@@ -799,6 +804,20 @@ function init() {
                     }
                 });
             };
+            // Ensure all closers in DEFAULT_CLOSERS are present in parsed (e.g. ariel-martinelli)
+            DEFAULT_CLOSERS.languages.forEach(defC => {
+                if (!parsed.languages.some(c => c.id === defC.id)) {
+                    parsed.languages.push(JSON.parse(JSON.stringify(defC)));
+                }
+            });
+            if (parsed.block && DEFAULT_CLOSERS.block) {
+                DEFAULT_CLOSERS.block.forEach(defC => {
+                    if (!parsed.block.some(c => c.id === defC.id)) {
+                        parsed.block.push(JSON.parse(JSON.stringify(defC)));
+                    }
+                });
+            }
+
             checkAndMigrate(parsed.languages);
             if (parsed.block) checkAndMigrate(parsed.block);
             
