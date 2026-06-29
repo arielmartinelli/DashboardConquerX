@@ -716,6 +716,9 @@ function applyUserPermissions() {
         ticketsFormPanel.style.maxWidth = "none";
         ticketsFormPanel.style.margin = "0";
     }
+    
+    // Update the sidebar profile card to reflect the logged-in user
+    updateSubleaderUI();
 }
 
 function logout() {
