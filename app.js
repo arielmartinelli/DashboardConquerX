@@ -680,24 +680,16 @@ function applyUserPermissions() {
         if (accordion) accordion.style.display = "none";
     }
 
-    // Toggle tickets/suggestions view layout depending on master/ariel role
+    // Everyone can view suggestions and their status, but layout remains 2 columns
     const ticketsGrid = document.getElementById("tickets-grid");
     const ticketsFormPanel = document.getElementById("tickets-form-panel");
     const ticketsListPanel = document.getElementById("tickets-list-panel");
     
     if (ticketsGrid && ticketsFormPanel && ticketsListPanel) {
-        if (user.role === "master") {
-            ticketsListPanel.style.display = "block";
-            ticketsGrid.className = "grid-layout grid-2-columns";
-            ticketsFormPanel.style.maxWidth = "none";
-            ticketsFormPanel.style.margin = "0";
-        } else {
-            ticketsListPanel.style.display = "none";
-            ticketsGrid.className = "grid-layout grid-1-column";
-            ticketsFormPanel.style.maxWidth = "600px";
-            ticketsFormPanel.style.margin = "0 auto";
-            ticketsFormPanel.style.width = "100%";
-        }
+        ticketsListPanel.style.display = "block";
+        ticketsGrid.className = "grid-layout grid-2-columns";
+        ticketsFormPanel.style.maxWidth = "none";
+        ticketsFormPanel.style.margin = "0";
     }
 }
 
