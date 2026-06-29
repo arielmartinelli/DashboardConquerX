@@ -9,6 +9,7 @@ DROP TABLE IF EXISTS tips CASCADE;
 DROP TABLE IF EXISTS tasks CASCADE;
 DROP TABLE IF EXISTS general_tasks CASCADE;
 DROP TABLE IF EXISTS closers CASCADE;
+DROP TABLE IF EXISTS tickets CASCADE;
 
 -- 1. Table for Closers
 CREATE TABLE closers (
@@ -71,6 +72,17 @@ CREATE TABLE general_tasks (
     assigned_by VARCHAR(100) DEFAULT 'jazmin',
     assigned_to VARCHAR(100) DEFAULT 'jazmin',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 7. Table for Tickets / Suggestions
+CREATE TABLE tickets (
+    id VARCHAR(100) PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    category VARCHAR(100) NOT NULL,
+    status VARCHAR(50) DEFAULT 'open' CHECK (status IN ('open', 'progress', 'resolved')),
+    created_by VARCHAR(100) NOT NULL,
+    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- =========================================================================
@@ -169,3 +181,8 @@ INSERT INTO general_tasks (id, text, completed, assigned_by, assigned_to) VALUES
 ('gt_j3', 'Roleplay grupal de objeciones', FALSE, 'jazmin', 'jazmin'),
 ('gt_t1', 'Analizar llamadas grabadas de Block', FALSE, 'tomas', 'tomas'),
 ('gt_t2', 'Revisión semanal de leads con Cristian', FALSE, 'tomas', 'tomas');
+
+-- Insert Tickets
+INSERT INTO tickets (id, title, description, category, status, created_by, date) VALUES
+('t_d1', 'Corregir centrado de avatares', 'En algunas resoluciones móviles el avatar del closer se desfasa un poco hacia la izquierda.', 'ui', 'resolved', 'Jazmín', NOW() - INTERVAL '3 days'),
+('t_d2', 'Agregar cálculo automático de comisión', 'Estaría genial que cuando se asigne un porcentaje de comisión se calcule el total ganado acumulado.', 'feature', 'progress', 'Tomás', NOW() - INTERVAL '1 day');
