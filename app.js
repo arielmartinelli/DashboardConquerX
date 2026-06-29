@@ -1046,8 +1046,15 @@ function init() {
     
     // Load Google Sheets URL
     state.sheetUrl = localStorage.getItem("conquerx_sheet_url");
+    
+    // Auto-migrate from the old company Workspace URL to the new personal Gmail URL
+    if (state.sheetUrl && state.sheetUrl.includes("conquerlanguages.com")) {
+        state.sheetUrl = "https://script.google.com/macros/s/AKfycbzNhSynRdaoZWxUwn2MB2r8FkRm0u349rdLwW8BnAd4UIadBebwPh-FaIMXpk7jZMWqwQ/exec";
+        localStorage.setItem("conquerx_sheet_url", state.sheetUrl);
+    }
+    
     if (!state.sheetUrl) { // Handles empty string "" or null/undefined
-        state.sheetUrl = "https://script.google.com/a/macros/conquerlanguages.com/s/AKfycbwwNaz0BiZ131o2YFYapDjXxlA-7oWtqxKO-WY9BwhzpOV04-SsIq9KLxsO_NJXO-cifQ/exec";
+        state.sheetUrl = "https://script.google.com/macros/s/AKfycbzNhSynRdaoZWxUwn2MB2r8FkRm0u349rdLwW8BnAd4UIadBebwPh-FaIMXpk7jZMWqwQ/exec";
         localStorage.setItem("conquerx_sheet_url", state.sheetUrl);
     }
     
