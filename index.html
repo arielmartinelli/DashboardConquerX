@@ -185,6 +185,11 @@
                     <button id="theme-toggle" title="Cambiar Tema">
                         <i class="fa-solid fa-moon"></i>
                     </button>
+                    <!-- Google Sheets Sync Button/Indicator -->
+                    <button id="btn-sheets-config" class="btn-sheets-config" title="Configurar Google Sheets" style="background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: var(--radius-sm); width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; color: var(--text-main); cursor: pointer; transition: all var(--transition-fast); position: relative;">
+                        <i class="fa-solid fa-cloud" id="header-cloud-icon"></i>
+                        <span id="header-sync-status-dot" class="sync-status-dot" style="width: 7px; height: 7px; border-radius: 50%; background: #94a3b8; position: absolute; top: 4px; right: 4px; border: 1px solid var(--panel-bg);"></span>
+                    </button>
                     <button id="btn-logout" title="Cerrar Sesión" class="btn-logout-header">
                         <i class="fa-solid fa-right-from-bracket"></i>
                     </button>
@@ -912,6 +917,42 @@
                     <button type="submit" class="btn-modal-primary" style="background: var(--color-primary); border: none; border-radius: var(--radius-sm); padding: 8px 16px; color: white; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all var(--transition-fast); font-family: var(--font-heading);">
                         <span>Agregar Tarea</span>
                         <i class="fa-solid fa-plus"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Google Sheets Configuration Modal -->
+    <div id="sheets-config-modal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-file-excel text-success" style="margin-right: 8px;"></i> Sincronización Google Sheets</h3>
+                <button type="button" class="btn-close-modal" id="btn-close-sheets-modal" aria-label="Cerrar modal">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form id="sheets-config-form" style="display: flex; flex-direction: column; gap: 16px;">
+                <div class="form-group">
+                    <label for="sheets-url-input" style="display: block; font-family: var(--font-heading); font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px;">URL de la Web App de Google Sheet</label>
+                    <input type="url" id="sheets-url-input" placeholder="https://script.google.com/macros/s/.../exec" class="styled-input" style="width: 100%; font-size: 12.5px; padding: 10px 12px; background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: var(--radius-sm); color: var(--text-main); outline: none; transition: border-color var(--transition-fast);">
+                    <p style="font-size: 10px; color: var(--text-muted); margin-top: 6px; line-height: 1.4;">
+                        <i class="fa-solid fa-circle-info"></i> Pega la URL generada al publicar tu Apps Script como "Aplicación web". Asegúrate de configurar el acceso para "Cualquiera".
+                    </p>
+                </div>
+                
+                <div id="sheets-status-details" style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--panel-border); border-radius: var(--radius-sm); padding: 10px; font-size: 11px; display: flex; flex-direction: column; gap: 6px;">
+                    <div>Estado: <strong id="sheets-status-val" style="color: var(--text-muted);">No Vinculado</strong></div>
+                    <div id="sheets-status-msg" style="color: var(--text-muted); font-size: 10px;">El Dashboard está operando localmente con la memoria del navegador.</div>
+                </div>
+                
+                <div class="modal-actions" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px;">
+                    <button type="button" class="btn-modal-secondary" id="btn-sync-now" style="background: transparent; border: 1px solid var(--color-primary); border-radius: var(--radius-sm); padding: 8px 16px; color: var(--color-primary); font-size: 12px; font-weight: 600; cursor: pointer; transition: all var(--transition-fast); display: none;">
+                        <i class="fa-solid fa-arrows-rotate"></i> Sincronizar Ahora
+                    </button>
+                    <button type="submit" class="btn-modal-primary" style="background: var(--color-success); border: none; border-radius: var(--radius-sm); padding: 8px 16px; color: white; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all var(--transition-fast);">
+                        <span>Guardar URL</span>
+                        <i class="fa-solid fa-floppy-disk"></i>
                     </button>
                 </div>
             </form>

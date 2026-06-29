@@ -547,12 +547,25 @@ const elements = {
     sumBlockRateKPI: document.getElementById("sum-block-rate-kpi"),
     
     // Inline Calls selector
-    kpiCallsCloserSelect: document.getElementById("kpi-calls-closer-select")
+    kpiCallsCloserSelect: document.getElementById("kpi-calls-closer-select"),
+    
+    // Google Sheets elements
+    btnSheetsConfig: document.getElementById("btn-sheets-config"),
+    headerCloudIcon: document.getElementById("header-cloud-icon"),
+    headerSyncStatusDot: document.getElementById("header-sync-status-dot"),
+    sheetsConfigModal: document.getElementById("sheets-config-modal"),
+    btnCloseSheetsModal: document.getElementById("btn-close-sheets-modal"),
+    sheetsConfigForm: document.getElementById("sheets-config-form"),
+    sheetsUrlInput: document.getElementById("sheets-url-input"),
+    sheetsStatusVal: document.getElementById("sheets-status-val"),
+    sheetsStatusMsg: document.getElementById("sheets-status-msg"),
+    btnSyncNow: document.getElementById("btn-sync-now")
 };
 
 // Chart instances
 let cashChartInstance = null;
 let rateChartInstance = null;
+let syncTimeout = null;
 
 // --- USER DATABASE & AUTHENTICATION ---
 const USERS = {
@@ -1024,6 +1037,24 @@ function init() {
         }
     }
     
+    // Load Google Sheets URL
+    state.sheetUrl = localStorage.getItem("conquerx_sheet_url");
+    if (state.sheetUrl === null) {
+        state.sheetUrl = "https://script.google.com/a/macros/conquerlanguages.com/s/AKfycbwwNaz0BiZ131o2YFYapDjXxlA-7oWtqxKO-WY9BwhzpOV04-SsIq9KLxsO_NJXO-cifQ/exec";
+        localStorage.setItem("conquerx_sheet_url", state.sheetUrl);
+    }
+    
+    if (state.sheetUrl) {
+        updateSyncStatus("syncing", "Sincronizando con Google Sheets...");
+        loadFromSheet().then(success => {
+            if (success) {
+                renderAll();
+            }
+        });
+    } else {
+        updateSyncStatus("none", "Operando en memoria local.");
+    }
+
     // Initial Render
     renderAll();
 }
@@ -1039,6 +1070,68 @@ function updateThemeToggleIcon(theme) {
     }
 }
 
+function updateSyncStatus(status, message) {
+    state.syncStatus = status;
+    
+    if (elements.headerSyncStatusDot) {
+        elements.headerSyncStatusDot.className = "sync-status-dot";
+        if (status === "connected") elements.headerSyncStatusDot.classList.add("status-connected");
+        else if (status === "syncing") elements.headerSyncStatusDot.classList.add("status-syncing");
+        else if (status === "error") elements.headerSyncStatusDot.classList.add("status-error");
+    }
+    
+    if (elements.sheetsStatusVal) {
+        elements.sheetsStatusVal.innerText = status === "connected" ? "Conectado" : 
+                                            status === "syncing" ? "Sincronizando..." : 
+                                            status === "error" ? "Error de Conexión" : "No Vinculado";
+        elements.sheetsStatusVal.style.color = status === "connected" ? "var(--color-success)" : 
+                                               status === "syncing" ? "var(--color-warning)" : 
+                                               status === "error" ? "var(--color-danger)" : "var(--text-muted)";
+    }
+    
+    if (elements.sheetsStatusMsg) {
+        elements.sheetsStatusMsg.innerText = message || "";
+    }
+    
+    if (elements.btnSyncNow) {
+        elements.btnSyncNow.style.display = state.sheetUrl ? "inline-block" : "none";
+    }
+}
+
+async function loadFromSheet() {
+    if (!state.sheetUrl) return false;
+    
+    updateSyncStatus("syncing", "Cargando datos desde la nube...");
+    
+    try {
+        const res = await fetch(state.sheetUrl);
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        const data = await res.json();
+        
+        if (data && data.closers) {
+            state.closers = data.closers;
+            state.teamLogs = data.teamLogs || { languages: [], block: [] };
+            state.generalTasks = data.generalTasks || [];
+            state.tickets = data.tickets || [];
+            
+            // Save locally to fallback
+            localStorage.setItem("conquerx_closers", JSON.stringify(state.closers));
+            localStorage.setItem("conquerx_team_logs", JSON.stringify(state.teamLogs));
+            localStorage.setItem("conquerx_general_tasks", JSON.stringify(state.generalTasks));
+            localStorage.setItem("conquerx_tickets", JSON.stringify(state.tickets));
+            
+            updateSyncStatus("connected", "Conectado a Google Sheets");
+            return true;
+        }
+        throw new Error("Datos inválidos devueltos por el script.");
+    } catch (e) {
+        console.error("Error cargando desde Google Sheets:", e);
+        updateSyncStatus("error", "Error al cargar. Usando datos locales de respaldo.");
+        showToast("Error de conexión. Se usaron los datos locales.");
+        return false;
+    }
+}
+
 function saveState() {
     localStorage.setItem("conquerx_closers", JSON.stringify(state.closers));
     localStorage.setItem("conquerx_team_logs", JSON.stringify(state.teamLogs));
@@ -1049,6 +1142,35 @@ function saveState() {
     localStorage.setItem("conquerx_selected_month", state.selectedMonth);
     localStorage.setItem("conquerx_metrics_history", JSON.stringify(state.metricsHistory));
     localStorage.setItem("conquerx_tickets", JSON.stringify(state.tickets));
+    
+    if (state.sheetUrl) {
+        updateSyncStatus("syncing", "Guardando cambios en la nube...");
+        if (syncTimeout) clearTimeout(syncTimeout);
+        syncTimeout = setTimeout(async () => {
+            try {
+                const payload = {
+                    closers: state.closers,
+                    teamLogs: state.teamLogs,
+                    generalTasks: state.generalTasks,
+                    tickets: state.tickets
+                };
+                
+                await fetch(state.sheetUrl, {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                updateSyncStatus("connected", "Cambios guardados en Google Sheets");
+            } catch (e) {
+                console.error("Error guardando en Google Sheets:", e);
+                updateSyncStatus("error", "Error al guardar cambios. Guardado localmente.");
+            }
+        }, 1500);
+    }
 }
 
 // --- UTILITY COMPUTATIONS ---
@@ -2951,6 +3073,83 @@ function setupEventListeners() {
                 }, 100);
             });
         }
+    }
+
+    // Google Sheets Config Modal Event Listeners
+    if (elements.btnSheetsConfig) {
+        elements.btnSheetsConfig.addEventListener("click", () => {
+            if (elements.sheetsUrlInput) {
+                elements.sheetsUrlInput.value = state.sheetUrl || "";
+            }
+            if (state.sheetUrl) {
+                updateSyncStatus(state.syncStatus || "connected", state.syncStatus === "error" ? "Error de conexión con la hoja." : "Conectado a la hoja de cálculo de Google.");
+            } else {
+                updateSyncStatus("none", "El Dashboard está operando localmente con la memoria del navegador.");
+            }
+            if (elements.sheetsConfigModal) {
+                elements.sheetsConfigModal.style.display = "flex";
+                elements.sheetsConfigModal.classList.add("active");
+            }
+        });
+    }
+    
+    if (elements.btnCloseSheetsModal) {
+        elements.btnCloseSheetsModal.addEventListener("click", () => {
+            if (elements.sheetsConfigModal) {
+                elements.sheetsConfigModal.style.display = "none";
+                elements.sheetsConfigModal.classList.remove("active");
+            }
+        });
+    }
+    
+    if (elements.sheetsConfigModal) {
+        elements.sheetsConfigModal.addEventListener("click", (e) => {
+            if (e.target === elements.sheetsConfigModal) {
+                elements.sheetsConfigModal.style.display = "none";
+                elements.sheetsConfigModal.classList.remove("active");
+            }
+        });
+    }
+    
+    if (elements.sheetsConfigForm) {
+        elements.sheetsConfigForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const newUrl = elements.sheetsUrlInput.value.trim();
+            state.sheetUrl = newUrl;
+            localStorage.setItem("conquerx_sheet_url", newUrl);
+            
+            if (newUrl) {
+                showToast("URL de Google Sheets guardada.");
+                const success = await loadFromSheet();
+                if (success) {
+                    showToast("¡Sincronización exitosa con Google Sheets!");
+                    renderAll();
+                }
+            } else {
+                localStorage.removeItem("conquerx_sheet_url");
+                updateSyncStatus("none", "El Dashboard está operando localmente.");
+                showToast("Sincronización desvinculada. Operando en local.");
+            }
+            
+            if (elements.sheetsConfigModal) {
+                elements.sheetsConfigModal.style.display = "none";
+                elements.sheetsConfigModal.classList.remove("active");
+            }
+        });
+    }
+    
+    if (elements.btnSyncNow) {
+        elements.btnSyncNow.addEventListener("click", async () => {
+            showToast("Iniciando sincronización manual...");
+            const success = await loadFromSheet();
+            if (success) {
+                showToast("¡Datos actualizados desde Google Sheets!");
+                renderAll();
+            } else {
+                showToast("Intento de guardado en la nube...");
+                saveState();
+            }
+        });
     }
 }
 

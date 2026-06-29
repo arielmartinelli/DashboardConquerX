@@ -2201,3 +2201,23 @@ body[data-theme="light"] .login-card {
     background: linear-gradient(90deg, var(--color-warning) 0%, #fbbf24 100%);
     box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
 }
+
+/* Google Sheets Sync Indicator Styles */
+.sync-status-dot.status-connected {
+    background: var(--color-success) !important;
+    box-shadow: 0 0 5px var(--color-success);
+}
+.sync-status-dot.status-syncing {
+    background: var(--color-warning) !important;
+    box-shadow: 0 0 5px var(--color-warning);
+    animation: pulseSync 1s infinite alternate;
+}
+.sync-status-dot.status-error {
+    background: var(--color-danger) !important;
+    box-shadow: 0 0 5px var(--color-danger);
+}
+
+@keyframes pulseSync {
+    0% { opacity: 0.4; }
+    100% { opacity: 1; }
+}
