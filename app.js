@@ -1107,19 +1107,37 @@ function getAllClosersSorted() {
 // --- UI UPDATERS & RENDERERS ---
 
 function updateSubleaderUI() {
-    const current = state.currentSubleader;
+    const user = state.loggedUser;
+    if (!user) return;
+    
     const nameEl = document.getElementById("sidebar-subleader-name");
     const roleEl = document.getElementById("sidebar-subleader-role");
     
-    if (current === "manuel") {
+    if (user.username === "ariel") {
+        if (elements.sidebarAvatar) {
+            elements.sidebarAvatar.innerText = "A";
+            const arielCloser = getCloserById("ariel-martinelli");
+            if (arielCloser && arielCloser.avatarUrl) {
+                elements.sidebarAvatar.style.backgroundImage = `url('${arielCloser.avatarUrl}')`;
+                elements.sidebarAvatar.style.backgroundSize = "cover";
+                elements.sidebarAvatar.style.backgroundPosition = "center";
+                elements.sidebarAvatar.innerText = "";
+            } else {
+                elements.sidebarAvatar.style.backgroundImage = "none";
+                elements.sidebarAvatar.style.background = "linear-gradient(135deg, #f59e0b, #ec4899)";
+            }
+        }
+        if (nameEl) nameEl.innerText = "Ariel Martinelli";
+        if (roleEl) roleEl.innerText = "Líder Supremo";
+    } else if (user.username === "manuel") {
         if (elements.sidebarAvatar) {
             elements.sidebarAvatar.innerText = "M";
             elements.sidebarAvatar.style.backgroundImage = "none";
-            elements.sidebarAvatar.style.background = "linear-gradient(135deg, #f59e0b, #ec4899)";
+            elements.sidebarAvatar.style.background = "linear-gradient(135deg, #6366f1, #f97316)";
         }
         if (nameEl) nameEl.innerText = "Manuel";
-        if (roleEl) roleEl.innerText = "Líder Supremo";
-    } else if (current === "jazmin") {
+        if (roleEl) roleEl.innerText = "Administrador";
+    } else if (user.username === "jazmin") {
         if (elements.sidebarAvatar) {
             elements.sidebarAvatar.innerText = "J";
             const jasCloser = getCloserById("jazmin");
@@ -1135,7 +1153,7 @@ function updateSubleaderUI() {
         }
         if (nameEl) nameEl.innerText = "Jazmín Merlo";
         if (roleEl) roleEl.innerText = "Sublíder Languages";
-    } else {
+    } else if (user.username === "tomas") {
         if (elements.sidebarAvatar) {
             elements.sidebarAvatar.innerText = "T";
             const tomCloser = getCloserById("tomas");
@@ -1151,6 +1169,27 @@ function updateSubleaderUI() {
         }
         if (nameEl) nameEl.innerText = "Tomás";
         if (roleEl) roleEl.innerText = "Sublíder Block";
+    } else {
+        // Closer role
+        const closer = getCloserById(user.username);
+        if (closer) {
+            if (elements.sidebarAvatar) {
+                elements.sidebarAvatar.innerText = closer.name.charAt(0);
+                if (closer.avatarUrl) {
+                    elements.sidebarAvatar.style.backgroundImage = `url('${closer.avatarUrl}')`;
+                    elements.sidebarAvatar.style.backgroundSize = "cover";
+                    elements.sidebarAvatar.style.backgroundPosition = "center";
+                    elements.sidebarAvatar.innerText = "";
+                } else {
+                    elements.sidebarAvatar.style.backgroundImage = "none";
+                    elements.sidebarAvatar.style.background = closer.team === "languages" ? 
+                        "linear-gradient(135deg, var(--color-accent), var(--color-primary))" : 
+                        "linear-gradient(135deg, var(--color-secondary), var(--color-primary))";
+                }
+            }
+            if (nameEl) nameEl.innerText = closer.name;
+            if (roleEl) roleEl.innerText = closer.team === "languages" ? "Closer Languages" : "Closer Block";
+        }
     }
 }
 
