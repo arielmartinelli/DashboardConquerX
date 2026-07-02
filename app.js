@@ -4,311 +4,215 @@
 const DEFAULT_CLOSERS = {
     languages: [
         {
-            id: "jazmin",
-            name: "Jazmín Merlo",
-            team: "languages",
-            leadsContacted: 60,
-            leadsClosed: 5,
-            cashCollected: 5000,
-            targetCash: 25000,
-            commissionRate: 7,
-            callsWeekly: 15,
-            callsMonthly: 60,
-            avatarUrl: "https://media-eze1-2.cdn.whatsapp.net/v/t61.24694-24/688439856_1688070622524540_6748855887472131216_n.jpg?ccb=11-4&oh=01_Q5Aa4wELq3r63qy5H3saKJtxeK37_S9xCKAR-kK_9huii7_Urw&oe=6A4A977E&_nc_sid=5e03e0&_nc_cat=106",
-            driveUrl: "https://drive.google.com/drive/folders/1A_B_C_Languages_Jasmine_Dummy",
-            nextMeeting: null,
-            note: "Le entusiasma liderar reuniones de equipo y hacer roleplays de objeciones.",
-            tasks: [
-                { id: "t1", text: "Llamar a leads calientes de la base de datos", completed: true },
-                { id: "t2", text: "Preparar reporte semanal de métricas grupales", completed: false },
-                { id: "t3", text: "Hacer roleplay de objeciones de costo con Fabrizio", completed: false }
-            ],
-            tips: [
-                { id: "tip1", text: "Mantén el control del marco conversacional. No dejes que el cliente guíe la llamada.", category: "negociacion" },
-                { id: "tip2", text: "Establecer urgencia real basada en los cupos del curso de inglés.", category: "cierre" },
-                { id: "tip_1782420269333", text: "no sea tan sucia", category: "general" }
-            ],
-            logs: [
-                { id: "l1", author: "Tomás", text: "Excelente liderazgo en la sesión grupal de esta semana. Las llamadas de Jazmín muestran gran empatía.", date: "2026-06-20T10:30:00" },
-                { id: "l2", author: "Jazmín", text: "He estado reforzando el pitch inicial y logré rescatar 2 ventas difíciles.", date: "2026-06-22T18:15:00" }
-            ]
-        },
-        {
-            id: "merlo",
-            name: "Merlo",
-            team: "languages",
-            leadsContacted: 70,
-            leadsClosed: 10,
-            cashCollected: 15000,
-            targetCash: 20000,
-            commissionRate: 5,
-            callsWeekly: 20,
-            callsMonthly: 70,
-            avatarUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=150",
-            driveUrl: "https://drive.google.com/drive/folders/1B_Merlo_Recorded_Calls",
-            nextMeeting: null,
-            tasks: [
-                { id: "t4", text: "Revisar llamadas grabadas del lunes con Jazmín", completed: true },
-                { id: "t5", text: "Llamar a cliente indeciso de inglés de ayer", completed: false }
-            ],
-            tips: [
-                { id: "tip3", text: "Presiona un poco más en la llamada de cierre cuando el dolor esté bien detectado.", category: "objeciones" }
-            ],
-            logs: [
-                { id: "l3", author: "Jazmín", text: "Buen volumen de llamadas. Falta pulir el manejo de la objeción 'no tengo tiempo'.", date: "2026-06-21T14:20:00" }
-            ]
-        },
-        {
             id: "ariel-martinelli",
             name: "Ariel Martinelli",
             team: "languages",
-            leadsContacted: 90,
-            leadsClosed: 14,
-            cashCollected: 21000,
-            targetCash: 20000,
+            leadsContacted: 0,
+            leadsClosed: 0,
+            cashCollected: 0,
+            targetCash: 0,
             commissionRate: 5,
-            callsWeekly: 28,
-            callsMonthly: 90,
-            avatarUrl: "https://media-eze1-2.cdn.whatsapp.net/v/t61.24694-24/678165232_2281853229010844_6127097492774794344_n.jpg?ccb=11-4&oh=01_Q5Aa4wH5W4JIuLTTfls5Pf-7M04vRfA7PQQIXZuuwHx5DKVkMA&oe=6A4A9538&_nc_sid=5e03e0&_nc_cat=107",
-            driveUrl: "https://drive.google.com/drive/folders/1C_ArielM_Calls",
+            callsWeekly: 0,
+            callsMonthly: 0,
+            avatarUrl: "https://media-scl3-1.cdn.whatsapp.net/v/t61.24694-24/678165232_2281853229010844_6127097492774794344_n.jpg?ccb=11-4&oh=01_Q5Aa4wFRM0abSv0u8g3_LlZEdK9ac4wPch6QI_b3PesVeSa4jg&oe=6A535F38&_nc_sid=5e03e0&_nc_cat=107",
+            driveUrl: "",
             nextMeeting: null,
-            note: "Gran autoanálisis. Le gusta repasar llamadas grabadas.",
-            tasks: [
-                { id: "t6", text: "Seguimiento de ticket alto pendiente de pago", completed: false },
-                { id: "t_1782416463575", text: "Pregunta como se sintio esta semana", completed: false },
-                { id: "t_1782416641134", text: "Pregunta como se sintio esta semana", completed: false }
-            ],
-            tips: [
-                { id: "tip4", text: "Excelente tono y ritmo en las llamadas. Sigue reforzando la urgencia al final.", category: "cierre" },
-                { id: "tip_1782416665638", text: "hola", category: "general" }
-            ],
-            logs: [
-                { id: "l4", author: "Jazmín", text: "Muestra métricas estables. Consistencia muy alta este mes.", date: "2026-06-23T11:05:00" },
-                { id: "log_1782419238724", author: "Jazmín", text: "Hoy vimos tal cosa y veo tal otra", date: "2026-06-25T20:27:18.724Z" },
-                { id: "log_1782419259100", author: "Tomás", text: "Hola coimo estas", date: "2026-06-25T20:27:39.100Z" }
-            ]
+            note: "",
+            tasks: [],
+            tips: [],
+            logs: []
+        },
+        {
+            id: "jazmin",
+            name: "Jazmín Merlo",
+            team: "languages",
+            leadsContacted: 0,
+            leadsClosed: 0,
+            cashCollected: 0,
+            targetCash: 0,
+            commissionRate: 5,
+            callsWeekly: 0,
+            callsMonthly: 0,
+            avatarUrl: "https://media-eze1-1.cdn.whatsapp.net/v/t61.24694-24/688439856_1688070622524540_6748855887472131216_n.jpg?ccb=11-4&oh=01_Q5Aa4wH90DUucBjqtGrrugrEfKXAXFqyZ7hnJB2pxAgP8ILScA&oe=6A53617E&_nc_sid=5e03e0&_nc_cat=106",
+            driveUrl: "",
+            nextMeeting: null,
+            note: "",
+            tasks: [],
+            tips: [],
+            logs: []
         },
         {
             id: "agustina-soria",
             name: "Agostina Soria",
             team: "languages",
-            leadsContacted: 60,
-            leadsClosed: 8,
-            cashCollected: 12000,
-            targetCash: 15000,
+            leadsContacted: 0,
+            leadsClosed: 0,
+            cashCollected: 0,
+            targetCash: 0,
             commissionRate: 5,
-            callsWeekly: 16,
-            callsMonthly: 60,
-            avatarUrl: "https://media-eze1-2.cdn.whatsapp.net/v/t61.24694-24/588727318_4025474887585902_323612380752492272_n.jpg?ccb=11-4&oh=01_Q5Aa4wFRxGdkS2Bxo2emMm4VSHmt8a6ukfkYleWaGL4-uzFtDA&oe=6A4A8628&_nc_sid=5e03e0&_nc_cat=101",
+            callsWeekly: 0,
+            callsMonthly: 0,
+            avatarUrl: "https://media-scl3-1.cdn.whatsapp.net/v/t61.24694-24/588727318_4025474887585902_323612380752492272_n.jpg?ccb=11-4&oh=01_Q5Aa4wG9ElMJnHn8ls-wEFDG_WV0rdck2w0HXeaoHYYQd-arHQ&oe=6A538868&_nc_sid=5e03e0&_nc_cat=101",
             driveUrl: "",
             nextMeeting: null,
-            note: "Prefiere explicaciones visuales de los pitches y guías breves.",
-            tasks: [
-                { id: "t8", text: "Ver tips sobre manejo de precio en la carpeta compartida", completed: true },
-                { id: "t9", text: "Enviar email con propuesta a grupo VIP", completed: false }
-            ],
-            tips: [
-                { id: "tip5", text: "Intenta conectar el dolor directamente con la transformación del programa.", category: "dolor" }
-            ],
-            logs: [
-                { id: "l5", author: "Jazmín", text: "Agustina está mejorando su índice de cierre, pero necesita subir el volumen de llamadas diarias.", date: "2026-06-19T09:40:00" }
-            ]
+            note: "",
+            tasks: [],
+            tips: [],
+            logs: []
         },
         {
             id: "ariana",
-            name: "Ariana",
+            name: "Ariana Almeyra",
             team: "languages",
-            leadsContacted: 50,
-            leadsClosed: 6,
-            cashCollected: 9000,
-            targetCash: 15000,
+            leadsContacted: 0,
+            leadsClosed: 0,
+            cashCollected: 0,
+            targetCash: 0,
             commissionRate: 5,
-            callsWeekly: 12,
-            callsMonthly: 50,
-            avatarUrl: "https://media-eze1-2.cdn.whatsapp.net/v/t61.24694-24/596521480_1289854622946035_6304448030381604272_n.jpg?ccb=11-4&oh=01_Q5Aa4wEJ6PWcWkpR87DOAU47wjlJyA55EX5Q7dnNcTjVwXtGFA&oe=6A4AB16A&_nc_sid=5e03e0&_nc_cat=105",
+            callsWeekly: 0,
+            callsMonthly: 0,
+            avatarUrl: "https://media-scl3-1.cdn.whatsapp.net/v/t61.24694-24/596521480_1289854622946035_6304448030381604272_n.jpg?ccb=11-4&oh=01_Q5Aa4wGCD8UL3xmPLj0H0Cw3nUETR80Pwfq8hZ5x6FmwJGgwTA&oe=6A537B6A&_nc_sid=5e03e0&_nc_cat=105",
             driveUrl: "",
             nextMeeting: null,
-            tasks: [
-                { id: "t10", text: "Llamar a base de re-contacto de meses anteriores", completed: false }
-            ],
-            tips: [
-                { id: "tip6", text: "No temas hacer preguntas incómodas sobre la situación financiera del prospecto.", category: "cualificacion" }
-            ],
-            logs: [
-                { id: "l6", author: "Jazmín", text: "Se nota un poco de timidez en la etapa de indagación. Trabajando en su confianza.", date: "2026-06-24T16:00:00" }
-            ]
+            note: "",
+            tasks: [],
+            tips: [],
+            logs: []
         },
         {
             id: "fabrizio-fiamonti",
             name: "Fabrizio Fioramonti",
             team: "languages",
-            leadsContacted: 75,
-            leadsClosed: 11,
-            cashCollected: 16500,
-            targetCash: 20000,
+            leadsContacted: 0,
+            leadsClosed: 0,
+            cashCollected: 0,
+            targetCash: 0,
             commissionRate: 5,
-            callsWeekly: 22,
-            callsMonthly: 75,
-            avatarUrl: "",
+            callsWeekly: 0,
+            callsMonthly: 0,
+            avatarUrl: "https://media-scl3-1.cdn.whatsapp.net/v/t61.24694-24/533589079_1644620103394784_3694749836841144839_n.jpg?ccb=11-4&oh=01_Q5Aa4wEh-rEqga5SPXUpMp5kzzYvvBjI_Qq5oOhMssE-3b2rWQ&oe=6A537730&_nc_sid=5e03e0&_nc_cat=104",
             driveUrl: "",
             nextMeeting: null,
-            tasks: [
-                { id: "t11", text: "Roleplay individual sobre objeción 'tengo que consultarlo con mi socio/pareja'", completed: false }
-            ],
-            tips: [
-                { id: "tip7", text: "Usa la técnica del silencio tras presentar el precio.", category: "cierre" }
-            ],
-            logs: [
-                { id: "l7", author: "Jazmín", text: "Fabrizio cerró 3 ventas ayer con gran manejo de objeciones. Muy buen desempeño.", date: "2026-06-25T12:00:00" }
-            ]
+            note: "",
+            tasks: [],
+            tips: [],
+            logs: []
         },
         {
             id: "candela",
-            name: "Candela",
+            name: "Candela Muñoz",
             team: "languages",
-            leadsContacted: 65,
-            leadsClosed: 9,
-            cashCollected: 13500,
-            targetCash: 18000,
+            leadsContacted: 0,
+            leadsClosed: 0,
+            cashCollected: 0,
+            targetCash: 0,
             commissionRate: 5,
-            callsWeekly: 18,
-            callsMonthly: 65,
-            avatarUrl: "",
+            callsWeekly: 0,
+            callsMonthly: 0,
+            avatarUrl: "https://media-scl3-1.cdn.whatsapp.net/v/t61.24694-24/627732846_3963656823933658_4335757637615183192_n.jpg?ccb=11-4&oh=01_Q5Aa4wEPF0aOUYQN9as4k4lGqb3mmbw99v1PrN8WzBXaMBZbVw&oe=6A537B2B&_nc_sid=5e03e0&_nc_cat=101",
             driveUrl: "",
             nextMeeting: null,
-            tasks: [
-                { id: "t12", text: "Limpiar y etiquetar leads en el CRM común", completed: true }
-            ],
-            tips: [
-                { id: "tip8", text: "Asegúrate de confirmar que el prospecto asista con su tomador de decisiones.", category: "cualificacion" }
-            ],
-            logs: [
-                { id: "l8", author: "Jazmín", text: "Firme en su proceso. Mantiene un porcentaje de cierre cercano al 14%.", date: "2026-06-18T17:30:00" }
-            ]
+            note: "",
+            tasks: [],
+            tips: [],
+            logs: []
         }
     ],
     block: [
         {
-            id: "tomas",
-            name: "Tomás",
+            id: "jazmin-mercado",
+            name: "Jazmín Mercado",
             team: "block",
-            leadsContacted: 80,
-            leadsClosed: 13,
-            cashCollected: 20000,
-            targetCash: 25000,
-            commissionRate: 7,
-            callsWeekly: 26,
-            callsMonthly: 80,
-            avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150",
-            driveUrl: "https://drive.google.com/drive/folders/1D_Blogs_Tomas_Dummy_Key",
-            nextMeeting: null,
-            note: "No le gusta los role play, le gusta analizar llamadas.",
-            tasks: [
-                { id: "tb1", text: "Llamar a leads del nuevo bootcamp de backend", completed: true },
-                { id: "tb2", text: "Planificar la sesión de feedback grupal de Block", completed: false }
-            ],
-            tips: [
-                { id: "tip9", text: "Enfócate en la salida laboral inmediata al vender programación.", category: "cierre" }
-            ],
-            logs: [
-                { id: "l9", author: "Jazmín", text: "Tomás lidera con el ejemplo, logrando €20,000 en cash collected.", date: "2026-06-22T11:45:00" }
-            ]
-        },
-        {
-            id: "cristian",
-            name: "Cristian",
-            team: "block",
-            leadsContacted: 75,
-            leadsClosed: 10,
-            cashCollected: 15000,
-            targetCash: 20000,
+            leadsContacted: 0,
+            leadsClosed: 0,
+            cashCollected: 0,
+            targetCash: 0,
             commissionRate: 5,
-            callsWeekly: 20,
-            callsMonthly: 75,
-            avatarUrl: "",
+            callsWeekly: 0,
+            callsMonthly: 0,
+            avatarUrl: "https://media-scl3-1.cdn.whatsapp.net/v/t61.24694-24/677720879_2138825050019683_2846522142277840500_n.jpg?ccb=11-4&oh=01_Q5Aa4wFg5YKrxV3vGYV0STF7skHRH5_z-70dUk0BfHlezOWikA&oe=6A5383DA&_nc_sid=5e03e0&_nc_cat=109",
             driveUrl: "",
             nextMeeting: null,
-            tasks: [
-                { id: "tb3", text: "Seguimiento al grupo de alumnos del webinar de programación", completed: false }
-            ],
-            tips: [
-                { id: "tip10", text: "Destaca la validez del portafolio que construyen en el curso.", category: "indagacion" }
-            ],
-            logs: [
-                { id: "l10", author: "Tomás", text: "Cristian tiene un gran entendimiento técnico de los cursos, lo cual ayuda mucho a generar confianza.", date: "2026-06-24T15:20:00" }
-            ]
+            note: "",
+            tasks: [],
+            tips: [],
+            logs: []
+        },
+        {
+            id: "tomas",
+            name: "Tomás Berta",
+            team: "block",
+            leadsContacted: 0,
+            leadsClosed: 0,
+            cashCollected: 0,
+            targetCash: 0,
+            commissionRate: 5,
+            callsWeekly: 0,
+            callsMonthly: 0,
+            avatarUrl: "https://media-scl3-1.cdn.whatsapp.net/v/t61.24694-24/534426233_1900704521333251_2130894660263538296_n.jpg?ccb=11-4&oh=01_Q5Aa4wHr0QcX2BHanWR2weiKFu-_YA5-YqCCHRZc0vpBF7QrcA&oe=6A537CA5&_nc_sid=5e03e0&_nc_cat=108",
+            driveUrl: "",
+            nextMeeting: null,
+            note: "",
+            tasks: [],
+            tips: [],
+            logs: []
         },
         {
             id: "lucas",
-            name: "Lucas",
+            name: "Lucas Maurin",
             team: "block",
-            leadsContacted: 70,
-            leadsClosed: 9,
-            cashCollected: 13500,
-            targetCash: 18000,
+            leadsContacted: 0,
+            leadsClosed: 0,
+            cashCollected: 0,
+            targetCash: 0,
             commissionRate: 5,
-            callsWeekly: 18,
-            callsMonthly: 70,
-            avatarUrl: "",
+            callsWeekly: 0,
+            callsMonthly: 0,
+            avatarUrl: "https://media-scl3-1.cdn.whatsapp.net/v/t61.24694-24/592525901_1782075785827760_4327018385295605418_n.jpg?ccb=11-4&oh=01_Q5Aa4wHmrFYczWvOxSD5BunfnDX4BvFk4NGGCUWIzLxI3dUK0Q&oe=6A538883&_nc_sid=5e03e0&_nc_cat=100",
             driveUrl: "",
             nextMeeting: null,
-            tasks: [
-                { id: "tb4", text: "Revisar grabaciones de llamadas de venta perdidas", completed: true }
-            ],
-            tips: [
-                { id: "tip11", text: "Usa más analogías sencillas al explicar conceptos de programación.", category: "comunicacion" }
-            ],
-            logs: [
-                { id: "l11", author: "Tomás", text: "Buen porcentaje de cierre, debe mejorar el volumen de agendados.", date: "2026-06-21T10:15:00" }
-            ]
-        },
-        {
-            id: "nina",
-            name: "Nina",
-            team: "block",
-            leadsContacted: 65,
-            leadsClosed: 7,
-            cashCollected: 10500,
-            targetCash: 15000,
-            commissionRate: 5,
-            callsWeekly: 14,
-            callsMonthly: 65,
-            avatarUrl: "",
-            driveUrl: "",
-            nextMeeting: null,
-            tasks: [
-                { id: "tb5", text: "Enviar links de pago de reserva a leads calientes", completed: false }
-            ],
-            tips: [
-                { id: "tip12", text: "Asegura el compromiso de llamada puntual en la llamada de precalificación.", category: "cierre" }
-            ],
-            logs: [
-                { id: "l12", author: "Tomás", text: "Le falta un poco más de energía al iniciar la llamada. Trabajaremos en su estado interno.", date: "2026-06-23T16:40:00" }
-            ]
+            note: "",
+            tasks: [],
+            tips: [],
+            logs: []
         },
         {
             id: "julieta",
-            name: "Julieta",
+            name: "Julieta Lavigne",
             team: "block",
-            leadsContacted: 60,
-            leadsClosed: 9,
-            cashCollected: 13500,
-            targetCash: 18000,
+            leadsContacted: 0,
+            leadsClosed: 0,
+            cashCollected: 0,
+            targetCash: 0,
             commissionRate: 5,
-            callsWeekly: 18,
-            callsMonthly: 60,
-            avatarUrl: "",
+            callsWeekly: 0,
+            callsMonthly: 0,
+            avatarUrl: "https://media-scl3-1.cdn.whatsapp.net/v/t61.24694-24/556617719_850899184171510_2924287409895262791_n.jpg?ccb=11-4&oh=01_Q5Aa4wHIEIjegIbTEDhxN_gtmaj9YS4S-mO_Tv1Yq251SCh1Dw&oe=6A5375ED&_nc_sid=5e03e0&_nc_cat=108",
             driveUrl: "",
             nextMeeting: null,
-            tasks: [
-                { id: "tb6", text: "Llamar a lista de espera de programación avanzada", completed: true }
-            ],
-            tips: [
-                { id: "tip13", text: "Refuerza la garantía del programa para disminuir la fricción al final.", category: "objeciones" }
-            ],
-            logs: [
-                { id: "l13", author: "Tomás", text: "¡15% de tasa de cierre! Increíble trabajo de Julieta adaptándose a leads fríos.", date: "2026-06-25T11:10:00" }
-            ]
+            note: "",
+            tasks: [],
+            tips: [],
+            logs: []
+        },
+        {
+            id: "cristian",
+            name: "Cristian Prados",
+            team: "block",
+            leadsContacted: 0,
+            leadsClosed: 0,
+            cashCollected: 0,
+            targetCash: 0,
+            commissionRate: 5,
+            callsWeekly: 0,
+            callsMonthly: 0,
+            avatarUrl: "https://media-scl3-1.cdn.whatsapp.net/v/t61.24694-24/611645532_1503634584490957_4454895580024374210_n.jpg?ccb=11-4&oh=01_Q5Aa4wELH0rLfXjD43qar9IF-oE5X57DE6HOd1W23lD9s6VLqw&oe=6A53713F&_nc_sid=5e03e0&_nc_cat=105",
+            driveUrl: "",
+            nextMeeting: null,
+            note: "",
+            tasks: [],
+            tips: [],
+            logs: []
         }
     ]
 };
@@ -644,11 +548,8 @@ function applyUserPermissions() {
     }
     
     // Default show setting forms
-    const isSheetActiveDefault = !!state.sheetUrl;
     const accordion = document.querySelector(".edit-closer-details-accordion");
-    if (accordion) {
-        accordion.style.display = isSheetActiveDefault ? "none" : "block";
-    }
+    if (accordion) accordion.style.display = "block";
     if (elements.btnDeleteCloser) elements.btnDeleteCloser.style.display = "none";
 
     if (user.role === "master") {
@@ -720,40 +621,6 @@ function applyUserPermissions() {
         ticketsFormPanel.style.margin = "0";
     }
 
-    // Hide all creation/edit forms and delete buttons if sheet synchronization is active (unidirectional read-only mode)
-    const isSheetActive = !!state.sheetUrl;
-    
-    // Add Task / Add Tip forms
-    const addTaskForm = document.getElementById("add-task-form");
-    const addTipForm = document.getElementById("add-tip-form");
-    if (addTaskForm) addTaskForm.style.display = isSheetActive ? "none" : "flex";
-    if (addTipForm) addTipForm.style.display = isSheetActive ? "none" : "flex";
-    
-    // Add Log forms (both individual and team follow-ups)
-    const followupForms = document.querySelectorAll(".followup-form");
-    followupForms.forEach(form => {
-        form.style.display = isSheetActive ? "none" : "block";
-    });
-    
-    // Sidebar General Tasks input form
-    const generalTaskForm = document.getElementById("sidebar-general-add-form");
-    if (generalTaskForm) {
-        generalTaskForm.style.display = isSheetActive ? "none" : "flex";
-    }
-    
-    // Hide delete buttons and edit controls on tickets/suggestions
-    if (ticketsFormPanel) {
-        ticketsFormPanel.style.display = isSheetActive ? "none" : "block";
-        if (isSheetActive && ticketsGrid) {
-            ticketsGrid.className = "grid-layout grid-1-column";
-        }
-    }
-    
-    // Hide delete closer button if sheet active
-    if (isSheetActive && elements.btnDeleteCloser) {
-        elements.btnDeleteCloser.style.display = "none";
-    }
-    
     // Update the sidebar profile card to reflect the logged-in user
     updateSubleaderUI();
 }
@@ -819,104 +686,70 @@ function init() {
         localStorage.setItem("conquerx_selected_closer", "jazmin");
     }
 
-    let savedClosers = localStorage.getItem("conquerx_closers");
-    if (savedClosers) {
-        try {
-            let parsed = JSON.parse(savedClosers);
-            const migrateCloser = (c) => {
-                if (c.id === "jasmine") {
-                    c.id = "jazmin";
-                    c.name = "Jazmín";
-                }
-                if (c.tasks) {
-                    c.tasks.forEach(t => {
-                        if (typeof t.text === "string") t.text = t.text.replace(/jasmine/gi, "Jazmín");
-                    });
-                }
-                if (c.tips) {
-                    c.tips.forEach(t => {
-                        if (typeof t.text === "string") t.text = t.text.replace(/jasmine/gi, "Jazmín");
-                    });
-                }
-                if (c.logs) {
-                    c.logs.forEach(l => {
-                        if (l.author === "Jasmine") l.author = "Jazmín";
-                        if (typeof l.text === "string") l.text = l.text.replace(/jasmine/gi, "Jazmín");
-                    });
-                }
-                if (c.nextMeeting) delete c.nextMeeting;
-            };
-            if (parsed.languages) parsed.languages.forEach(migrateCloser);
-            if (parsed.block) parsed.block.forEach(migrateCloser);
-            if (parsed.blogs) parsed.blogs.forEach(migrateCloser);
-            
-            // Migration logic if they have old team names
-            if (parsed.blogs) {
-                parsed.block = parsed.blogs;
-                delete parsed.blogs;
-                parsed.block.forEach(c => {
-                    c.team = "block";
-                });
-            }
-            
-            // Ensure everyone has avatarUrl field
-            const checkAndMigrate = (list) => {
-                list.forEach(c => {
-                    if (c.team === "blogs") c.team = "block";
-                    if (c.avatarUrl === undefined) {
-                        if (c.id === "jazmin") {
-                            c.avatarUrl = "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150";
-                        } else if (c.id === "tomas") {
-                            c.avatarUrl = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150";
-                        } else if (c.id === "merlo") {
-                            c.avatarUrl = "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=150";
-                        } else {
-                            c.avatarUrl = "";
+    // Force reset tasks, tips, logs, teamLogs, generalTasks, and tickets for clean start (version v3)
+    const hasReset = localStorage.getItem("conquerx_reset_db_v3");
+    if (!hasReset) {
+        localStorage.setItem("conquerx_reset_db_v3", "true");
+        localStorage.setItem("conquerx_team_logs", JSON.stringify({ languages: [], block: [] }));
+        localStorage.setItem("conquerx_general_tasks", JSON.stringify([]));
+        localStorage.setItem("conquerx_tickets", JSON.stringify([]));
+        localStorage.setItem("conquerx_selected_closer", "ariel-martinelli");
+        
+        state.teamLogs = { languages: [], block: [] };
+        state.generalTasks = [];
+        state.tickets = [];
+        state.selectedCloserId = "ariel-martinelli";
+        
+        // Setup fresh zero-metric closers
+        state.closers = JSON.parse(JSON.stringify(DEFAULT_CLOSERS));
+        saveState();
+    } else {
+        // Load from LocalStorage
+        let savedClosers = localStorage.getItem("conquerx_closers");
+        if (savedClosers) {
+            try {
+                let parsed = JSON.parse(savedClosers);
+                
+                // Align cached lists with fixed 11 closers from DEFAULT_CLOSERS
+                const alignClosers = (cachedList, defaultList) => {
+                    if (!Array.isArray(cachedList)) return JSON.parse(JSON.stringify(defaultList));
+                    return defaultList.map(defC => {
+                        const cached = cachedList.find(c => c.id === defC.id);
+                        if (cached) {
+                            return {
+                                ...defC,
+                                leadsContacted: Number(cached.leadsContacted || 0),
+                                leadsClosed: Number(cached.leadsClosed || 0),
+                                cashCollected: Number(cached.cashCollected || 0),
+                                targetCash: Number(cached.targetCash || 0),
+                                commissionRate: Number(cached.commissionRate || 5),
+                                callsWeekly: Number(cached.callsWeekly || 0),
+                                callsMonthly: Number(cached.callsMonthly || 0),
+                                driveUrl: cached.driveUrl || "",
+                                note: cached.note || "",
+                                tasks: Array.isArray(cached.tasks) ? cached.tasks : [],
+                                tips: Array.isArray(cached.tips) ? cached.tips : [],
+                                logs: Array.isArray(cached.logs) ? cached.logs : []
+                            };
                         }
-                    }
-                });
-            };
-            // Ensure all closers in DEFAULT_CLOSERS are present in parsed (e.g. ariel-martinelli)
-            DEFAULT_CLOSERS.languages.forEach(defC => {
-                if (!parsed.languages.some(c => c.id === defC.id)) {
-                    parsed.languages.push(JSON.parse(JSON.stringify(defC)));
-                }
-            });
-            if (parsed.block && DEFAULT_CLOSERS.block) {
-                DEFAULT_CLOSERS.block.forEach(defC => {
-                    if (!parsed.block.some(c => c.id === defC.id)) {
-                        parsed.block.push(JSON.parse(JSON.stringify(defC)));
-                    }
-                });
+                        return JSON.parse(JSON.stringify(defC));
+                    });
+                };
+                
+                state.closers = {
+                    languages: alignClosers(parsed.languages, DEFAULT_CLOSERS.languages),
+                    block: alignClosers(parsed.block, DEFAULT_CLOSERS.block)
+                };
+                saveState();
+            } catch (e) {
+                console.error("Error aligning closers:", e);
+                state.closers = JSON.parse(JSON.stringify(DEFAULT_CLOSERS));
+                saveState();
             }
-
-            checkAndMigrate(parsed.languages);
-            if (parsed.block) checkAndMigrate(parsed.block);
-            
-            // Deduplicate to prevent any startup duplicates
-            const deduplicateList = (list) => {
-                if (!Array.isArray(list)) return [];
-                const seen = new Set();
-                return list.filter(c => {
-                    if (!c.id) return false;
-                    if (seen.has(c.id)) return false;
-                    seen.add(c.id);
-                    return true;
-                });
-            };
-            if (parsed.languages) parsed.languages = deduplicateList(parsed.languages);
-            if (parsed.block) parsed.block = deduplicateList(parsed.block);
-            
-            state.closers = parsed;
-            saveState();
-        } catch (e) {
-            console.error("Error migrating closers", e);
-            state.closers = DEFAULT_CLOSERS;
+        } else {
+            state.closers = JSON.parse(JSON.stringify(DEFAULT_CLOSERS));
             saveState();
         }
-    } else {
-        state.closers = DEFAULT_CLOSERS;
-        saveState();
     }
 
     // Ensure all closers have calls fields initialized
@@ -1194,33 +1027,35 @@ async function loadFromSheet() {
         const data = await res.json();
         
         if (data && data.closers) {
-            state.closers = data.closers;
+            // Re-initialize state.closers from DEFAULT_CLOSERS if empty or corrupted
+            if (!state.closers || !state.closers.languages || state.closers.languages.length === 0) {
+                state.closers = JSON.parse(JSON.stringify(DEFAULT_CLOSERS));
+            }
             
-            // Deduplicate to prevent duplicates loaded from sheet
-            const deduplicateList = (list) => {
-                if (!Array.isArray(list)) return [];
-                const seen = new Set();
-                return list.filter(c => {
-                    if (!c.id) return false;
-                    if (seen.has(c.id)) return false;
-                    seen.add(c.id);
-                    return true;
+            // Align and update metrics of our fixed list of 11 closers
+            const updateMetrics = (stateList, sheetList) => {
+                stateList.forEach(c => {
+                    const sheetC = sheetList.find(s => s.id === c.id);
+                    if (sheetC) {
+                        c.leadsContacted = Number(sheetC.leadsContacted || 0);
+                        c.leadsClosed = Number(sheetC.leadsClosed || 0);
+                        c.cashCollected = Number(sheetC.cashCollected || 0);
+                        c.targetCash = Number(sheetC.targetCash || 0);
+                        c.commissionRate = Number(sheetC.commissionRate || 5);
+                        c.callsWeekly = Number(sheetC.callsWeekly || 0);
+                        c.callsMonthly = Number(sheetC.callsMonthly || 0);
+                        c.driveUrl = sheetC.driveUrl || c.driveUrl || "";
+                        c.note = sheetC.note || c.note || "";
+                    }
                 });
             };
-            if (state.closers.languages) state.closers.languages = deduplicateList(state.closers.languages);
-            if (state.closers.block) state.closers.block = deduplicateList(state.closers.block);
-            
-            state.teamLogs = data.teamLogs || { languages: [], block: [] };
-            state.generalTasks = data.generalTasks || [];
-            state.tickets = data.tickets || [];
+            updateMetrics(state.closers.languages, data.closers.languages || []);
+            updateMetrics(state.closers.block, data.closers.block || []);
             
             // Save locally to fallback
             localStorage.setItem("conquerx_closers", JSON.stringify(state.closers));
-            localStorage.setItem("conquerx_team_logs", JSON.stringify(state.teamLogs));
-            localStorage.setItem("conquerx_general_tasks", JSON.stringify(state.generalTasks));
-            localStorage.setItem("conquerx_tickets", JSON.stringify(state.tickets));
             
-            buildCloserSelectDropdowns(); // Rebuild dropdown selector options with new names
+            buildCloserSelectDropdowns(); // Rebuild dropdown selector options
             updateSyncStatus("connected", "Conectado a Google Sheets");
             return true;
         }
@@ -1243,29 +1078,53 @@ function startPeriodicPolling() {
                 if (res.ok) {
                     const data = await res.json();
                     if (data && data.closers) {
-                        const oldDataStr = JSON.stringify({
-                            closers: state.closers,
-                            teamLogs: state.teamLogs,
-                            generalTasks: state.generalTasks,
-                            tickets: state.tickets
-                        });
-                        const newDataStr = JSON.stringify({
-                            closers: data.closers,
-                            teamLogs: data.teamLogs || { languages: [], block: [] },
-                            generalTasks: data.generalTasks || [],
-                            tickets: data.tickets || []
-                        });
+                        // Extract only metrics for comparison
+                        const extractMetrics = (closersObj) => {
+                            if (!closersObj) return {};
+                            const metricsMap = {};
+                            const getMetrics = c => {
+                                metricsMap[c.id] = {
+                                    leadsContacted: Number(c.leadsContacted || 0),
+                                    leadsClosed: Number(c.leadsClosed || 0),
+                                    cashCollected: Number(c.cashCollected || 0),
+                                    targetCash: Number(c.targetCash || 0),
+                                    commissionRate: Number(c.commissionRate || 5),
+                                    callsWeekly: Number(c.callsWeekly || 0),
+                                    callsMonthly: Number(c.callsMonthly || 0),
+                                    driveUrl: c.driveUrl || "",
+                                    note: c.note || ""
+                                };
+                            };
+                            if (closersObj.languages) closersObj.languages.forEach(getMetrics);
+                            if (closersObj.block) closersObj.block.forEach(getMetrics);
+                            return metricsMap;
+                        };
                         
-                        if (oldDataStr !== newDataStr) {
-                            state.closers = data.closers;
-                            state.teamLogs = data.teamLogs || { languages: [], block: [] };
-                            state.generalTasks = data.generalTasks || [];
-                            state.tickets = data.tickets || [];
+                        const oldMetricsStr = JSON.stringify(extractMetrics(state.closers));
+                        const newMetricsStr = JSON.stringify(extractMetrics(data.closers));
+                        
+                        if (oldMetricsStr !== newMetricsStr) {
+                            // Update metrics inside state.closers for our fixed list of 11 closers
+                            const updateMetrics = (stateList, sheetList) => {
+                                stateList.forEach(c => {
+                                    const sheetC = sheetList.find(s => s.id === c.id);
+                                    if (sheetC) {
+                                        c.leadsContacted = Number(sheetC.leadsContacted || 0);
+                                        c.leadsClosed = Number(sheetC.leadsClosed || 0);
+                                        c.cashCollected = Number(sheetC.cashCollected || 0);
+                                        c.targetCash = Number(sheetC.targetCash || 0);
+                                        c.commissionRate = Number(sheetC.commissionRate || 5);
+                                        c.callsWeekly = Number(sheetC.callsWeekly || 0);
+                                        c.callsMonthly = Number(sheetC.callsMonthly || 0);
+                                        c.driveUrl = sheetC.driveUrl || c.driveUrl || "";
+                                        c.note = sheetC.note || c.note || "";
+                                    }
+                                });
+                            };
+                            updateMetrics(state.closers.languages, data.closers.languages || []);
+                            updateMetrics(state.closers.block, data.closers.block || []);
                             
                             localStorage.setItem("conquerx_closers", JSON.stringify(state.closers));
-                            localStorage.setItem("conquerx_team_logs", JSON.stringify(state.teamLogs));
-                            localStorage.setItem("conquerx_general_tasks", JSON.stringify(state.generalTasks));
-                            localStorage.setItem("conquerx_tickets", JSON.stringify(state.tickets));
                             
                             // Re-render UI
                             renderAll();
@@ -1292,6 +1151,33 @@ function saveState() {
     localStorage.setItem("conquerx_selected_month", state.selectedMonth);
     localStorage.setItem("conquerx_metrics_history", JSON.stringify(state.metricsHistory));
     localStorage.setItem("conquerx_tickets", JSON.stringify(state.tickets));
+    
+    if (state.sheetUrl) {
+        updateSyncStatus("syncing", "Guardando cambios en Google Sheets...");
+        if (syncTimeout) clearTimeout(syncTimeout);
+        syncTimeout = setTimeout(async () => {
+            try {
+                // Send only the closers (specifically metrics) to prevent sheet clutter
+                const payload = {
+                    closers: state.closers
+                };
+                
+                await fetch(state.sheetUrl, {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                updateSyncStatus("connected", "Conectado a Google Sheets");
+            } catch (e) {
+                console.error("Error guardando en Google Sheets:", e);
+                updateSyncStatus("error", "Error al guardar en la nube.");
+            }
+        }, 1500);
+    }
 }
 
 // --- UTILITY COMPUTATIONS ---
