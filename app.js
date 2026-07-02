@@ -644,8 +644,11 @@ function applyUserPermissions() {
     }
     
     // Default show setting forms
+    const isSheetActiveDefault = !!state.sheetUrl;
     const accordion = document.querySelector(".edit-closer-details-accordion");
-    if (accordion) accordion.style.display = "block";
+    if (accordion) {
+        accordion.style.display = isSheetActiveDefault ? "none" : "block";
+    }
     if (elements.btnDeleteCloser) elements.btnDeleteCloser.style.display = "none";
 
     if (user.role === "master") {
@@ -715,6 +718,40 @@ function applyUserPermissions() {
         ticketsGrid.className = "grid-layout grid-2-columns";
         ticketsFormPanel.style.maxWidth = "none";
         ticketsFormPanel.style.margin = "0";
+    }
+
+    // Hide all creation/edit forms and delete buttons if sheet synchronization is active (unidirectional read-only mode)
+    const isSheetActive = !!state.sheetUrl;
+    
+    // Add Task / Add Tip forms
+    const addTaskForm = document.getElementById("add-task-form");
+    const addTipForm = document.getElementById("add-tip-form");
+    if (addTaskForm) addTaskForm.style.display = isSheetActive ? "none" : "flex";
+    if (addTipForm) addTipForm.style.display = isSheetActive ? "none" : "flex";
+    
+    // Add Log forms (both individual and team follow-ups)
+    const followupForms = document.querySelectorAll(".followup-form");
+    followupForms.forEach(form => {
+        form.style.display = isSheetActive ? "none" : "block";
+    });
+    
+    // Sidebar General Tasks input form
+    const generalTaskForm = document.getElementById("sidebar-general-add-form");
+    if (generalTaskForm) {
+        generalTaskForm.style.display = isSheetActive ? "none" : "flex";
+    }
+    
+    // Hide delete buttons and edit controls on tickets/suggestions
+    if (ticketsFormPanel) {
+        ticketsFormPanel.style.display = isSheetActive ? "none" : "block";
+        if (isSheetActive && ticketsGrid) {
+            ticketsGrid.className = "grid-layout grid-1-column";
+        }
+    }
+    
+    // Hide delete closer button if sheet active
+    if (isSheetActive && elements.btnDeleteCloser) {
+        elements.btnDeleteCloser.style.display = "none";
     }
     
     // Update the sidebar profile card to reflect the logged-in user
@@ -1125,7 +1162,7 @@ function updateSyncStatus(status, message) {
     }
     
     if (elements.sheetsStatusVal) {
-        elements.sheetsStatusVal.innerText = status === "connected" ? "Conectado" : 
+        elements.sheetsStatusVal.innerText = status === "connected" ? "Sincronizado (Lectura)" : 
                                             status === "syncing" ? "Sincronizando..." : 
                                             status === "error" ? "Error de Conexión" : "No Vinculado";
         elements.sheetsStatusVal.style.color = status === "connected" ? "var(--color-success)" : 
@@ -1134,7 +1171,11 @@ function updateSyncStatus(status, message) {
     }
     
     if (elements.sheetsStatusMsg) {
-        elements.sheetsStatusMsg.innerText = message || "";
+        if (status === "connected") {
+            elements.sheetsStatusMsg.innerText = "Modo Lectura Activo. El Dashboard se actualiza automáticamente al detectar cambios en Google Sheets.";
+        } else {
+            elements.sheetsStatusMsg.innerText = message || "";
+        }
     }
     
     if (elements.btnSyncNow) {
@@ -1251,35 +1292,6 @@ function saveState() {
     localStorage.setItem("conquerx_selected_month", state.selectedMonth);
     localStorage.setItem("conquerx_metrics_history", JSON.stringify(state.metricsHistory));
     localStorage.setItem("conquerx_tickets", JSON.stringify(state.tickets));
-    
-    if (state.sheetUrl) {
-        updateSyncStatus("syncing", "Guardando cambios en la nube...");
-        if (syncTimeout) clearTimeout(syncTimeout);
-        syncTimeout = setTimeout(async () => {
-            try {
-                const payload = {
-                    closers: state.closers,
-                    teamLogs: state.teamLogs,
-                    generalTasks: state.generalTasks,
-                    tickets: state.tickets
-                };
-                
-                await fetch(state.sheetUrl, {
-                    method: "POST",
-                    mode: "no-cors",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(payload)
-                });
-                
-                updateSyncStatus("connected", "Cambios guardados en Google Sheets");
-            } catch (e) {
-                console.error("Error guardando en Google Sheets:", e);
-                updateSyncStatus("error", "Error al guardar cambios. Guardado localmente.");
-            }
-        }, 1500);
-    }
 }
 
 // --- UTILITY COMPUTATIONS ---
