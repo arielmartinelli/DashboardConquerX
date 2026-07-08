@@ -1557,10 +1557,15 @@ function renderSidebarGeneralTasks() {
         elements.sidebarGeneralBell.classList.remove("bell-alert");
     }
     
-    // Toggle assignment dropdown for everyone
+    // Toggle assignment dropdown: only for Ariel (master) or Manuel (admin)
     const assignContainer = document.getElementById("sidebar-assign-container");
     if (assignContainer) {
-        assignContainer.style.display = "flex";
+        const isControlTotal = state.loggedUser && (state.loggedUser.role === "master" || state.loggedUser.role === "admin");
+        if (isControlTotal) {
+            assignContainer.style.display = "flex";
+        } else {
+            assignContainer.style.display = "none";
+        }
     }
     
     elements.sidebarGeneralList.innerHTML = "";
@@ -2832,10 +2837,15 @@ function setupEventListeners() {
         const textVal = elements.sidebarGeneralInput.value.trim();
         if (!textVal) return;
         
+        const isControlTotal = state.loggedUser && (state.loggedUser.role === "master" || state.loggedUser.role === "admin");
         let assignTo = state.currentSubleader;
-        const assignSelect = document.getElementById("sidebar-assign-select");
-        if (assignSelect) {
-            assignTo = assignSelect.value;
+        if (isControlTotal) {
+            const assignSelect = document.getElementById("sidebar-assign-select");
+            if (assignSelect) {
+                assignTo = assignSelect.value;
+            }
+        } else if (state.loggedUser && state.loggedUser.subleaderId) {
+            assignTo = state.loggedUser.subleaderId;
         }
         
         const creatorId = state.loggedUser ? state.loggedUser.username : "manuel";
