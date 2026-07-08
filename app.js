@@ -1591,11 +1591,18 @@ function renderSidebarGeneralTasks() {
         const checkedAttr = task.completed ? "checked" : "";
         const textDecoration = task.completed ? "line-through; color: var(--text-muted);" : "color: var(--text-main);";
         
+        const getLeaderName = (id) => {
+            if (id === "manuel") return "Manuel";
+            if (id === "jazmin") return "Jazmín";
+            if (id === "tomas") return "Tomás";
+            return id ? (id.charAt(0).toUpperCase() + id.slice(1)) : "Sublíder";
+        };
+        
         let assignLabel = "";
-        if (task.assignedBy === "manuel" && task.assignedTo && task.assignedTo !== "manuel") {
-            assignLabel = `<div style="font-size: 9px; color: #3b82f6; margin-top: 3px; font-weight: 600; display: flex; align-items: center; gap: 4px;"><i class="fa-solid fa-user-shield"></i> Asignada por Manuel</div>`;
+        if (task.assignedBy && task.assignedTo && task.assignedBy !== task.assignedTo) {
+            assignLabel = `<div style="font-size: 9px; color: #3b82f6; margin-top: 3px; font-weight: 600; display: flex; align-items: center; gap: 4px;"><i class="fa-solid fa-user-shield"></i> Asignada por ${getLeaderName(task.assignedBy)}</div>`;
         } else {
-            assignLabel = `<div style="font-size: 9px; color: var(--text-muted); margin-top: 3px; display: flex; align-items: center; gap: 4px;"><i class="fa-solid fa-user-check"></i> Autoasignada</div>`;
+            assignLabel = `<div style="font-size: 9px; color: var(--text-muted); margin-top: 3px; display: flex; align-items: center; gap: 4px;"><i class="fa-solid fa-user-check"></i> Autoasignada por ${getLeaderName(task.assignedTo)}</div>`;
         }
         
         taskRow.innerHTML = `
@@ -2934,7 +2941,8 @@ function setupEventListeners() {
             id: newTask.id,
             closer_id: closer.id,
             text: newTask.text,
-            completed: false
+            completed: false,
+            created_by: newTask.createdBy
         });
     });
     
@@ -2967,7 +2975,8 @@ function setupEventListeners() {
             id: newTip.id,
             closer_id: closer.id,
             text: newTip.text,
-            category: newTip.category
+            category: newTip.category,
+            created_by: newTip.createdBy
         });
     });
     
@@ -3416,7 +3425,8 @@ function toggleTaskCompleted(closerId, taskId) {
             id: task.id,
             closer_id: closerId,
             text: task.text,
-            completed: task.completed
+            completed: task.completed,
+            created_by: task.createdBy || "Sublíder"
         });
     }
 }
@@ -3762,14 +3772,14 @@ async function loadFromSupabase() {
             id: t.id,
             text: t.text,
             completed: !!t.completed,
-            createdBy: t.closer_id === "ariel-martinelli" ? "Ariel" : (getCloserById(t.closer_id) ? getCloserById(t.closer_id).name : "Sublíder")
+            createdBy: t.created_by || "Sublíder"
         }));
         
         const mapTips = (tList, closerId) => tList.filter(t => t.closer_id === closerId).map(t => ({
             id: t.id,
             text: t.text,
             category: t.category || "general",
-            createdBy: "Sublíder"
+            createdBy: t.created_by || "Sublíder"
         }));
         
         const mapLogs = (lList, closerId) => lList.filter(l => l.closer_id === closerId).map(l => ({

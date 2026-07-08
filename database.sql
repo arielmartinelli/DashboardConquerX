@@ -33,6 +33,7 @@ CREATE TABLE tasks (
     closer_id VARCHAR(100) REFERENCES closers(id) ON DELETE CASCADE,
     text TEXT NOT NULL,
     completed BOOLEAN DEFAULT FALSE,
+    created_by VARCHAR(100) DEFAULT 'Sublíder',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -42,6 +43,7 @@ CREATE TABLE tips (
     closer_id VARCHAR(100) REFERENCES closers(id) ON DELETE CASCADE,
     text TEXT NOT NULL,
     category VARCHAR(100) DEFAULT 'general',
+    created_by VARCHAR(100) DEFAULT 'Sublíder',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
