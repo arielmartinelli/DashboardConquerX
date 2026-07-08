@@ -3836,6 +3836,7 @@ async function syncToSupabase(table, action, record) {
         }
     } catch (e) {
         console.error(`Error syncing to Supabase [${table} - ${action}]:`, e);
+        showToast(`Error Supabase [${table}]: ${e.message || e.details || JSON.stringify(e)}`);
     }
 }
 
