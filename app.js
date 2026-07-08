@@ -1557,14 +1557,10 @@ function renderSidebarGeneralTasks() {
         elements.sidebarGeneralBell.classList.remove("bell-alert");
     }
     
-    // Toggle assignment dropdown for Manuel
+    // Toggle assignment dropdown for everyone
     const assignContainer = document.getElementById("sidebar-assign-container");
     if (assignContainer) {
-        if (state.currentSubleader === "manuel") {
-            assignContainer.style.display = "flex";
-        } else {
-            assignContainer.style.display = "none";
-        }
+        assignContainer.style.display = "flex";
     }
     
     elements.sidebarGeneralList.innerHTML = "";
@@ -2793,6 +2789,10 @@ function setupEventListeners() {
         elements.btnOpenGeneralTaskModal.addEventListener("click", () => {
             if (elements.generalTaskModal) {
                 elements.generalTaskModal.classList.add("active");
+                const assignSelect = document.getElementById("sidebar-assign-select");
+                if (assignSelect) {
+                    assignSelect.value = state.currentSubleader || "manuel";
+                }
                 setTimeout(() => {
                     if (elements.sidebarGeneralInput) {
                         elements.sidebarGeneralInput.focus();
@@ -2834,16 +2834,18 @@ function setupEventListeners() {
         
         let assignTo = state.currentSubleader;
         const assignSelect = document.getElementById("sidebar-assign-select");
-        if (state.currentSubleader === "manuel" && assignSelect) {
+        if (assignSelect) {
             assignTo = assignSelect.value;
         }
+        
+        const creatorId = state.loggedUser ? state.loggedUser.username : "manuel";
         
         const newTask = {
             id: "gt_" + Date.now(),
             text: textVal,
             completed: false,
             createdAt: new Date().toISOString(),
-            assignedBy: state.currentSubleader,
+            assignedBy: creatorId,
             assignedTo: assignTo
         };
         
