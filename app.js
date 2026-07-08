@@ -472,6 +472,7 @@ let cashChartInstance = null;
 let rateChartInstance = null;
 let syncTimeout = null;
 let pollInterval = null;
+let supabaseClient = null;
 
 // --- USER DATABASE & AUTHENTICATION ---
 const USERS = {
@@ -971,6 +972,12 @@ function init() {
         });
     } else {
         updateSyncStatus("none", "Operando en memoria local.");
+    }
+
+    // Initialize and load from Supabase if configured
+    initSupabaseClient();
+    if (supabaseClient) {
+        loadFromSupabase();
     }
 
     // Initial Render
@@ -1583,12 +1590,22 @@ function renderSidebarGeneralTasks() {
             task.completed = !task.completed;
             saveState();
             renderSidebarGeneralTasks();
+            
+            syncToSupabase("general_tasks", "upsert", {
+                id: task.id,
+                text: task.text,
+                completed: task.completed,
+                assigned_by: task.assignedBy,
+                assigned_to: task.assignedTo
+            });
         });
         
         taskRow.querySelector(".btn-delete-task").addEventListener("click", () => {
             state.generalTasks[activeLeader] = state.generalTasks[activeLeader].filter(t => t.id !== task.id);
             saveState();
             renderSidebarGeneralTasks();
+            
+            syncToSupabase("general_tasks", "delete", { id: task.id });
         });
         
         elements.sidebarGeneralList.appendChild(taskRow);
@@ -2662,6 +2679,16 @@ function setupEventListeners() {
             
             showToast("Sugerencia reportada correctamente. ¡Gracias!");
             renderTickets();
+            
+            syncToSupabase("tickets", "insert", {
+                id: newTicket.id,
+                title: newTicket.title,
+                description: newTicket.description,
+                category: newTicket.category,
+                status: newTicket.status,
+                created_by: newTicket.createdBy,
+                date: newTicket.date
+            });
         });
     }
 
@@ -2808,6 +2835,14 @@ function setupEventListeners() {
         showToast(`Tarea agregada a la ${targetName}`);
         renderSidebarGeneralTasks();
         closeGeneralTaskModal();
+        
+        syncToSupabase("general_tasks", "insert", {
+            id: newTask.id,
+            text: newTask.text,
+            completed: false,
+            assigned_by: newTask.assignedBy,
+            assigned_to: newTask.assignedTo
+        });
     });
     
     elements.closerSettingsForm.addEventListener("submit", (e) => {
@@ -2873,6 +2908,13 @@ function setupEventListeners() {
         saveState();
         showToast("Tarea añadida");
         renderAll(); // Renders sidebar pending tasks too
+        
+        syncToSupabase("tasks", "insert", {
+            id: newTask.id,
+            closer_id: closer.id,
+            text: newTask.text,
+            completed: false
+        });
     });
     
     elements.addTipForm.addEventListener("submit", (e) => {
@@ -2899,6 +2941,13 @@ function setupEventListeners() {
         saveState();
         showToast("Tip de mejora añadido");
         renderCloserProfileTab();
+        
+        syncToSupabase("tips", "insert", {
+            id: newTip.id,
+            closer_id: closer.id,
+            text: newTip.text,
+            category: newTip.category
+        });
     });
     
     elements.btnAddCloserLog.addEventListener("click", () => {
@@ -2931,6 +2980,15 @@ function setupEventListeners() {
         saveState();
         showToast("Nota de seguimiento agregada");
         renderCloserProfileTab();
+        
+        syncToSupabase("closer_logs", "insert", {
+            id: newLog.id,
+            closer_id: closer.id,
+            author: newLog.author,
+            text: newLog.text,
+            link: newLog.link || "",
+            date: newLog.date
+        });
     });
     
     elements.btnAddLanguagesFollowup.addEventListener("click", () => {
@@ -2952,6 +3010,14 @@ function setupEventListeners() {
         saveState();
         showToast("Seguimiento grupal guardado");
         renderLanguagesTab();
+        
+        syncToSupabase("team_logs", "insert", {
+            id: newLog.id,
+            team: "languages",
+            author: newLog.author,
+            text: newLog.text,
+            date: newLog.date
+        });
     });
     
     elements.btnAddBlockFollowup.addEventListener("click", () => {
@@ -2973,6 +3039,14 @@ function setupEventListeners() {
         saveState();
         showToast("Seguimiento grupal guardado");
         renderBlockTab();
+        
+        syncToSupabase("team_logs", "insert", {
+            id: newLog.id,
+            team: "block",
+            author: newLog.author,
+            text: newLog.text,
+            date: newLog.date
+        });
     });
 
     // Toggle sidebar pending tasks breakdown
@@ -3162,12 +3236,17 @@ function setupEventListeners() {
         }
     }
 
-    // Google Sheets Config Modal Event Listeners
+    // Google Sheets & Supabase Config Modal Event Listeners
     if (elements.btnSheetsConfig) {
         elements.btnSheetsConfig.addEventListener("click", () => {
             if (elements.sheetsUrlInput) {
                 elements.sheetsUrlInput.value = state.sheetUrl || "";
             }
+            const sbUrlInput = document.getElementById("supabase-url-input");
+            const sbKeyInput = document.getElementById("supabase-key-input");
+            if (sbUrlInput) sbUrlInput.value = localStorage.getItem("conquerx_supabase_url") || "";
+            if (sbKeyInput) sbKeyInput.value = localStorage.getItem("conquerx_supabase_key") || "";
+            
             if (state.sheetUrl) {
                 updateSyncStatus(state.syncStatus || "connected", state.syncStatus === "error" ? "Error de conexión con la hoja." : "Conectado a la hoja de cálculo de Google.");
             } else {
@@ -3204,6 +3283,28 @@ function setupEventListeners() {
             const newUrl = elements.sheetsUrlInput.value.trim();
             state.sheetUrl = newUrl;
             localStorage.setItem("conquerx_sheet_url", newUrl);
+            
+            const sbUrlInput = document.getElementById("supabase-url-input");
+            const sbKeyInput = document.getElementById("supabase-key-input");
+            const newSbUrl = sbUrlInput ? sbUrlInput.value.trim() : "";
+            const newSbKey = sbKeyInput ? sbKeyInput.value.trim() : "";
+            
+            if (newSbUrl && newSbKey) {
+                localStorage.setItem("conquerx_supabase_url", newSbUrl);
+                localStorage.setItem("conquerx_supabase_key", newSbKey);
+                state.supabaseUrl = newSbUrl;
+                state.supabaseKey = newSbKey;
+                initSupabaseClient();
+                showToast("Credenciales de Supabase guardadas.");
+                await loadFromSupabase();
+            } else {
+                localStorage.removeItem("conquerx_supabase_url");
+                localStorage.removeItem("conquerx_supabase_key");
+                state.supabaseUrl = null;
+                state.supabaseKey = null;
+                supabaseClient = null;
+                showToast("Desvinculado de Supabase. Operando localmente.");
+            }
             
             if (newUrl) {
                 showToast("URL de Google Sheets guardada.");
@@ -3289,6 +3390,13 @@ function toggleTaskCompleted(closerId, taskId) {
         task.completed = !task.completed;
         saveState();
         renderAll(); // Update sidebar tasks list too
+        
+        syncToSupabase("tasks", "upsert", {
+            id: task.id,
+            closer_id: closerId,
+            text: task.text,
+            completed: task.completed
+        });
     }
 }
 
@@ -3308,6 +3416,8 @@ function deleteCloserTask(closerId, taskId) {
     saveState();
     showToast("Tarea eliminada");
     renderAll();
+    
+    syncToSupabase("tasks", "delete", { id: taskId });
 }
 
 function deleteCloserTip(closerId, tipId) {
@@ -3318,6 +3428,8 @@ function deleteCloserTip(closerId, tipId) {
     saveState();
     showToast("Tip de mejora eliminado");
     renderCloserProfileTab();
+    
+    syncToSupabase("tips", "delete", { id: tipId });
 }
 
 function deleteCloserLog(closerId, logId) {
@@ -3328,6 +3440,8 @@ function deleteCloserLog(closerId, logId) {
     saveState();
     showToast("Nota de seguimiento eliminada");
     renderCloserProfileTab();
+    
+    syncToSupabase("closer_logs", "delete", { id: logId });
 }
 
 function deleteTeamFollowup(teamName, logId) {
@@ -3336,6 +3450,8 @@ function deleteTeamFollowup(teamName, logId) {
     showToast("Seguimiento grupal eliminado");
     if (teamName === "languages") renderLanguagesTab();
     else if (teamName === "block") renderBlockTab();
+    
+    syncToSupabase("team_logs", "delete", { id: logId });
 }
 
 // --- NEW FUNCTIONALITIES: MONTHLY HISTORICAL METRICS & TICKETS SYSTEM ---
@@ -3473,7 +3589,7 @@ function renderTickets() {
         `;
         
         // Bind action buttons click handlers
-        if (isAriel) {
+        if (isControlTotal) {
             const btnProg = item.querySelector(".btn-progress");
             if (btnProg) {
                 btnProg.addEventListener("click", () => updateTicketStatus(ticket.id, "progress"));
@@ -3497,8 +3613,9 @@ function renderTickets() {
 }
 
 function updateTicketStatus(ticketId, newStatus) {
-    if (!state.loggedUser || state.loggedUser.role !== "master") {
-        showToast("Acción no permitida: Solo Ariel puede gestionar tickets.");
+    const isControlTotal = state.loggedUser && (state.loggedUser.role === "master" || state.loggedUser.role === "admin");
+    if (!isControlTotal) {
+        showToast("Acción no permitida: Solo Ariel o Manu pueden gestionar tickets.");
         return;
     }
     const ticket = state.tickets.find(t => t.id === ticketId);
@@ -3510,18 +3627,31 @@ function updateTicketStatus(ticketId, newStatus) {
         else if (newStatus === "resolved") statusText = "Listo / Resuelto";
         showToast(`Ticket estado actualizado a: ${statusText}`);
         renderTickets();
+        
+        syncToSupabase("tickets", "upsert", {
+            id: ticket.id,
+            title: ticket.title,
+            description: ticket.description,
+            category: ticket.category,
+            status: ticket.status,
+            created_by: ticket.createdBy,
+            date: ticket.date
+        });
     }
 }
 
 function deleteTicket(ticketId) {
-    if (!state.loggedUser || state.loggedUser.role !== "master") {
-        showToast("Acción no permitida: Solo Ariel puede gestionar tickets.");
+    const isControlTotal = state.loggedUser && (state.loggedUser.role === "master" || state.loggedUser.role === "admin");
+    if (!isControlTotal) {
+        showToast("Acción no permitida: Solo Ariel o Manu pueden gestionar tickets.");
         return;
     }
     state.tickets = state.tickets.filter(t => t.id !== ticketId);
     saveState();
     showToast("Ticket eliminado");
     renderTickets();
+    
+    syncToSupabase("tickets", "delete", { id: ticketId });
 }
 
 let toastTimeout = null;
@@ -3540,4 +3670,140 @@ window.addEventListener("DOMContentLoaded", () => {
     init();
     verifySelection();
 });
+
+// --- SUPABASE INTEGRATION ---
+function initSupabaseClient() {
+    state.supabaseUrl = localStorage.getItem("conquerx_supabase_url");
+    state.supabaseKey = localStorage.getItem("conquerx_supabase_key");
+    if (state.supabaseUrl && state.supabaseKey && window.supabase) {
+        try {
+            supabaseClient = window.supabase.createClient(state.supabaseUrl, state.supabaseKey);
+        } catch (e) {
+            console.error("Error creating Supabase client:", e);
+        }
+    }
+}
+
+async function loadFromSupabase() {
+    if (!supabaseClient) return;
+    try {
+        const { data: tasks, error: err1 } = await supabaseClient.from("tasks").select("*");
+        if (err1) throw err1;
+        
+        const { data: tips, error: err2 } = await supabaseClient.from("tips").select("*");
+        if (err2) throw err2;
+        
+        const { data: closerLogs, error: err3 } = await supabaseClient.from("closer_logs").select("*");
+        if (err3) throw err3;
+        
+        const { data: teamLogs, error: err4 } = await supabaseClient.from("team_logs").select("*");
+        if (err4) throw err4;
+        
+        const { data: generalTasks, error: err5 } = await supabaseClient.from("general_tasks").select("*");
+        if (err5) throw err5;
+        
+        const { data: tickets, error: err6 } = await supabaseClient.from("tickets").select("*");
+        if (err6) throw err6;
+        
+        const mapTasks = (tList, closerId) => tList.filter(t => t.closer_id === closerId).map(t => ({
+            id: t.id,
+            text: t.text,
+            completed: !!t.completed,
+            createdBy: t.closer_id === "ariel-martinelli" ? "Ariel" : (getCloserById(t.closer_id) ? getCloserById(t.closer_id).name : "Sublíder")
+        }));
+        
+        const mapTips = (tList, closerId) => tList.filter(t => t.closer_id === closerId).map(t => ({
+            id: t.id,
+            text: t.text,
+            category: t.category || "general",
+            createdBy: "Sublíder"
+        }));
+        
+        const mapLogs = (lList, closerId) => lList.filter(l => l.closer_id === closerId).map(l => ({
+            id: l.id,
+            author: l.author || "Sublíder",
+            text: l.text,
+            link: l.link || "",
+            date: l.date
+        }));
+        
+        if (!state.closers || !state.closers.languages) {
+            state.closers = JSON.parse(JSON.stringify(DEFAULT_CLOSERS));
+        }
+        
+        const populateCloserSubcollections = (cList) => {
+            cList.forEach(c => {
+                c.tasks = mapTasks(tasks || [], c.id);
+                c.tips = mapTips(tips || [], c.id);
+                c.logs = mapLogs(closerLogs || [], c.id);
+            });
+        };
+        
+        populateCloserSubcollections(state.closers.languages);
+        populateCloserSubcollections(state.closers.block);
+        
+        state.teamLogs = {
+            languages: (teamLogs || []).filter(l => l.team === "languages").map(l => ({
+                id: l.id,
+                author: l.author,
+                text: l.text,
+                date: l.date
+            })),
+            block: (teamLogs || []).filter(l => l.team === "block").map(l => ({
+                id: l.id,
+                author: l.author,
+                text: l.text,
+                date: l.date
+            }))
+        };
+        
+        state.generalTasks = { manuel: [], jazmin: [], tomas: [] };
+        (generalTasks || []).forEach(gt => {
+            const assignee = gt.assigned_to || "manuel";
+            const mapped = {
+                id: gt.id,
+                text: gt.text,
+                completed: !!gt.completed,
+                assignedBy: gt.assigned_by || "manuel",
+                assignedTo: assignee
+            };
+            if (!state.generalTasks[assignee]) state.generalTasks[assignee] = [];
+            state.generalTasks[assignee].push(mapped);
+        });
+        
+        state.tickets = (tickets || []).map(t => ({
+            id: t.id,
+            title: t.title,
+            description: t.description,
+            category: t.category,
+            status: t.status,
+            createdBy: t.created_by,
+            date: t.date
+        }));
+        
+        localStorage.setItem("conquerx_closers", JSON.stringify(state.closers));
+        localStorage.setItem("conquerx_team_logs", JSON.stringify(state.teamLogs));
+        localStorage.setItem("conquerx_general_tasks", JSON.stringify(state.generalTasks));
+        localStorage.setItem("conquerx_tickets", JSON.stringify(state.tickets));
+        
+        renderAll();
+    } catch (e) {
+        console.error("Error loading from Supabase:", e);
+    }
+}
+
+async function syncToSupabase(table, action, record) {
+    if (!supabaseClient) return;
+    try {
+        if (action === "insert" || action === "upsert") {
+            const { error } = await supabaseClient.from(table).upsert(record);
+            if (error) throw error;
+        } else if (action === "delete") {
+            const { error } = await supabaseClient.from(table).delete().eq("id", record.id);
+            if (error) throw error;
+        }
+    } catch (e) {
+        console.error(`Error syncing to Supabase [${table} - ${action}]:`, e);
+    }
+}
 

@@ -14,6 +14,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js for High-fidelity Graphs -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Supabase Client SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Custom CSS -->
     <link rel="stylesheet" href="styles.css">
 
@@ -943,6 +945,26 @@
                     <input type="url" id="sheets-url-input" placeholder="https://script.google.com/macros/s/.../exec" class="styled-input" style="width: 100%; font-size: 12.5px; padding: 10px 12px; background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: var(--radius-sm); color: var(--text-main); outline: none; transition: border-color var(--transition-fast);">
                     <p style="font-size: 10px; color: var(--text-muted); margin-top: 6px; line-height: 1.4;">
                         <i class="fa-solid fa-circle-info"></i> Pega la URL generada al publicar tu Apps Script como "Aplicación web". Asegúrate de configurar el acceso para "Cualquiera".
+                    </p>
+                </div>
+                
+                <div class="form-group" style="border-top: 1px solid var(--panel-border); padding-top: 12px; margin-top: 6px;">
+                    <label style="display: block; font-family: var(--font-heading); font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 12px;">
+                        <i class="fa-solid fa-database text-primary" style="margin-right: 6px;"></i> Base de Datos Supabase (Tareas, Tips, Comentarios, Tickets)
+                    </label>
+                    
+                    <div class="form-group" style="margin-bottom: 10px;">
+                        <label for="supabase-url-input" style="display: block; font-family: var(--font-heading); font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Supabase Project URL</label>
+                        <input type="url" id="supabase-url-input" placeholder="https://xxxx.supabase.co" class="styled-input" style="width: 100%; font-size: 12.5px; padding: 10px 12px; background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: var(--radius-sm); color: var(--text-main); outline: none;">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="supabase-key-input" style="display: block; font-family: var(--font-heading); font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Supabase Anon Key (Public API Key)</label>
+                        <input type="password" id="supabase-key-input" placeholder="Pega tu anon/public key aquí..." class="styled-input" style="width: 100%; font-size: 12.5px; padding: 10px 12px; background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: var(--radius-sm); color: var(--text-main); outline: none;">
+                    </div>
+                    
+                    <p style="font-size: 10px; color: var(--text-muted); margin-top: 6px; line-height: 1.4;">
+                        <i class="fa-solid fa-circle-info"></i> El dashboard se conectará a Supabase para sincronizar tareas, tips, comentarios e ideas en tiempo real entre todos los usuarios, mientras que las métricas de los closers seguirán leyéndose del Google Sheet.
                     </p>
                 </div>
                 
