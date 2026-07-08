@@ -552,25 +552,29 @@ function applyUserPermissions() {
     if (accordion) accordion.style.display = "block";
     if (elements.btnDeleteCloser) elements.btnDeleteCloser.style.display = "none";
 
-    if (user.role === "master") {
-        // Ariel has full master access
-        state.currentSubleader = "manuel"; // default
-        if (subleaderSelect) {
-            subleaderSelect.value = state.currentSubleader;
-            subleaderSelect.disabled = false; // master can switch subleader views
+    if (user.role === "master" || user.role === "admin") {
+        // Ariel and Manu have full master/admin access
+        if (user.role === "master" && !state.currentSubleader) {
+            state.currentSubleader = "manuel"; // default
+        } else if (user.role === "admin" && !state.currentSubleader) {
+            state.currentSubleader = user.subleaderId || "manuel";
         }
-        // Show delete closer button for Ariel
+        if (subleaderSelect) {
+            if (state.currentSubleader) subleaderSelect.value = state.currentSubleader;
+            subleaderSelect.disabled = false; // master and admin can switch subleader views
+        }
+        // Show delete closer button for Ariel and Manu
         if (elements.btnDeleteCloser) {
             elements.btnDeleteCloser.style.display = "flex";
         }
         // Default selected closer profile to ariel-martinelli for Ariel
-        if (state.selectedCloserId === "jazmin") {
+        if (user.role === "master" && state.selectedCloserId === "jazmin") {
             state.selectedCloserId = "ariel-martinelli";
             saveState();
         }
-    } else if (user.role === "admin" || user.role === "subleader") {
-        // Both Admin and Subleader have access to all teams/tabs but are locked to their own account session
-        state.currentSubleader = user.subleaderId || "manuel";
+    } else if (user.role === "subleader") {
+        // Subleader locked to their own account session
+        state.currentSubleader = user.subleaderId || "jazmin";
         saveState();
         updateSubleaderUI();
         if (subleaderSelect) {
@@ -1027,13 +1031,32 @@ async function loadFromSheet() {
         const data = await res.json();
         
         if (data && data.closers) {
+            const hasMerged = localStorage.getItem("conquerx_merged_to_sheet_v4");
+            
             // Re-initialize state.closers from DEFAULT_CLOSERS if empty or corrupted
             if (!state.closers || !state.closers.languages || state.closers.languages.length === 0) {
                 state.closers = JSON.parse(JSON.stringify(DEFAULT_CLOSERS));
             }
             
-            // Align and update metrics of our fixed list of 11 closers
-            const updateMetrics = (stateList, sheetList) => {
+            // Helper to merge arrays by id
+            const mergeByIds = (localArr, sheetArr) => {
+                const map = new Map();
+                (sheetArr || []).forEach(item => { if (item && item.id) map.set(item.id, item); });
+                (localArr || []).forEach(item => {
+                    if (item && item.id) {
+                        const existing = map.get(item.id);
+                        if (existing) {
+                            map.set(item.id, { ...existing, ...item });
+                        } else {
+                            map.set(item.id, item);
+                        }
+                    }
+                });
+                return Array.from(map.values());
+            };
+            
+            // Update metrics and merge/update subcollections
+            const updateMetricsAndSubcollections = (stateList, sheetList) => {
                 stateList.forEach(c => {
                     const sheetC = sheetList.find(s => s.id === c.id);
                     if (sheetC) {
@@ -1046,14 +1069,57 @@ async function loadFromSheet() {
                         c.callsMonthly = Number(sheetC.callsMonthly || 0);
                         c.driveUrl = sheetC.driveUrl || c.driveUrl || "";
                         c.note = sheetC.note || c.note || "";
+                        
+                        if (!hasMerged) {
+                            c.tasks = mergeByIds(c.tasks || [], sheetC.tasks || []);
+                            c.tips = mergeByIds(c.tips || [], sheetC.tips || []);
+                            c.logs = mergeByIds(c.logs || [], sheetC.logs || []);
+                        } else {
+                            c.tasks = sheetC.tasks || [];
+                            c.tips = sheetC.tips || [];
+                            c.logs = sheetC.logs || [];
+                        }
                     }
                 });
             };
-            updateMetrics(state.closers.languages, data.closers.languages || []);
-            updateMetrics(state.closers.block, data.closers.block || []);
+            
+            updateMetricsAndSubcollections(state.closers.languages, data.closers.languages || []);
+            updateMetricsAndSubcollections(state.closers.block, data.closers.block || []);
+            
+            if (!hasMerged) {
+                // Merge teamLogs
+                state.teamLogs = state.teamLogs || { languages: [], block: [] };
+                if (data.teamLogs) {
+                    state.teamLogs.languages = mergeByIds(state.teamLogs.languages || [], data.teamLogs.languages || []);
+                    state.teamLogs.block = mergeByIds(state.teamLogs.block || [], data.teamLogs.block || []);
+                }
+                
+                // Merge generalTasks
+                state.generalTasks = state.generalTasks || { manuel: [], jazmin: [], tomas: [] };
+                if (data.generalTasks) {
+                    const keys = ["manuel", "jazmin", "tomas"];
+                    keys.forEach(k => {
+                        state.generalTasks[k] = mergeByIds(state.generalTasks[k] || [], data.generalTasks[k] || []);
+                    });
+                }
+                
+                // Merge tickets
+                state.tickets = mergeByIds(state.tickets || [], data.tickets || []);
+                
+                localStorage.setItem("conquerx_merged_to_sheet_v4", "true");
+                // Immediately save the merged state back to local and Sheets
+                saveState();
+            } else {
+                state.teamLogs = data.teamLogs || { languages: [], block: [] };
+                state.generalTasks = data.generalTasks || { manuel: [], jazmin: [], tomas: [] };
+                state.tickets = data.tickets || [];
+            }
             
             // Save locally to fallback
             localStorage.setItem("conquerx_closers", JSON.stringify(state.closers));
+            localStorage.setItem("conquerx_team_logs", JSON.stringify(state.teamLogs));
+            localStorage.setItem("conquerx_general_tasks", JSON.stringify(state.generalTasks));
+            localStorage.setItem("conquerx_tickets", JSON.stringify(state.tickets));
             
             buildCloserSelectDropdowns(); // Rebuild dropdown selector options
             updateSyncStatus("connected", "Conectado a Google Sheets");
@@ -1078,34 +1144,21 @@ function startPeriodicPolling() {
                 if (res.ok) {
                     const data = await res.json();
                     if (data && data.closers) {
-                        // Extract only metrics for comparison
-                        const extractMetrics = (closersObj) => {
-                            if (!closersObj) return {};
-                            const metricsMap = {};
-                            const getMetrics = c => {
-                                metricsMap[c.id] = {
-                                    leadsContacted: Number(c.leadsContacted || 0),
-                                    leadsClosed: Number(c.leadsClosed || 0),
-                                    cashCollected: Number(c.cashCollected || 0),
-                                    targetCash: Number(c.targetCash || 0),
-                                    commissionRate: Number(c.commissionRate || 5),
-                                    callsWeekly: Number(c.callsWeekly || 0),
-                                    callsMonthly: Number(c.callsMonthly || 0),
-                                    driveUrl: c.driveUrl || "",
-                                    note: c.note || ""
-                                };
-                            };
-                            if (closersObj.languages) closersObj.languages.forEach(getMetrics);
-                            if (closersObj.block) closersObj.block.forEach(getMetrics);
-                            return metricsMap;
-                        };
+                        const oldDataStr = JSON.stringify({
+                            closers: state.closers,
+                            teamLogs: state.teamLogs,
+                            generalTasks: state.generalTasks,
+                            tickets: state.tickets
+                        });
+                        const newDataStr = JSON.stringify({
+                            closers: data.closers,
+                            teamLogs: data.teamLogs || { languages: [], block: [] },
+                            generalTasks: data.generalTasks || { manuel: [], jazmin: [], tomas: [] },
+                            tickets: data.tickets || []
+                        });
                         
-                        const oldMetricsStr = JSON.stringify(extractMetrics(state.closers));
-                        const newMetricsStr = JSON.stringify(extractMetrics(data.closers));
-                        
-                        if (oldMetricsStr !== newMetricsStr) {
-                            // Update metrics inside state.closers for our fixed list of 11 closers
-                            const updateMetrics = (stateList, sheetList) => {
+                        if (oldDataStr !== newDataStr) {
+                            const updateAllData = (stateList, sheetList) => {
                                 stateList.forEach(c => {
                                     const sheetC = sheetList.find(s => s.id === c.id);
                                     if (sheetC) {
@@ -1118,13 +1171,23 @@ function startPeriodicPolling() {
                                         c.callsMonthly = Number(sheetC.callsMonthly || 0);
                                         c.driveUrl = sheetC.driveUrl || c.driveUrl || "";
                                         c.note = sheetC.note || c.note || "";
+                                        c.tasks = sheetC.tasks || [];
+                                        c.tips = sheetC.tips || [];
+                                        c.logs = sheetC.logs || [];
                                     }
                                 });
                             };
-                            updateMetrics(state.closers.languages, data.closers.languages || []);
-                            updateMetrics(state.closers.block, data.closers.block || []);
+                            updateAllData(state.closers.languages, data.closers.languages || []);
+                            updateAllData(state.closers.block, data.closers.block || []);
+                            
+                            state.teamLogs = data.teamLogs || { languages: [], block: [] };
+                            state.generalTasks = data.generalTasks || { manuel: [], jazmin: [], tomas: [] };
+                            state.tickets = data.tickets || [];
                             
                             localStorage.setItem("conquerx_closers", JSON.stringify(state.closers));
+                            localStorage.setItem("conquerx_team_logs", JSON.stringify(state.teamLogs));
+                            localStorage.setItem("conquerx_general_tasks", JSON.stringify(state.generalTasks));
+                            localStorage.setItem("conquerx_tickets", JSON.stringify(state.tickets));
                             
                             // Re-render UI
                             renderAll();
@@ -1157,9 +1220,12 @@ function saveState() {
         if (syncTimeout) clearTimeout(syncTimeout);
         syncTimeout = setTimeout(async () => {
             try {
-                // Send only the closers (specifically metrics) to prevent sheet clutter
+                // Send all collections for full synchronization
                 const payload = {
-                    closers: state.closers
+                    closers: state.closers,
+                    teamLogs: state.teamLogs,
+                    generalTasks: state.generalTasks,
+                    tickets: state.tickets
                 };
                 
                 await fetch(state.sheetUrl, {
@@ -2011,7 +2077,9 @@ function renderTeamFollowups(teamName, listContainer) {
         const formattedDate = dateObj.toLocaleDateString("es-ES") + " " + dateObj.toLocaleTimeString("es-ES", {hour: '2-digit', minute:'2-digit'});
         
         const authorLower = log.author.toLowerCase();
-        const isAuthorMe = authorLower === state.currentSubleader || 
+        const isControlTotal = state.loggedUser && (state.loggedUser.role === "master" || state.loggedUser.role === "admin");
+        const isAuthorMe = isControlTotal || 
+            authorLower === state.currentSubleader || 
             (authorLower === "jazmín" && state.currentSubleader === "jazmin") || 
             (authorLower === "jazmin" && state.currentSubleader === "jazmin") || 
             (authorLower === "jasmine" && state.currentSubleader === "jazmin");
@@ -2245,7 +2313,9 @@ function renderCloserTasks(closer) {
         
         // Check permission: only the creator can complete/delete (or admin Manuel)
         const authorLower = creator.toLowerCase();
-        const isAuthorMe = state.currentSubleader === "manuel" || 
+        const isControlTotal = state.loggedUser && (state.loggedUser.role === "master" || state.loggedUser.role === "admin");
+        const isAuthorMe = isControlTotal || 
+            state.currentSubleader === "manuel" || 
             authorLower === state.currentSubleader || 
             (authorLower === "jazmín" && state.currentSubleader === "jazmin") || 
             (authorLower === "jazmin" && state.currentSubleader === "jazmin");
@@ -2301,7 +2371,9 @@ function renderCloserTips(closer) {
         
         // Check permission: only the creator can delete (or admin Manuel)
         const authorLower = creator.toLowerCase();
-        const isAuthorMe = state.currentSubleader === "manuel" || 
+        const isControlTotal = state.loggedUser && (state.loggedUser.role === "master" || state.loggedUser.role === "admin");
+        const isAuthorMe = isControlTotal || 
+            state.currentSubleader === "manuel" || 
             authorLower === state.currentSubleader || 
             (authorLower === "jazmín" && state.currentSubleader === "jazmin") || 
             (authorLower === "jazmin" && state.currentSubleader === "jazmin");
@@ -2349,7 +2421,9 @@ function renderCloserLogs(closer) {
         const formattedDate = dateObj.toLocaleDateString("es-ES") + " " + dateObj.toLocaleTimeString("es-ES", {hour: '2-digit', minute:'2-digit'});
         
         const authorLower = log.author.toLowerCase();
-        const isAuthorMe = authorLower === state.currentSubleader || 
+        const isControlTotal = state.loggedUser && (state.loggedUser.role === "master" || state.loggedUser.role === "admin");
+        const isAuthorMe = isControlTotal || 
+            authorLower === state.currentSubleader || 
             (authorLower === "jazmín" && state.currentSubleader === "jazmin") || 
             (authorLower === "jazmin" && state.currentSubleader === "jazmin") || 
             (authorLower === "jasmine" && state.currentSubleader === "jazmin");
@@ -3369,11 +3443,11 @@ function renderTickets() {
         const dateObj = new Date(ticket.date);
         const formattedDate = dateObj.toLocaleDateString("es-ES") + " " + dateObj.toLocaleTimeString("es-ES", {hour: '2-digit', minute:'2-digit'});
         
-        // Show status update buttons ONLY if user is Ariel (role === "master")
-        const isAriel = state.loggedUser && state.loggedUser.role === "master";
+        // Show status update buttons if user has control total (role === "master" || role === "admin")
+        const isControlTotal = state.loggedUser && (state.loggedUser.role === "master" || state.loggedUser.role === "admin");
         
         let actionButtons = "";
-        if (isAriel) {
+        if (isControlTotal) {
             actionButtons = `
                 <div class="ticket-actions">
                     ${ticket.status !== "progress" && ticket.status !== "resolved" ? `<button class="ticket-action-btn btn-progress" data-id="${ticket.id}"><i class="fa-solid fa-spinner"></i> En Proceso</button>` : ''}
