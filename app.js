@@ -1077,14 +1077,17 @@ async function loadFromSheet() {
                         c.driveUrl = sheetC.driveUrl || c.driveUrl || "";
                         c.note = sheetC.note || c.note || "";
                         
-                        if (!hasMerged) {
-                            c.tasks = mergeByIds(c.tasks || [], sheetC.tasks || []);
-                            c.tips = mergeByIds(c.tips || [], sheetC.tips || []);
-                            c.logs = mergeByIds(c.logs || [], sheetC.logs || []);
-                        } else {
-                            c.tasks = sheetC.tasks || [];
-                            c.tips = sheetC.tips || [];
-                            c.logs = sheetC.logs || [];
+                        // If Supabase is active, do not overwrite tasks, tips, and logs from Google Sheets!
+                        if (!supabaseClient) {
+                            if (!hasMerged) {
+                                c.tasks = mergeByIds(c.tasks || [], sheetC.tasks || []);
+                                c.tips = mergeByIds(c.tips || [], sheetC.tips || []);
+                                c.logs = mergeByIds(c.logs || [], sheetC.logs || []);
+                            } else {
+                                c.tasks = sheetC.tasks || [];
+                                c.tips = sheetC.tips || [];
+                                c.logs = sheetC.logs || [];
+                            }
                         }
                     }
                 });
@@ -1093,33 +1096,36 @@ async function loadFromSheet() {
             updateMetricsAndSubcollections(state.closers.languages, data.closers.languages || []);
             updateMetricsAndSubcollections(state.closers.block, data.closers.block || []);
             
-            if (!hasMerged) {
-                // Merge teamLogs
-                state.teamLogs = state.teamLogs || { languages: [], block: [] };
-                if (data.teamLogs) {
-                    state.teamLogs.languages = mergeByIds(state.teamLogs.languages || [], data.teamLogs.languages || []);
-                    state.teamLogs.block = mergeByIds(state.teamLogs.block || [], data.teamLogs.block || []);
+            // If Supabase is active, do not load or overwrite teamLogs, generalTasks, and tickets from Sheets!
+            if (!supabaseClient) {
+                if (!hasMerged) {
+                    // Merge teamLogs
+                    state.teamLogs = state.teamLogs || { languages: [], block: [] };
+                    if (data.teamLogs) {
+                        state.teamLogs.languages = mergeByIds(state.teamLogs.languages || [], data.teamLogs.languages || []);
+                        state.teamLogs.block = mergeByIds(state.teamLogs.block || [], data.teamLogs.block || []);
+                    }
+                    
+                    // Merge generalTasks
+                    state.generalTasks = state.generalTasks || { manuel: [], jazmin: [], tomas: [] };
+                    if (data.generalTasks) {
+                        const keys = ["manuel", "jazmin", "tomas"];
+                        keys.forEach(k => {
+                            state.generalTasks[k] = mergeByIds(state.generalTasks[k] || [], data.generalTasks[k] || []);
+                        });
+                    }
+                    
+                    // Merge tickets
+                    state.tickets = mergeByIds(state.tickets || [], data.tickets || []);
+                    
+                    localStorage.setItem("conquerx_merged_to_sheet_v4", "true");
+                    // Immediately save the merged state back to local and Sheets
+                    saveState();
+                } else {
+                    state.teamLogs = data.teamLogs || { languages: [], block: [] };
+                    state.generalTasks = data.generalTasks || { manuel: [], jazmin: [], tomas: [] };
+                    state.tickets = data.tickets || [];
                 }
-                
-                // Merge generalTasks
-                state.generalTasks = state.generalTasks || { manuel: [], jazmin: [], tomas: [] };
-                if (data.generalTasks) {
-                    const keys = ["manuel", "jazmin", "tomas"];
-                    keys.forEach(k => {
-                        state.generalTasks[k] = mergeByIds(state.generalTasks[k] || [], data.generalTasks[k] || []);
-                    });
-                }
-                
-                // Merge tickets
-                state.tickets = mergeByIds(state.tickets || [], data.tickets || []);
-                
-                localStorage.setItem("conquerx_merged_to_sheet_v4", "true");
-                // Immediately save the merged state back to local and Sheets
-                saveState();
-            } else {
-                state.teamLogs = data.teamLogs || { languages: [], block: [] };
-                state.generalTasks = data.generalTasks || { manuel: [], jazmin: [], tomas: [] };
-                state.tickets = data.tickets || [];
             }
             
             // Save locally to fallback
@@ -1151,18 +1157,26 @@ function startPeriodicPolling() {
                 if (res.ok) {
                     const data = await res.json();
                     if (data && data.closers) {
-                        const oldDataStr = JSON.stringify({
-                            closers: state.closers,
-                            teamLogs: state.teamLogs,
-                            generalTasks: state.generalTasks,
-                            tickets: state.tickets
-                        });
-                        const newDataStr = JSON.stringify({
+                        // Compare old and new states. If Supabase is active, only compare metrics!
+                        const extractCompareState = (sObj) => {
+                            const result = {
+                                closers: sObj.closers
+                            };
+                            if (!supabaseClient) {
+                                result.teamLogs = sObj.teamLogs;
+                                result.generalTasks = sObj.generalTasks;
+                                result.tickets = sObj.tickets;
+                            }
+                            return result;
+                        };
+                        
+                        const oldDataStr = JSON.stringify(extractCompareState(state));
+                        const newDataStr = JSON.stringify(extractCompareState({
                             closers: data.closers,
                             teamLogs: data.teamLogs || { languages: [], block: [] },
                             generalTasks: data.generalTasks || { manuel: [], jazmin: [], tomas: [] },
                             tickets: data.tickets || []
-                        });
+                        }));
                         
                         if (oldDataStr !== newDataStr) {
                             const updateAllData = (stateList, sheetList) => {
@@ -1178,18 +1192,23 @@ function startPeriodicPolling() {
                                         c.callsMonthly = Number(sheetC.callsMonthly || 0);
                                         c.driveUrl = sheetC.driveUrl || c.driveUrl || "";
                                         c.note = sheetC.note || c.note || "";
-                                        c.tasks = sheetC.tasks || [];
-                                        c.tips = sheetC.tips || [];
-                                        c.logs = sheetC.logs || [];
+                                        
+                                        if (!supabaseClient) {
+                                            c.tasks = sheetC.tasks || [];
+                                            c.tips = sheetC.tips || [];
+                                            c.logs = sheetC.logs || [];
+                                        }
                                     }
                                 });
                             };
                             updateAllData(state.closers.languages, data.closers.languages || []);
                             updateAllData(state.closers.block, data.closers.block || []);
                             
-                            state.teamLogs = data.teamLogs || { languages: [], block: [] };
-                            state.generalTasks = data.generalTasks || { manuel: [], jazmin: [], tomas: [] };
-                            state.tickets = data.tickets || [];
+                            if (!supabaseClient) {
+                                state.teamLogs = data.teamLogs || { languages: [], block: [] };
+                                state.generalTasks = data.generalTasks || { manuel: [], jazmin: [], tomas: [] };
+                                state.tickets = data.tickets || [];
+                            }
                             
                             localStorage.setItem("conquerx_closers", JSON.stringify(state.closers));
                             localStorage.setItem("conquerx_team_logs", JSON.stringify(state.teamLogs));
@@ -1227,8 +1246,10 @@ function saveState() {
         if (syncTimeout) clearTimeout(syncTimeout);
         syncTimeout = setTimeout(async () => {
             try {
-                // Send all collections for full synchronization
-                const payload = {
+                // If Supabase is active, do not send teamLogs, generalTasks, and tickets to Google Sheets!
+                const payload = supabaseClient ? {
+                    closers: state.closers
+                } : {
                     closers: state.closers,
                     teamLogs: state.teamLogs,
                     generalTasks: state.generalTasks,
