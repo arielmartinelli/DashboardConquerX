@@ -3687,23 +3687,55 @@ function initSupabaseClient() {
 async function loadFromSupabase() {
     if (!supabaseClient) return;
     try {
-        const { data: tasks, error: err1 } = await supabaseClient.from("tasks").select("*");
-        if (err1) throw err1;
+        let tasks = [], tips = [], closerLogs = [], teamLogs = [], generalTasks = [], tickets = [];
         
-        const { data: tips, error: err2 } = await supabaseClient.from("tips").select("*");
-        if (err2) throw err2;
+        try {
+            const { data, error } = await supabaseClient.from("tasks").select("*");
+            if (error) throw error;
+            tasks = data || [];
+        } catch (err) {
+            console.error("Error cargando tareas desde Supabase:", err);
+        }
         
-        const { data: closerLogs, error: err3 } = await supabaseClient.from("closer_logs").select("*");
-        if (err3) throw err3;
+        try {
+            const { data, error } = await supabaseClient.from("tips").select("*");
+            if (error) throw error;
+            tips = data || [];
+        } catch (err) {
+            console.error("Error cargando tips desde Supabase:", err);
+        }
         
-        const { data: teamLogs, error: err4 } = await supabaseClient.from("team_logs").select("*");
-        if (err4) throw err4;
+        try {
+            const { data, error } = await supabaseClient.from("closer_logs").select("*");
+            if (error) throw error;
+            closerLogs = data || [];
+        } catch (err) {
+            console.error("Error cargando closer_logs desde Supabase:", err);
+        }
         
-        const { data: generalTasks, error: err5 } = await supabaseClient.from("general_tasks").select("*");
-        if (err5) throw err5;
+        try {
+            const { data, error } = await supabaseClient.from("team_logs").select("*");
+            if (error) throw error;
+            teamLogs = data || [];
+        } catch (err) {
+            console.error("Error cargando team_logs desde Supabase:", err);
+        }
         
-        const { data: tickets, error: err6 } = await supabaseClient.from("tickets").select("*");
-        if (err6) throw err6;
+        try {
+            const { data, error } = await supabaseClient.from("general_tasks").select("*");
+            if (error) throw error;
+            generalTasks = data || [];
+        } catch (err) {
+            console.error("Error cargando general_tasks desde Supabase:", err);
+        }
+        
+        try {
+            const { data, error } = await supabaseClient.from("tickets").select("*");
+            if (error) throw error;
+            tickets = data || [];
+        } catch (err) {
+            console.error("Error cargando tickets desde Supabase:", err);
+        }
         
         const mapTasks = (tList, closerId) => tList.filter(t => t.closer_id === closerId).map(t => ({
             id: t.id,
