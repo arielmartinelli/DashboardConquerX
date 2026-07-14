@@ -1670,31 +1670,102 @@ function getTeamProjectionText(teamCloses, teamMonthlyCalls, teamCurrentCalls, t
 }
 
 function renderGlobalKPIs() {
-    const combined = getCombinedStats();
     const langStats = getTeamStats("languages");
     const blockStats = getTeamStats("block");
+    const combined = getCombinedStats();
     
-    // Target 200,000 Cash Collected
-    const targetCash = 200000;
-    const cashPercent = Math.min((combined.cash / targetCash) * 100, 120);
-    elements.totalCashValue.innerText = `€${combined.cash.toLocaleString("es-ES")}`;
+    // Determine the active filter (tab-based or segmented-filter-based)
+    let teamFilter = "all";
+    if (state.activeTab === "languages") {
+        teamFilter = "languages";
+    } else if (state.activeTab === "block") {
+        teamFilter = "block";
+    } else if (state.activeTab === "overview") {
+        teamFilter = state.rankingFilter || "all";
+    }
+    
+    // Choose the target stats
+    let activeStats;
+    let targetCash;
+    let cashTitle = "CASH COLLECTED GLOBAL";
+    let rateTitle = "PORCENTAJE DE CIERRE GLOBAL";
+    let callsTitle = "MÉTRICAS DE LLAMADAS";
+    
+    if (teamFilter === "languages") {
+        activeStats = {
+            cash: langStats.cash,
+            leads: langStats.leads,
+            closed: langStats.closed,
+            callsWeekly: langStats.callsWeekly,
+            callsMonthly: langStats.callsMonthly,
+            count: langStats.count
+        };
+        targetCash = 100000;
+        cashTitle = "CASH LANGUAGES";
+        rateTitle = "CIERRE LANGUAGES";
+        callsTitle = "LLAMADAS LANGUAGES";
+    } else if (teamFilter === "block") {
+        activeStats = {
+            cash: blockStats.cash,
+            leads: blockStats.leads,
+            closed: blockStats.closed,
+            callsWeekly: blockStats.callsWeekly,
+            callsMonthly: blockStats.callsMonthly,
+            count: blockStats.count
+        };
+        targetCash = 100000;
+        cashTitle = "CASH BLOCK";
+        rateTitle = "CIERRE BLOCK";
+        callsTitle = "LLAMADAS BLOCK";
+    } else {
+        activeStats = {
+            cash: combined.cash,
+            leads: combined.leads,
+            closed: combined.closed,
+            callsWeekly: combined.callsWeekly,
+            callsMonthly: combined.callsMonthly,
+            count: langStats.count + blockStats.count
+        };
+        targetCash = 200000;
+        cashTitle = "CASH COLLECTED GLOBAL";
+        rateTitle = "PORCENTAJE DE CIERRE GLOBAL";
+        callsTitle = "MÉTRICAS DE LLAMADAS";
+    }
+    
+    activeStats.rate = activeStats.leads > 0 ? (activeStats.closed / activeStats.leads) * 100 : 0;
+    
+    // Update Titles on the top cards
+    const cashTitleEl = document.querySelector("#kpi-cash-card .kpi-title");
+    if (cashTitleEl) cashTitleEl.innerText = cashTitle;
+    
+    const rateTitleEl = document.querySelector("#kpi-rate-card .kpi-title");
+    if (rateTitleEl) rateTitleEl.innerText = rateTitle;
+    
+    const callsTitleEl = document.querySelector("#kpi-calls-summary-card .kpi-title");
+    if (callsTitleEl) callsTitleEl.innerText = callsTitle;
+    
+    // 1. Target Cash Collected
+    const cashPercent = Math.min((activeStats.cash / targetCash) * 100, 120);
+    elements.totalCashValue.innerText = `€${activeStats.cash.toLocaleString("es-ES")}`;
+    const targetCashLabel = document.querySelector("#kpi-cash-card .kpi-target");
+    if (targetCashLabel) targetCashLabel.innerText = `Meta: €${targetCash.toLocaleString("es-ES")}`;
     elements.cashProgressFill.style.width = `${cashPercent}%`;
     elements.cashProgressPercent.innerText = `${Math.round(cashPercent)}% completado`;
     
-    const remaining = targetCash - combined.cash;
+    const remaining = targetCash - activeStats.cash;
     if (remaining > 0) {
         elements.cashRemaining.innerText = `Faltan €${remaining.toLocaleString("es-ES")}`;
     } else {
         elements.cashRemaining.innerText = `¡Objetivo superado por €${Math.abs(remaining).toLocaleString("es-ES")}!`;
     }
     
-    // Target 15% Closing Rate
+    // 2. Target Closing Rate
     const targetRate = 15;
-    elements.globalRateValue.innerText = `${combined.rate.toFixed(1)}%`;
-    const ratePercent = Math.min((combined.rate / targetRate) * 100, 120);
+    elements.globalRateValue.innerText = `${activeStats.rate.toFixed(1)}%`;
+    const ratePercent = Math.min((activeStats.rate / targetRate) * 100, 120);
     elements.rateProgressFill.style.width = `${ratePercent}%`;
     
-    const diff = combined.rate - targetRate;
+    const diff = activeStats.rate - targetRate;
     if (diff >= 0) {
         elements.rateStatusLabel.innerText = "¡Objetivo superado!";
         elements.rateDiffLabel.innerText = `+${diff.toFixed(1)}% vs objetivo`;
@@ -1705,7 +1776,7 @@ function renderGlobalKPIs() {
         elements.rateDiffLabel.className = "text-muted";
     }
     
-    // Teams mini split (for backwards compatibility if elements exist)
+    // Teams mini split
     const totalCollected = combined.cash > 0 ? combined.cash : 1;
     const langPercent = Math.round((langStats.cash / totalCollected) * 100);
     const blockPercent = Math.round((blockStats.cash / totalCollected) * 100);
@@ -1716,8 +1787,6 @@ function renderGlobalKPIs() {
     if (elements.sumBlockCash) {
         elements.sumBlockCash.innerText = `€${blockStats.cash.toLocaleString("es-ES")} (${blockPercent}%)`;
     }
-
-    // Redesigned UI element injections
     if (elements.sumLanguagesCashKPI) {
         elements.sumLanguagesCashKPI.innerText = `€${langStats.cash.toLocaleString("es-ES")} (${langPercent}%)`;
     }
@@ -1739,28 +1808,26 @@ function renderGlobalKPIs() {
         elements.blockStatCalls.innerText = `${blockStats.callsWeekly} / ${blockStats.callsMonthly}`;
     }
     
-    // Render Overview Projections
-    // Global
-    const totalClosers = langStats.count + blockStats.count;
-    const weeklyTarget = 20 * totalClosers;
-    const monthlyTarget = 80 * totalClosers;
+    // 3. Render Calls Card & Projections
+    const weeklyTarget = 20 * activeStats.count;
+    const monthlyTarget = 80 * activeStats.count;
     
     if (elements.globalCallsWeekly) {
-        elements.globalCallsWeekly.innerText = `${combined.callsWeekly} / ${weeklyTarget}`;
-        elements.globalCallsMonthly.innerText = `${combined.callsMonthly} / ${monthlyTarget}`;
+        elements.globalCallsWeekly.innerText = `${activeStats.callsWeekly} / ${weeklyTarget}`;
+        elements.globalCallsMonthly.innerText = `${activeStats.callsMonthly} / ${monthlyTarget}`;
         
-        elements.globalProjectionWeeklyText.innerHTML = getTeamProjectionText(combined.closed, combined.callsMonthly, combined.callsWeekly, 3 * totalClosers, "Semanal");
-        elements.globalProjectionMonthlyText.innerHTML = getTeamProjectionText(combined.closed, combined.callsMonthly, combined.callsMonthly, 12 * totalClosers, "Mensual");
+        elements.globalProjectionWeeklyText.innerHTML = getTeamProjectionText(activeStats.closed, activeStats.callsMonthly, activeStats.callsWeekly, 3 * activeStats.count, "Semanal");
+        elements.globalProjectionMonthlyText.innerHTML = getTeamProjectionText(activeStats.closed, activeStats.callsMonthly, activeStats.callsMonthly, 12 * activeStats.count, "Mensual");
     }
 
-    // Update 4th KPI Card global and team metrics
+    // Update 4th KPI Card progress labels
     if (elements.kpiCallsGlobalMonthly) {
-        elements.kpiCallsGlobalMonthly.innerText = `${combined.callsMonthly} / ${monthlyTarget}`;
+        elements.kpiCallsGlobalMonthly.innerText = `${activeStats.callsMonthly} / ${monthlyTarget}`;
         elements.kpiCallsLangMonthly.innerText = `${langStats.callsMonthly} / ${80 * langStats.count}`;
         elements.kpiCallsBlockMonthly.innerText = `${blockStats.callsMonthly} / ${80 * blockStats.count}`;
         
         if (elements.kpiCallsGlobalFill) {
-            const globalPct = Math.min((combined.callsMonthly / (monthlyTarget || 1)) * 100, 100);
+            const globalPct = Math.min((activeStats.callsMonthly / (monthlyTarget || 1)) * 100, 100);
             elements.kpiCallsGlobalFill.style.width = `${globalPct}%`;
         }
         if (elements.kpiCallsLangFill) {
@@ -1772,10 +1839,21 @@ function renderGlobalKPIs() {
             elements.kpiCallsBlockFill.style.width = `${blockPct}%`;
         }
     }
+    
+    // Dynamically update the main label of the calls section to show team
+    const globalLabelEl = document.querySelector("#kpi-calls-summary-card .calls-progress-row:first-child span");
+    if (globalLabelEl) {
+        if (teamFilter === "languages") {
+            globalLabelEl.innerText = "Languages";
+        } else if (teamFilter === "block") {
+            globalLabelEl.innerText = "Block";
+        } else {
+            globalLabelEl.innerText = "Global";
+        }
+    }
 
     // Populate and update interactive calls select on Overview card
     if (elements.kpiCallsCloserSelect) {
-        // Build selection group if empty
         if (elements.kpiCallsCloserSelect.children.length === 0) {
             const langGroup = document.createElement("optgroup");
             langGroup.label = "Equipo Languages";
@@ -1797,7 +1875,6 @@ function renderGlobalKPIs() {
             });
             elements.kpiCallsCloserSelect.appendChild(blockGroup);
 
-            // Default to first language closer or selected closer
             elements.kpiCallsCloserSelect.value = state.selectedCloserId;
         }
 
@@ -1843,6 +1920,30 @@ function renderGlobalKPIs() {
         
         elements.blockProjectionWeeklyText.innerHTML = getTeamProjectionText(blockStats.closed, blockStats.callsMonthly, blockStats.callsWeekly, 3 * blockStats.count, "Semanal");
         elements.blockProjectionMonthlyText.innerHTML = getTeamProjectionText(blockStats.closed, blockStats.callsMonthly, blockStats.callsMonthly, 12 * blockStats.count, "Mensual");
+    }
+
+    // Dynamic show/hide of projection cards under Overview
+    const projGlobalCard = document.querySelector(".projection-card:nth-child(1)");
+    const projLangCard = document.querySelector(".projection-card:nth-child(2)");
+    const projBlockCard = document.querySelector(".projection-card:nth-child(3)");
+    
+    if (projGlobalCard && projLangCard && projBlockCard) {
+        if (teamFilter === "languages") {
+            projGlobalCard.style.display = "none";
+            projLangCard.style.display = "block";
+            projBlockCard.style.display = "none";
+            projLangCard.parentElement.style.gridTemplateColumns = "1fr";
+        } else if (teamFilter === "block") {
+            projGlobalCard.style.display = "none";
+            projLangCard.style.display = "none";
+            projBlockCard.style.display = "block";
+            projBlockCard.parentElement.style.gridTemplateColumns = "1fr";
+        } else {
+            projGlobalCard.style.display = "block";
+            projLangCard.style.display = "block";
+            projBlockCard.style.display = "block";
+            projGlobalCard.parentElement.style.gridTemplateColumns = "repeat(3, 1fr)";
+        }
     }
 }
 
