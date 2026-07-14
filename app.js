@@ -2124,40 +2124,60 @@ function renderTeamFollowups(teamName, listContainer) {
         
         const authorLower = log.author.toLowerCase();
         const isControlTotal = state.loggedUser && (state.loggedUser.role === "master" || state.loggedUser.role === "admin");
+        const myUsername = state.loggedUser ? state.loggedUser.username : "";
         const isAuthorMe = isControlTotal || 
-            authorLower === state.currentSubleader || 
-            (authorLower === "jazmín" && state.currentSubleader === "jazmin") || 
-            (authorLower === "jazmin" && state.currentSubleader === "jazmin") || 
-            (authorLower === "jasmine" && state.currentSubleader === "jazmin");
+            (authorLower === myUsername) || 
+            (myUsername === "jazmin" && (authorLower === "jazmín" || authorLower === "jazmin" || authorLower === "jasmine")) || 
+            (myUsername === "tomas" && (authorLower === "tomás" || authorLower === "tomas"));
+            
         const deleteBtn = isAuthorMe ? 
             `<button class="btn-delete-task btn-delete-team-followup" data-team="${teamName}" data-id="${log.id}"><i class="fa-solid fa-trash-can"></i></button>` : '';
         
-        let authorId = "tomas";
-        if (authorLower === "jazmín" || authorLower === "jasmine" || authorLower === "jazmin") {
-            authorId = "jazmin";
-        } else if (authorLower === "manuel") {
-            authorId = "manuel";
-        }
+        let displayRole = "Sublíder";
+        let displayAvatarHTML = "";
+        let badgeClass = "badge-secondary";
         
-        const authorCloser = getCloserById(authorId);
-        const authorAvatarStyle = authorCloser && authorCloser.avatarUrl ? 
-            `style="background-image: url('${authorCloser.avatarUrl}'); background-size: cover; background-position: center; color: transparent;"` : '';
-        const authorAvatarHTML = authorId === "manuel" ?
-            `<div class="table-closer-avatar" style="width: 24px; height: 24px; font-size: 10px; background: linear-gradient(135deg, #f59e0b, #ec4899); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">M</div>` :
-            (authorCloser && authorCloser.avatarUrl ?
-                `<div class="table-closer-avatar" ${authorAvatarStyle} style="width: 24px; height: 24px; font-size: 10px;"></div>` :
-                `<div class="table-closer-avatar" style="width: 24px; height: 24px; font-size: 10px; background: rgba(255,255,255,0.05);">${log.author.charAt(0)}</div>`
-            );
-            
-        const badgeClass = authorId === "jazmin" ? "badge-accent" : (authorId === "manuel" ? "badge-primary" : "badge-secondary");
-        const roleLabel = authorId === "manuel" ? "Líder" : "Sublíder";
+        if (authorLower.includes("ariel")) {
+            displayRole = "Líder (Control Total)";
+            badgeClass = "badge-accent";
+            const arielCloser = getCloserById("ariel-martinelli");
+            if (arielCloser && arielCloser.avatarUrl) {
+                displayAvatarHTML = `<div class="table-closer-avatar" style="width: 24px; height: 24px; font-size: 10px; background-image: url('${arielCloser.avatarUrl}'); background-size: cover; background-position: center; color: transparent;"></div>`;
+            } else {
+                displayAvatarHTML = `<div class="table-closer-avatar" style="width: 24px; height: 24px; font-size: 10px; background: linear-gradient(135deg, #0ea5e9, #2563eb); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">A</div>`;
+            }
+        } else if (authorLower.includes("manuel")) {
+            displayRole = "Líder (Control Total)";
+            badgeClass = "badge-primary";
+            displayAvatarHTML = `<div class="table-closer-avatar" style="width: 24px; height: 24px; font-size: 10px; background: linear-gradient(135deg, #f59e0b, #ec4899); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">M</div>`;
+        } else if (authorLower.includes("jazmin") || authorLower.includes("jazmín") || authorLower.includes("jasmine")) {
+            displayRole = "Sublíder (Languages)";
+            badgeClass = "badge-accent";
+            const jazminCloser = getCloserById("jazmin");
+            if (jazminCloser && jazminCloser.avatarUrl) {
+                displayAvatarHTML = `<div class="table-closer-avatar" style="width: 24px; height: 24px; font-size: 10px; background-image: url('${jazminCloser.avatarUrl}'); background-size: cover; background-position: center; color: transparent;"></div>`;
+            } else {
+                displayAvatarHTML = `<div class="table-closer-avatar" style="width: 24px; height: 24px; font-size: 10px; background: rgba(255,255,255,0.05); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">J</div>`;
+            }
+        } else if (authorLower.includes("tomas") || authorLower.includes("tomás")) {
+            displayRole = "Sublíder (Block)";
+            badgeClass = "badge-secondary";
+            const tomasCloser = getCloserById("tomas");
+            if (tomasCloser && tomasCloser.avatarUrl) {
+                displayAvatarHTML = `<div class="table-closer-avatar" style="width: 24px; height: 24px; font-size: 10px; background-image: url('${tomasCloser.avatarUrl}'); background-size: cover; background-position: center; color: transparent;"></div>`;
+            } else {
+                displayAvatarHTML = `<div class="table-closer-avatar" style="width: 24px; height: 24px; font-size: 10px; background: rgba(255,255,255,0.05); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">T</div>`;
+            }
+        } else {
+            displayAvatarHTML = `<div class="table-closer-avatar" style="width: 24px; height: 24px; font-size: 10px; background: rgba(255,255,255,0.05); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">${log.author.charAt(0).toUpperCase()}</div>`;
+        }
         
         item.innerHTML = `
             <div class="followup-meta">
                 <div class="followup-author" style="display: flex; align-items: center; gap: 8px;">
-                    ${authorAvatarHTML}
+                    ${displayAvatarHTML}
                     <span class="badge ${badgeClass}">${log.author}</span>
-                    <span class="text-muted">${roleLabel}</span>
+                    <span class="text-muted">${displayRole}</span>
                 </div>
                 <div style="display:flex; align-items:center; gap:8px;">
                     <span class="followup-date">${formattedDate}</span>
@@ -2360,11 +2380,11 @@ function renderCloserTasks(closer) {
         // Check permission: only the creator can complete/delete (or admin Manuel)
         const authorLower = creator.toLowerCase();
         const isControlTotal = state.loggedUser && (state.loggedUser.role === "master" || state.loggedUser.role === "admin");
+        const myUsername = state.loggedUser ? state.loggedUser.username : "";
         const isAuthorMe = isControlTotal || 
-            state.currentSubleader === "manuel" || 
-            authorLower === state.currentSubleader || 
-            (authorLower === "jazmín" && state.currentSubleader === "jazmin") || 
-            (authorLower === "jazmin" && state.currentSubleader === "jazmin");
+            (authorLower === myUsername) || 
+            (myUsername === "jazmin" && (authorLower === "jazmín" || authorLower === "jazmin" || authorLower === "jasmine")) || 
+            (myUsername === "tomas" && (authorLower === "tomás" || authorLower === "tomas"));
             
         const checkboxDisabledAttr = isAuthorMe ? "" : "disabled";
         const deleteButtonHTML = isAuthorMe ? 
@@ -2418,11 +2438,11 @@ function renderCloserTips(closer) {
         // Check permission: only the creator can delete (or admin Manuel)
         const authorLower = creator.toLowerCase();
         const isControlTotal = state.loggedUser && (state.loggedUser.role === "master" || state.loggedUser.role === "admin");
+        const myUsername = state.loggedUser ? state.loggedUser.username : "";
         const isAuthorMe = isControlTotal || 
-            state.currentSubleader === "manuel" || 
-            authorLower === state.currentSubleader || 
-            (authorLower === "jazmín" && state.currentSubleader === "jazmin") || 
-            (authorLower === "jazmin" && state.currentSubleader === "jazmin");
+            (authorLower === myUsername) || 
+            (myUsername === "jazmin" && (authorLower === "jazmín" || authorLower === "jazmin" || authorLower === "jasmine")) || 
+            (myUsername === "tomas" && (authorLower === "tomás" || authorLower === "tomas"));
             
         const deleteButtonHTML = isAuthorMe ? 
             `<button class="btn-delete-tip" title="Eliminar tip"><i class="fa-solid fa-trash-can"></i></button>` : '';
@@ -2468,33 +2488,53 @@ function renderCloserLogs(closer) {
         
         const authorLower = log.author.toLowerCase();
         const isControlTotal = state.loggedUser && (state.loggedUser.role === "master" || state.loggedUser.role === "admin");
+        const myUsername = state.loggedUser ? state.loggedUser.username : "";
         const isAuthorMe = isControlTotal || 
-            authorLower === state.currentSubleader || 
-            (authorLower === "jazmín" && state.currentSubleader === "jazmin") || 
-            (authorLower === "jazmin" && state.currentSubleader === "jazmin") || 
-            (authorLower === "jasmine" && state.currentSubleader === "jazmin");
+            (authorLower === myUsername) || 
+            (myUsername === "jazmin" && (authorLower === "jazmín" || authorLower === "jazmin" || authorLower === "jasmine")) || 
+            (myUsername === "tomas" && (authorLower === "tomás" || authorLower === "tomas"));
+            
         const deleteBtn = isAuthorMe ? 
             `<button class="btn-delete-task btn-delete-closer-log" data-id="${log.id}"><i class="fa-solid fa-trash-can"></i></button>` : '';
             
-        let authorId = "tomas";
-        if (authorLower === "jazmín" || authorLower === "jasmine" || authorLower === "jazmin") {
-            authorId = "jazmin";
-        } else if (authorLower === "manuel") {
-            authorId = "manuel";
-        }
+        let displayRole = "Sublíder";
+        let displayAvatarHTML = "";
+        let badgeClass = "badge-secondary";
         
-        const authorCloser = getCloserById(authorId);
-        const authorAvatarStyle = authorCloser && authorCloser.avatarUrl ? 
-            `style="background-image: url('${authorCloser.avatarUrl}'); background-size: cover; background-position: center; color: transparent;"` : '';
-        const authorAvatarHTML = authorId === "manuel" ?
-            `<div class="table-closer-avatar" style="width: 24px; height: 24px; font-size: 10px; background: linear-gradient(135deg, #f59e0b, #ec4899); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">M</div>` :
-            (authorCloser && authorCloser.avatarUrl ?
-                `<div class="table-closer-avatar" ${authorAvatarStyle} style="width: 24px; height: 24px; font-size: 10px;"></div>` :
-                `<div class="table-closer-avatar" style="width: 24px; height: 24px; font-size: 10px; background: rgba(255,255,255,0.05);">${log.author.charAt(0)}</div>`
-            );
-            
-        const badgeClass = authorId === "jazmin" ? "badge-accent" : (authorId === "manuel" ? "badge-primary" : "badge-secondary");
-        const roleLabel = authorId === "manuel" ? "Líder" : "Sublíder";
+        if (authorLower.includes("ariel")) {
+            displayRole = "Líder (Control Total)";
+            badgeClass = "badge-accent";
+            const arielCloser = getCloserById("ariel-martinelli");
+            if (arielCloser && arielCloser.avatarUrl) {
+                displayAvatarHTML = `<div class="table-closer-avatar" style="width: 24px; height: 24px; font-size: 10px; background-image: url('${arielCloser.avatarUrl}'); background-size: cover; background-position: center; color: transparent;"></div>`;
+            } else {
+                displayAvatarHTML = `<div class="table-closer-avatar" style="width: 24px; height: 24px; font-size: 10px; background: linear-gradient(135deg, #0ea5e9, #2563eb); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">A</div>`;
+            }
+        } else if (authorLower.includes("manuel")) {
+            displayRole = "Líder (Control Total)";
+            badgeClass = "badge-primary";
+            displayAvatarHTML = `<div class="table-closer-avatar" style="width: 24px; height: 24px; font-size: 10px; background: linear-gradient(135deg, #f59e0b, #ec4899); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">M</div>`;
+        } else if (authorLower.includes("jazmin") || authorLower.includes("jazmín") || authorLower.includes("jasmine")) {
+            displayRole = "Sublíder (Languages)";
+            badgeClass = "badge-accent";
+            const jazminCloser = getCloserById("jazmin");
+            if (jazminCloser && jazminCloser.avatarUrl) {
+                displayAvatarHTML = `<div class="table-closer-avatar" style="width: 24px; height: 24px; font-size: 10px; background-image: url('${jazminCloser.avatarUrl}'); background-size: cover; background-position: center; color: transparent;"></div>`;
+            } else {
+                displayAvatarHTML = `<div class="table-closer-avatar" style="width: 24px; height: 24px; font-size: 10px; background: rgba(255,255,255,0.05); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">J</div>`;
+            }
+        } else if (authorLower.includes("tomas") || authorLower.includes("tomás")) {
+            displayRole = "Sublíder (Block)";
+            badgeClass = "badge-secondary";
+            const tomasCloser = getCloserById("tomas");
+            if (tomasCloser && tomasCloser.avatarUrl) {
+                displayAvatarHTML = `<div class="table-closer-avatar" style="width: 24px; height: 24px; font-size: 10px; background-image: url('${tomasCloser.avatarUrl}'); background-size: cover; background-position: center; color: transparent;"></div>`;
+            } else {
+                displayAvatarHTML = `<div class="table-closer-avatar" style="width: 24px; height: 24px; font-size: 10px; background: rgba(255,255,255,0.05); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">T</div>`;
+            }
+        } else {
+            displayAvatarHTML = `<div class="table-closer-avatar" style="width: 24px; height: 24px; font-size: 10px; background: rgba(255,255,255,0.05); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">${log.author.charAt(0).toUpperCase()}</div>`;
+        }
         
         const linkHTML = log.link ? `
             <div style="margin-top: 8px;">
@@ -2508,9 +2548,9 @@ function renderCloserLogs(closer) {
         item.innerHTML = `
             <div class="followup-meta">
                 <div class="followup-author" style="display: flex; align-items: center; gap: 8px;">
-                    ${authorAvatarHTML}
+                    ${displayAvatarHTML}
                     <span class="badge ${badgeClass}">${log.author}</span>
-                    <span class="text-muted">${roleLabel}</span>
+                    <span class="text-muted">${displayRole}</span>
                 </div>
                 <div style="display:flex; align-items:center; gap:8px;">
                     <span class="followup-date">${formattedDate}</span>
@@ -2932,7 +2972,7 @@ function setupEventListeners() {
         const textVal = elements.taskInput.value.trim();
         if (!textVal) return;
         
-        const authorName = state.currentSubleader === "manuel" ? "Manuel" : (state.currentSubleader === "jazmin" ? "Jazmín" : "Tomás");
+        const authorName = getLoggedAuthorName();
         
         const newTask = {
             id: "t_" + Date.now(),
@@ -2966,7 +3006,7 @@ function setupEventListeners() {
         const textVal = elements.tipInput.value.trim();
         if (!textVal) return;
         
-        const authorName = state.currentSubleader === "manuel" ? "Manuel" : (state.currentSubleader === "jazmin" ? "Jazmín" : "Tomás");
+        const authorName = getLoggedAuthorName();
         
         const newTip = {
             id: "tip_" + Date.now(),
@@ -3004,7 +3044,7 @@ function setupEventListeners() {
         const closer = getCloserById(state.selectedCloserId);
         if (!closer) return;
         
-        const authorName = state.currentSubleader === "manuel" ? "Manuel" : (state.currentSubleader === "jazmin" ? "Jazmín" : "Tomás");
+        const authorName = getLoggedAuthorName();
         
         const newLog = {
             id: "log_" + Date.now(),
@@ -3037,7 +3077,7 @@ function setupEventListeners() {
         const text = elements.languagesFollowupInput.value.trim();
         if (!text) return;
         
-        const authorName = state.currentSubleader === "manuel" ? "Manuel" : (state.currentSubleader === "jazmin" ? "Jazmín" : "Tomás");
+        const authorName = getLoggedAuthorName();
         
         const newLog = {
             id: "glog_" + Date.now(),
@@ -3066,7 +3106,7 @@ function setupEventListeners() {
         const text = elements.blockFollowupInput.value.trim();
         if (!text) return;
         
-        const authorName = state.currentSubleader === "manuel" ? "Manuel" : (state.currentSubleader === "jazmin" ? "Jazmín" : "Tomás");
+        const authorName = getLoggedAuthorName();
         
         const newLog = {
             id: "glog_" + Date.now(),
@@ -3881,5 +3921,15 @@ async function syncToSupabase(table, action, record) {
         console.error(`Error syncing to Supabase [${table} - ${action}]:`, e);
         showToast(`Error Supabase [${table}]: ${e.message || e.details || JSON.stringify(e)}`);
     }
+}
+
+function getLoggedAuthorName() {
+    if (!state.loggedUser) return "Sublíder";
+    const username = state.loggedUser.username;
+    if (username === "ariel") return "Ariel";
+    if (username === "manuel") return "Manuel";
+    if (username === "jazmin") return "Jazmín";
+    if (username === "tomas") return "Tomás";
+    return state.loggedUser.name || "Sublíder";
 }
 
